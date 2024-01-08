@@ -1,0 +1,52 @@
+plugins {
+	id 'java'
+	id 'war'
+	id 'eclipse'
+	id 'org.springframework.boot' version '2.7.16'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+group = 'kr.co.kalpa'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '11'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext['junit-jupiter.version'] = '5.10.0'
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	
+	//jsp, jstl	
+	implementation "org.apache.tomcat.embed:tomcat-embed-jasper"
+	implementation 'javax.servlet:jstl'
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.6.0'
+	
+	// log4j2
+	implementation group: 'org.bgee.log4jdbc-log4j2', name: 'log4jdbc-log4j2-jdbc4.1', version: '1.16'
+	
+	// security tag lib
+	implementation group: 'org.springframework.security', name: 'spring-security-taglibs', version: '5.8.7'
+		
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
