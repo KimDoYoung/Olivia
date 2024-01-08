@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.kalpa.olivia.repository.BoardRepository">
+   <sql id="whereCondition">
+		<!--    검색조건 -->
+   		<if test="boardId != null">
+	       	AND board_id = #{boardId}
+		</if>		
+   		<if test="searchText != null">
+	       	AND concat(title, ' ', content) like concat('%',#{searchText},'%')
+		</if>
+   </sql>	
+	<select id="selectCount" parameterType="QueryAttr" resultType="Integer">
+   		SELECT 
+   			count(*) as count
+   		FROM
+   			board
+   		WHERE 1=1
+   			<include refid="whereConditon"/>	
+   </select> 
+   
+   <select id="selectList" parameterType="QueryAttr" resultType="Board">
+	   SELECT 
+	   		 board_id as boardId
+	   		,board_type as boardType
+			,title as as title
+			,content  as content
+			,view_count as viewCount
+			,start_ymd as startYmd
+			,end_ymd as endYmd
+			,status as status
+			,create_on as createOn
+			,create_by as createBy
+	   FROM 
+	   		board
+	   WHERE 1=1
+	   	<include refid="whereCondition"/>
+	   ORDER BY nm
+	   <if test="pageAttr != null">	
+	   OFFSET #{pageAttr.offset} LIMIT #{pageAttr.limit}
+	   </if>
+   </select>
+   <select id="selectOne" parameterType="Board" resultType="Board">
+	   SELECT 
+	   		 board_id as boardId
+	   		,board_type as boardType
+			,title as as title
+			,content  as content
+			,view_count as viewCount
+			,start_ymd as startYmd
+			,end_ymd as endYmd
+			,status as status
+			,create_on as createOn
+			,create_by as createBy
+	   FROM 
+	   		board
+	   WHERE 1=1
+	       	AND board_id = #{boardId}
+   </select>
+   
+   <insert id="insert" parameterType="Board">
+   INSERT INTO public.board (
+      board_id, board_type, title, content, view_count, start_ymd, end_ymd, status,  create_by
+    ) VALUES (
+      #{boardId}, #{boardType}, #{title}, #{content}, #{viewCount}, #{startYmd}, #{endYmd}, #{status},  #{createBy}
+    )
+   </insert>
+ <update id="update" parameterType="Board">
+    UPDATE public.board
+    SET
+      board_type = #{boardType},
+      title = #{title},
+      content = #{content},
+      view_count = #{viewCount},
+      start_ymd = #{startYmd},
+      end_ymd = #{endYmd},
+      status = #{status}
+    WHERE
+      board_id = #{boardId}
+  </update>   
+</mapper>

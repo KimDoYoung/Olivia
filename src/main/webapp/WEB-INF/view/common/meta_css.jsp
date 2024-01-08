@@ -10,7 +10,9 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">    
-<link rel="stylesheet" href='<c:url value="/css/julia.css" />'> 
+
+<link rel="stylesheet" href='<c:url value="/css/style.css" />'>
+
 <link rel="shortcut icon" href='<c:url value="/fbh.ico" />'>
 
 <c:set var="now" value="<%=new java.util.Date()%>" />

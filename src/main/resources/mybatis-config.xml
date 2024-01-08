@@ -9,56 +9,10 @@
   	</settings>
 	<!--mapper에서 매칭할 parmeter Type 별칭 설정-->
 	<typeAliases>
-	
-		<typeAlias type="com.freshandbetter.edi.julia.model.Condition" alias="Condition"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.EdiUser" alias="EdiUser"/>
-		<!-- codes -->
-		<typeAlias type="com.freshandbetter.edi.julia.model.codes.Company" alias="Company"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.codes.EdiCode" alias="EdiCode"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.codes.Stocks" alias="Stocks"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.codes.WeekOfYear" alias="WeekOfYear"/>
-		<!-- view -->
-		<typeAlias type="com.freshandbetter.edi.julia.model.view.Edi210" alias="Edi210"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.view.Edi810" alias="Edi810"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.view.Edi850" alias="Edi850"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.view.Edi945" alias="Edi945"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.view.EdiAging" alias="EdiAging"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.view.Edi820" alias="Edi820"/>
-		
-		<!-- edidoc -->
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Freight210" alias="Freight210"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Inquiry846" alias="Inquiry846"/>
-		
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Inquiry846Dtl" alias="Inquiry846Dtl"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Invoice810" alias="Invoice810"/>
-		
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Po850" alias="Po850"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Po850Dtl" alias="Po850Dtl"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Po850Allowance" alias="Po850Allowance"/>
-		
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Shipping945" alias="Shipping945"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Shipping945Dtl" alias="Shipping945Dtl"/>
-		
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.ShippingOrder940" alias="ShippingOrder940"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.ShippingOrder940Dtl" alias="ShippingOrder940Dtl"/>
-
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Transfer944" alias="Transfer944"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Transfer944Dtl" alias="Transfer944Dtl"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.edidoc.Transfer944Dtl" alias="Transfer944Dtl"/>
-		
-		<!-- biz -->
-		<typeAlias type="com.freshandbetter.edi.julia.model.biz.Edi850945Diff" alias="Edi850945Diff"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.biz.EdiPoTrace" alias="EdiPoTrace"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.biz.InventorySummary" alias="InventorySummary"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.biz.DcList" alias="DcList"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.biz.WoyOnOffList" alias="WoyOnOffList"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.biz.InventoryByLot" alias="InventoryByLot"/>
-		
-		<!-- 통계 -->
-		<typeAlias type="com.freshandbetter.edi.julia.model.statistic.EdiSpecCount" alias="EdiSpecCount"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.statistic.SalesTable" alias="SalesTable"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.statistic.Sales" alias="Sales"/>
-		<typeAlias type="com.freshandbetter.edi.julia.model.statistic.Trend" alias="Trend"/>
+		<typeAlias type="kr.co.kalpa.olivia.model.QueryAttr" alias="QueryAttr"/>
+		<typeAlias type="kr.co.kalpa.olivia.model.PageAttr" alias="PageAttr"/>
+		<!-- Board -->
+		<typeAlias type="kr.co.kalpa.olivia.model.board.Board" alias="Board"/>
 	</typeAliases>
 	
 </configuration>

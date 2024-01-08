@@ -41,11 +41,16 @@ select * from public.file_box fb ;
 drop table if exists public.board;
 CREATE table if not exists public.board(
 	board_id int NOT NULL,
+	board_type char(1) not null default '1', /** 9: 공지, 1: 일반게시물*/ 
 	title varchar(200) not null,
 	content text not null,
+	view_count int NOT NULL DEFAULT 0,
+	start_ymd varchar(8) not null default  TO_CHAR(NOW(), 'YYYYMMDD'), /*게시시작일*/
+	end_ymd varchar(8) not null default '99991231', /*게시종료일*/
+	status char(1) not null default '0', /* 0: 작성중, 1:게시 */
 	create_on timestamp not null default current_timestamp,
 	create_by varchar(30) null,	
-	CONSTRAINT pk_board PRIMARY KEY (board_id)
+	CONSTRAINT pk_board1 PRIMARY KEY (board_id)
 );
 
 drop table if exists public.board_file_match;
@@ -69,3 +74,17 @@ CREATE table if not exists public.board_file (
 	create_by varchar(30) null,
 	CONSTRAINT pk_board_file PRIMARY KEY (board_file_id)
 );
+
+DROP TABLE IF EXISTS public.board_tag_match;
+CREATE table if not exists public.board_tag_match (
+	board_file_id int NOT NULL,
+	tag_id int NOT NULL,
+	CONSTRAINT pk_board_tag_match PRIMARY KEY (board_file_id, tag_id)
+);
+DROP TABLE IF EXISTS public.board_tag;
+CREATE table if not exists public.board_tag (
+	tag_id int NOT NULL,
+	name varchar(100) NOT NULL,
+	CONSTRAINT pk_board_tag PRIMARY KEY (tag_id)
+);
+
