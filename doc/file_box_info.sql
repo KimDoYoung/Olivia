@@ -90,6 +90,13 @@ CREATE table if not exists public.board_tag (
 	CONSTRAINT pk_board_tag PRIMARY KEY (tag_id)
 );
 
+select * from public.board_tag;
+select * from public.board_tag_match ;
+select * from public.board_file ;
+select * from public.board_file_match ;
+select * from public.board ;
+ 
+
 delete from public.board_tag;
 delete from public.board_tag_match ;
 delete from public.board_file ;
