@@ -3,6 +3,14 @@
 <mapper namespace="kr.co.kalpa.olivia.repository.BoardRepository">
    <sql id="whereCondition">
 		<!--    검색조건 -->
+   		<if test="status != null">
+	       	AND status = #{status}
+		</if>		
+
+   		<if test="dateRangeCheck">
+	       	AND TO_CHAR(CURRENT_DATE, 'YYYYMMDD') between #{startYmd} and #{endYmd}
+		</if>		
+		
    		<if test="boardId != null">
 	       	AND board_id = #{boardId}
 		</if>		
@@ -16,15 +24,34 @@
    		FROM
    			board
    		WHERE 1=1
-   			<include refid="whereConditon"/>	
+   			<include refid="whereCondition"/>	
    </select> 
-   
+   <select id="selectBoardOne" parameterType="Board" resultType="Board">
+   	select 
+	   		 board_id as boardId
+	   		,board_type as boardType
+			,title as title
+			,content  as content
+			,view_count as viewCount
+			,start_ymd as startYmd
+			,end_ymd as endYmd
+			,status as status
+			,create_on as createOn
+			,create_by as createBy   		
+   	from 
+   		board
+   	where 
+   		board_id = ${boardId}
+   </select>
    <select id="selectList" parameterType="QueryAttr" resultType="Board">
+   	   /** 게시판의 리스트 조회*/
 	   SELECT 
 	   		 board_id as boardId
 	   		,board_type as boardType
-			,title as as title
+			,title as title
+			<if test="includeContent">
 			,content  as content
+			</if>
 			,view_count as viewCount
 			,start_ymd as startYmd
 			,end_ymd as endYmd
@@ -35,12 +62,13 @@
 	   		board
 	   WHERE 1=1
 	   	<include refid="whereCondition"/>
-	   ORDER BY nm
+	   ORDER BY boardId desc
 	   <if test="pageAttr != null">	
 	   OFFSET #{pageAttr.offset} LIMIT #{pageAttr.limit}
 	   </if>
    </select>
    <select id="selectOne" parameterType="Board" resultType="Board">
+   		/** 게시판의 1개 조회*/
 	   SELECT 
 	   		 board_id as boardId
 	   		,board_type as boardType
@@ -59,13 +87,15 @@
    </select>
    
    <insert id="insert" parameterType="Board">
+   /** 게시판 추가*/
    INSERT INTO public.board (
       board_id, board_type, title, content, view_count, start_ymd, end_ymd, status,  create_by
     ) VALUES (
-      #{boardId}, #{boardType}, #{title}, #{content}, #{viewCount}, #{startYmd}, #{endYmd}, #{status},  #{createBy}
+      #{boardId}, #{boardType}, #{title}, #{content}, #{viewCount}, replace(#{startYmd},'-',''), replace(#{endYmd},'-',''), COALESCE(#{status},'0'),  #{createBy}
     )
    </insert>
  <update id="update" parameterType="Board">
+ 	/** 게시판 update*/
     UPDATE public.board
     SET
       board_type = #{boardType},
@@ -77,5 +107,52 @@
       status = #{status}
     WHERE
       board_id = #{boardId}
-  </update>   
+  </update>  
+  
+  <select id="getSequence" parameterType="Board" resultType="Integer">
+    /** 채번 */
+  	select nextval('sys_seq')
+  </select>
+  <insert id="insertBoardTag" parameterType="BoardTag" >
+    /** 게시판 태그 추가 */
+	INSERT INTO public.board_tag
+		(tag_id, "name")
+	VALUES
+		(#{tagId}, #{name});
+  </insert>
+  <insert id="insertBoardFile" parameterType="BoardFile">
+  	/** 게시판 첨부파일  추가 */
+  	INSERT INTO public.board_file
+	(board_file_id, phy_folder, phy_name, org_name, mime_type, file_size, ext, note, create_on, create_by)
+	VALUES
+	(#{boardFileId}, #{phyFolder},  #{phyName}, #{orgName}, #{mimeType}, #{fileSize}, #{ext}, #{note}, CURRENT_TIMESTAMP, #{createBy});
+  
+  </insert>
+  <insert id="insertBoardFileMatch" parameterType="BoardFileMatch">
+  	INSERT INTO public.board_file_match
+	(board_id, board_file_id, seq, deleted_yn )
+	VALUES
+	(#{boardId}, #{boardFileId}, #{seq}, #{deletedYn})
+  
+  </insert>
+  <insert id="insertBoardTagMatch" parameterType="BoardTagMatch">
+  	INSERT INTO public.board_tag_match
+	(board_id, tag_id)
+	VALUES
+	(#{boardId}, #{tagId});
+  
+  </insert>
+  <select id="selectOneTag" parameterType="BoardTag" resultType="BoardTag">
+  	select 
+  		tag_id as tagId, 
+  		name 
+  	from public.board_tag 
+  	where 1=1
+  	<if test="name != null">
+  		and name = #{name}
+  	</if>
+  	<if test="tagId != null">
+  		tag_id = #{tagId}
+  	</if>	
+  </select>
 </mapper>

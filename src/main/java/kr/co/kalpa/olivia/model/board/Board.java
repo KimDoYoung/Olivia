@@ -1,6 +1,7 @@
 package kr.co.kalpa.olivia.model.board;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -16,4 +17,11 @@ public class Board {
 	private String status;
 	private Date createOn;
 	private String createBy;
+	
+	//첨부된 파일들
+	private List<BoardFile> fileList;
+	
+	//관련 태그들
+	private List<BoardTag> tagList;
+
 }

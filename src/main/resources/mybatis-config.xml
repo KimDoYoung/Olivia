@@ -13,6 +13,10 @@
 		<typeAlias type="kr.co.kalpa.olivia.model.PageAttr" alias="PageAttr"/>
 		<!-- Board -->
 		<typeAlias type="kr.co.kalpa.olivia.model.board.Board" alias="Board"/>
+		<typeAlias type="kr.co.kalpa.olivia.model.board.BoardFile" alias="BoardFile"/>
+		<typeAlias type="kr.co.kalpa.olivia.model.board.BoardFileMatch" alias="BoardFileMatch"/>
+		<typeAlias type="kr.co.kalpa.olivia.model.board.BoardTag" alias="BoardTag"/>
+		<typeAlias type="kr.co.kalpa.olivia.model.board.BoardTagMatch" alias="BoardTagMatch"/>
 	</typeAliases>
 	
 </configuration>

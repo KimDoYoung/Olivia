@@ -58,12 +58,14 @@ CREATE table if not exists public.board_file_match(
 	board_id int NOT NULL,
 	board_file_id int not null,
 	seq int not null,
+	deleted_yn char(1) not null default 'N',
 	CONSTRAINT pk_file_match PRIMARY KEY (board_id, board_file_id)
 );
 
 drop table if exists public.board_file;
 CREATE table if not exists public.board_file (
 	board_file_id int NOT NULL,
+	phy_folder varchar(500) not null,
 	phy_name varchar(300) NOT NULL,
 	org_name varchar(200) not NULL,
 	mime_type varchar(100) NULL,
@@ -77,14 +79,22 @@ CREATE table if not exists public.board_file (
 
 DROP TABLE IF EXISTS public.board_tag_match;
 CREATE table if not exists public.board_tag_match (
-	board_file_id int NOT NULL,
+	board_id int NOT NULL,
 	tag_id int NOT NULL,
-	CONSTRAINT pk_board_tag_match PRIMARY KEY (board_file_id, tag_id)
+	CONSTRAINT pk_board_tag_match PRIMARY KEY (board_id, tag_id)
 );
 DROP TABLE IF EXISTS public.board_tag;
 CREATE table if not exists public.board_tag (
 	tag_id int NOT NULL,
-	name varchar(100) NOT NULL,
+	name varchar(100) NOT null  CONSTRAINT tag_must_1 UNIQUE,
 	CONSTRAINT pk_board_tag PRIMARY KEY (tag_id)
 );
 
+delete from public.board_tag;
+delete from public.board_tag_match ;
+delete from public.board_file ;
+delete from public.board_file_match ;
+delete from public.board ;
+
+
+INSERT INTO public.board_file_match (board_id, board_file_id, seq, deleted_yn ) VALUES (12, 13, 1, 'N');

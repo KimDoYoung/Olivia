@@ -23,18 +23,18 @@
   <form id="form1" action="/board/insert" method="post"  enctype="multipart/form-data">
     <div class="mb-3">
       <label for="title" class="form-label fw-bold">제목</label>
-      <input type="text" class="form-control" id="title" name="title"  required>
+      <input type="text" class="form-control" id="title" name="title" value="${board.title }" required>
     </div>
     
     <!-- Quill.js를 사용한 HTML 편집기 -->
     <div class="mb-3">
         <label for="contentQuill" class="form-label fw-bold">내용</label>
-        <div id="editor" style="height: 300px;"></div>
-    	<input type="hidden" id="content" name="content" />
+        <div id="editor" style="height: 300px;"><c:out value="${board.content }"/></div>
+	    <input type="hidden" id="content" name="content" />
       </div>
     <div class="mb-3">
       <label for="tags" class="form-label fw-bold">태그</label>
-      <input type="text" class="form-control" id="tags" name="tags" >
+      <input type="text" class="form-control" id="tags" name="tags" value="${tags }" >
     </div>    
     <div class="mb-3">
         <label for="boardType" class="form-label fw-bold">게시판 유형</label>
