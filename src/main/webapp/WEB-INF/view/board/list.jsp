@@ -23,6 +23,8 @@
 	    <tr>
 	      <th scope="col" class="text-center" style="width:50px">No</th>
 	      <th scope="col">제목</th>
+	      <th scope="col">작성일</th>
+	      <th scope="col">첨부파일</th>
 	      <th scope="col">수정</th>
 	    </tr>
 	  </thead>
@@ -30,7 +32,9 @@
 	  	<c:forEach var="board" items="${list}" varStatus="status">
 		    <tr class="align-middle">
 		      <td scope="row" class="text-center fw-bold">${status.count }</td>
-		      <td>${board.title}</td>
+		      <td><a href="/board/view/${board.boardId}">${board.title}</a></td>
+		      <td>${board.createOn}</td>
+		      <td>${board.attachedFileCount}</td>
 		      <td><a href="#" class="btnUpdate" data-board-id="${board.boardId }"><i class="bi bi-pencil"></i></a></td>
 		    </tr>
 	    </c:forEach>

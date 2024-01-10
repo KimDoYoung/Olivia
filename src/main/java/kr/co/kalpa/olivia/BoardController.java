@@ -11,8 +11,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,7 +53,7 @@ public class BoardController{
 		queryAttr.put("status", "1");
 		queryAttr.put("dateRangeCheck", true);
 		
-		List<Board> list=boardService.selectList(null);
+		List<Board> list=boardService.selectList(queryAttr);
 		model.addAttribute("list", list);
 		return "board/list";
 	}
@@ -71,7 +74,7 @@ public class BoardController{
 	@PostMapping("insert")
 	public String insert(@ModelAttribute("board")Board board, 
 			@RequestPart("files") List<MultipartFile> files,
-			@RequestPart("tags") String tags
+			@RequestParam(name="tags", required=false) String tags
 	) throws BoardException {
 
 		board.setFileList(new ArrayList<BoardFile>());
@@ -100,15 +103,68 @@ public class BoardController{
 	@GetMapping("update")
 	public String updatePage(Integer boardId, Model model) throws BoardException {
 		Board board = boardService.selectBoardOne(boardId);
-//		List<BoardTag> tagList = boardService.selectTagList(boardId);
 		if(board == null) {
 			throw new BoardException("board id : " + boardId + " is not exist");
-		}
+		}		
+		String startYmd = board.getStartYmd();
+		String endYmd = board.getEndYmd();
+		board.setStartYmd(CommonUtil.displayYmd(startYmd));
+		board.setEndYmd(CommonUtil.displayYmd(endYmd));
 		model.addAttribute("board", board );
-//		model.addAttribute("tags", CommonUtil.listToString(board.getTagList()) );
-		return "board/insert_form";
+		
+		return "board/update_form";
 	}	
+	@PostMapping("update")
+	public String update(
+			@ModelAttribute("board") Board board, 
+			@RequestParam(name="deletefiles", required=false) Integer[] deleteFiles, 
+			@RequestPart("files") List<MultipartFile> files,
+			@RequestParam(name="tags", required=false) String tags,			
+			Model model
+			) throws BoardException {
+		log.debug("board:{}",board);
+		log.debug("tags:{}",tags);
+		log.debug("deleteFiles:{}", deleteFiles);
+		
+		board.setFileList(new ArrayList<BoardFile>());
+		board.setTagList(new ArrayList<BoardTag>());
+		
+		//file를 옮기고 fileList를 채운다.
+		for (MultipartFile file : files) {
+			if (!file.isEmpty()) {
+				BoardFile boardFile = toBoardFile(file);
+				board.getFileList().add(boardFile);
+			}
+		}
+		//tagList를 넣는다.
+		List<String> list = CommonUtil.toListFromString(tags);
+		for (String name : list) {
+			BoardTag tag = new BoardTag();
+			tag.setName(name);
+			board.getTagList().add( tag  );
+		}
+		
+		//board update
+		int i = boardService.update(board, deleteFiles);	
+		
+		return "redirect:/board";
+	}
 	
+	@PostMapping("delete")
+	public String delete(@RequestParam("boardId") Integer boardId) {
+		
+		int i = boardService.delete(boardId);
+		
+		return "redirect:/board";
+	}
+	
+	@GetMapping("view/{boardId}")
+	public String viewPage(@PathVariable Integer boardId, Model model) throws BoardException {
+		Board board = boardService.selectBoardOne(boardId);
+		model.addAttribute("board", board);
+		return "/board/view";
+	}
+
 	
 	private BoardFile toBoardFile(MultipartFile file) throws BoardException {
 		BoardFile boardFile = new BoardFile();

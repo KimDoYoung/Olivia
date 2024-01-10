@@ -22,6 +22,21 @@
   
   <form id="form1" action="/board/insert" method="post"  enctype="multipart/form-data">
     <div class="mb-3">
+        <label for="boardType" class="form-label fw-bold">게시판 유형</label>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="boardType" id="notice" value="9" >
+          <label class="form-check-label" for="notice">
+            공지
+          </label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="boardType" id="general" value="1" checked>
+          <label class="form-check-label" for="general">
+            일반게시물
+          </label>
+        </div>
+      </div>  
+    <div class="mb-3">
       <label for="title" class="form-label fw-bold">제목</label>
       <input type="text" class="form-control" id="title" name="title"  required>
     </div>
@@ -36,21 +51,7 @@
       <label for="tags" class="form-label fw-bold">태그</label>
       <input type="text" class="form-control" id="tags" name="tags" >
     </div>    
-    <div class="mb-3">
-        <label for="boardType" class="form-label fw-bold">게시판 유형</label>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="boardType" id="notice" value="9" >
-          <label class="form-check-label" for="notice">
-            공지
-          </label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="boardType" id="general" value="1" checked>
-          <label class="form-check-label" for="general">
-            일반게시물
-          </label>
-        </div>
-      </div>
+
     
     <!-- 게시 시작일과 종료일 -->
     <div class="row">
@@ -76,6 +77,7 @@
           
     <input type="hidden" name="viewCount" value="0"/>
     <button type="submit" class="btn btn-primary">글쓰기</button>
+    <a href="/board" role="button" class="btnGoList btn btn-warning">취소, 리스트로 돌아가기</a>
   </form>
 </main>
 <!-- =================================================== -->

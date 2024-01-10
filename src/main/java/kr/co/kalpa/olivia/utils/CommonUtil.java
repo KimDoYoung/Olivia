@@ -90,5 +90,14 @@ public class CommonUtil {
 		return today("yyyy-MM-dd");
 	}
 
+	public static String displayYmd(String s) {
+		if(s == null) return s;
+		String y = s.replaceAll("\\D", "");
+		if(y.length() == 8) {
+			return y.substring(0,4) + "-" + y.substring(4,6) + "-" + y.substring(6);
+		}
+		return s;
+	}
+
 
 }

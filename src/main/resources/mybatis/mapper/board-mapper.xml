@@ -8,7 +8,7 @@
 		</if>		
 
    		<if test="dateRangeCheck">
-	       	AND TO_CHAR(CURRENT_DATE, 'YYYYMMDD') between #{startYmd} and #{endYmd}
+	       	AND TO_CHAR(CURRENT_DATE, 'YYYYMMDD') between start_ymd and end_ymd
 		</if>		
 		
    		<if test="boardId != null">
@@ -58,8 +58,13 @@
 			,status as status
 			,create_on as createOn
 			,create_by as createBy
+			,(
+				select count(*) 
+				from board_file_match  
+				where board_id  = A.board_id
+			) AS attached_file_count
 	   FROM 
-	   		board
+	   		board A
 	   WHERE 1=1
 	   	<include refid="whereCondition"/>
 	   ORDER BY boardId desc
@@ -102,12 +107,15 @@
       title = #{title},
       content = #{content},
       view_count = #{viewCount},
-      start_ymd = #{startYmd},
-      end_ymd = #{endYmd},
-      status = #{status}
+      start_ymd = replace(#{startYmd},'-',''),
+      end_ymd = replace(#{endYmd},'-',''),
+      status = COALESCE(#{status},'0')
     WHERE
       board_id = #{boardId}
   </update>  
+  <delete id="delete" parameterType="Integer">
+  	delete from board where board_id = ${value}
+  </delete>
   
   <select id="getSequence" parameterType="Board" resultType="Integer">
     /** 채번 */
@@ -143,6 +151,7 @@
   
   </insert>
   <select id="selectOneTag" parameterType="BoardTag" resultType="BoardTag">
+    /* 1개의 boardTag 조회*/
   	select 
   		tag_id as tagId, 
   		name 
@@ -155,4 +164,60 @@
   		tag_id = #{tagId}
   	</if>	
   </select>
+
+  <select id="selectTagList" parameterType="Integer" resultType="BoardTag">
+	/* board_id로 tag들 리스트 조회*/
+	select 
+	 B.tag_id as tagId
+	 ,B.name as name
+	from 
+		board_tag_match A
+		inner join board_tag B on A.tag_id  = B.tag_id 
+	where
+		A.board_id  = #{value}	  	
+  </select>
+  
+  <select id="selectFileList"  parameterType="Integer" resultType="BoardFile">
+	/** board_id에 소속된 BoardFile을 조회*/
+	select 
+		  B.board_file_id AS boardFileId 
+		, B.phy_folder    AS phyFolder   
+		, B.phy_name      AS phyName     
+		, B.org_name      AS orgName     
+		, B.mime_type     AS mimeType    
+		, B.file_size     AS fileSize    
+		, B.ext           AS ext         
+		, B.note          AS note        
+		, B.create_on     AS createOn    
+		, B.create_by     AS createBy
+	from 
+		board_file_match A 
+		inner join board_file B on A.board_file_id  = B.board_file_id 
+	where 1=1
+		and A.board_id  = #{value}
+	order by A.seq   
+  </select>
+  <delete id="deleteBoardFileMatch" parameterType="Integer">
+  	/** board_file_match에서 file_id로 삭제*/
+  	delete from 
+  		board_file_match 
+  	where 
+  		board_file_id = #{value}
+  </delete>
+  <delete id="deleteBoardTagMatch" parameterType="Integer">
+  	/** board_tag_match에서 board_id로 삭제*/
+  	delete from 
+  		board_tag_match 
+  	where 
+  		board_id = #{value}
+  </delete>
+  
+  <delete id="deleteBoardFileMatchWithBoardId" parameterType="Integer">
+  	/* board_file_match 를 board_id로 삭제 */
+  	delete from board_file_match where board_id = #{value}
+  </delete>
+  <delete id="deleteBoardTagMatchWithBoardId" parameterType="Integer">
+  	/* board_tag_match 를 board_id로 삭제 */
+  	delete from board_tag_match where board_id = #{value}
+  </delete>
 </mapper>

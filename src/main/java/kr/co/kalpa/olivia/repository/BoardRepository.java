@@ -25,4 +25,24 @@ public interface BoardRepository {
 	void insertBoardTagMatch(BoardTagMatch boardTagMatch);
 	BoardTag selectOneTag(BoardTag tag);
 	Board selectBoardOne(Board board);
+	
+	// boardId에 해당하는 tag들 조회
+	List<BoardTag> selectTagList(Integer boardId);
+	
+	// board_id에 소속된 BoardFile을 조회
+	List<BoardFile> selectFileList(Integer boardId);
+	
+	//board_file_match에서 boardFileId로 삭제한다
+	void deleteBoardFileMatch(Integer boardFileId);
+	
+	//board_tag_match에서 board_id로 모두 지운다.
+	void deleteBoardTagMatch(Integer boardId);
+	
+	//board update
+	int update(Board board);
+	
+	//board delete
+	int delete(Integer board);
+	void deleteBoardFileMatchWithBoardId(Integer boardId);
+	void deleteBoardTagMatchWithBoardId(Integer boardId);
 }
