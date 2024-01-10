@@ -17,17 +17,28 @@ drop table if exists public.file_info;
 CREATE table if not exists public.file_info (
 	file_info_id int NOT NULL,
 	box_id int NOT NULL,
+	phy_folder varchar(300) NOT NULL,
 	phy_name varchar(300) NOT NULL,
 	org_name varchar(300) not NULL,
 	mime_type varchar(100) NULL,
 	file_size int4 NULL,
 	ext varchar(50) NULL,
 	note varchar(1000) NULL,
+	width int4 null,
+	height int4 null,
 	create_on timestamp not null default current_timestamp,
 	create_by varchar(30) null,
 	CONSTRAINT pk_file_info PRIMARY KEY (file_info_id),
 	constraint fk_box_id  foreign key(box_id) REFERENCES file_box(box_id) ON DELETE RESTRICT
 );
+-- file_match
+drop table if exists public.file_match;
+CREATE table if not exists public.file_match(
+	box_id int4 NOT NULL,
+	file_info_id int4 NOT NULL,
+	CONSTRAINT pk_board PRIMARY KEY (box_id,file_info_id)
+);
+
 
 insert into public.file_box (box_id, name, parent_id) values(nextval('sys_seq'),'ROOT',0);
 select * from public.file_box fb ;
