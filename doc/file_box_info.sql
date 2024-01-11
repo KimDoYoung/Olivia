@@ -3,7 +3,7 @@ CREATE SEQUENCE sys_seq START 1;
 -- directory에 해당한다
 drop table if exists public.file_box;
 create table if not exists public.file_box (
-	box_id int not null,
+	box_id serial not null,
 	parent_id int not null,
 	name varchar(300) not null,
 	note varchar(1000) null,
@@ -15,8 +15,8 @@ create table if not exists public.file_box (
 -- file_info
 drop table if exists public.file_info;
 CREATE table if not exists public.file_info (
-	file_info_id int NOT NULL,
-	box_id int NOT NULL,
+	file_info_id serial NOT NULL,
+	box_id int4 NOT NULL,
 	phy_folder varchar(300) NOT NULL,
 	phy_name varchar(300) NOT NULL,
 	org_name varchar(300) not NULL,
@@ -39,8 +39,12 @@ CREATE table if not exists public.file_match(
 	CONSTRAINT pk_board PRIMARY KEY (box_id,file_info_id)
 );
 
+select * from file_box;
+select * from file_info ;
+select * from file_match ;
 
-insert into public.file_box (box_id, name, parent_id) values(nextval('sys_seq'),'ROOT',0);
+insert into public.file_box ( name, parent_id, note,create_by) values('ROOT',0, 'ROOT', 'System');
+
 select * from public.file_box fb ;
 insert into public.file_box (name,parent_id) values('해외영업부',1);
 insert into public.file_box (name,parent_id) values('개발부',1);
