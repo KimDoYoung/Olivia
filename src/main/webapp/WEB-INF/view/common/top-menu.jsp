@@ -21,8 +21,17 @@ header.sticky {
 	          <a class="nav-link text-white" aria-current="page" href="/board" >Board</a>
 	        </li>
 	        <li class="nav-item">
-	          <a class="nav-link text-white" aria-current="page" href="/file-box">File-Box</a>
+	          <a class="nav-link text-white" aria-current="page" href="/filebox">File-Box</a>
 	        </li>
+	       </ul>
 	     </div>
+         <div  class="d-flex">
+			<sec:authorize access="isAuthenticated()">
+		       <span class="text-warning fw-bold"><sec:authentication property="principal.userId"/>님 반갑습니다.</span>&nbsp;&nbsp;
+		    </sec:authorize>
+		    <a href="/logout" title="log out"><i class="bi bi-box-arrow-right"></i></a>
+	     
+	  </div> 
+	  </div>
  </nav>
 </header>

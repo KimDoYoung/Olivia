@@ -87,11 +87,33 @@
 <script>
 $( document ).ready(function() {
 	console.log('board list');
+	var toolbarOptions = [
+		  ['clean'],
+		  ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+		  ['blockquote', 'code-block'],
+
+		//  [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+		  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+		 // [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+		  [{ 'indent': '-1'}, { 'indent': '+1' }, { 'align': [] }],          // outdent/indent
+		  //[{ 'direction': 'rtl' }],                         // text direction
+
+		  [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+		  //[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+		  [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+		  [{ 'font': [] }],
+		  [{ 'align': [] }],
+		  [ 'link', 'image' ]                               // remove formatting button
+		];
 	
     // Quill.js 초기화
     var quill = new Quill('#editor', {
-        theme: 'snow'
-    });
+    	  modules: {
+    		    toolbar: toolbarOptions
+    		  },
+    		  placeholder: '내용을 입력해 주십시오.',
+    		  theme: 'snow'
+    	});
 	//작성중->게시로
     $("#switchStatus").change(function () {
         // 스위치가 on 상태인 경우

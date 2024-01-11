@@ -9,7 +9,7 @@
 1. 게시판
 2. 파일첨부기능
 3. 태그 기능
-4. html editor quill 사용
+4. html editor [quill](https://quilljs.com/) 사용
 
 ### board todo
 

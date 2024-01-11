@@ -18,7 +18,7 @@
 <!-- =================================================== -->
 <main class="container">
 	<button id="btnInsertPage">추가</button>
-	<table class="table table-sm table-hover mt-3 userTable" style="font-size:small">
+	<table class="table table-sm table-hover mt-3 userTable font-size-small">
 	  <thead class="table-light">
 	    <tr>
 	      <th scope="col" class="text-center" style="width:50px">No</th>
