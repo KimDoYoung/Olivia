@@ -2,6 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.kalpa.olivia.repository.FileboxRepository">
    <insert id="addFolder" parameterType="Filebox">
-    
+    /* add folder */
+	INSERT INTO public.file_box
+	(box_id, parent_id, folder_nm, note, create_on, create_by)
+	VALUES
+	(nextval('file_box_box_id_seq'::regclass), #{parentId}, #{folderNm}, #{note}, CURRENT_TIMESTAMP, #{createBy})    
    </insert>
+   
+   <select id="subFolderList" parameterType="Integer" resultType="Filebox">
+	/** subFolderList : parentid 로  폴더 리스트 조회*/
+	select
+		 box_id    AS boxId    
+		,parent_id AS parentId 
+		,folder_nm AS folderNm 
+		,note      AS note     
+		,create_on AS createOn 
+		,create_by AS createBy
+	from
+		public.file_box
+	where
+		parent_id = ${value}
+	order by 
+		box_id	
+   </select>
 </mapper>

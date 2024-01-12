@@ -8,7 +8,7 @@ import lombok.Data;
 public class Filebox {
 	private Integer boxId;
 	private Integer parentId;
-	private String name;
+	private String folderNm;
 	private String note;
 	private Date createOn;
 	private String createBy;

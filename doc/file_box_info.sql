@@ -5,11 +5,12 @@ drop table if exists public.file_box;
 create table if not exists public.file_box (
 	box_id serial not null,
 	parent_id int not null,
-	name varchar(300) not null,
+	folder_nm varchar(300) not null,
 	note varchar(1000) null,
 	create_on timestamp not null default current_timestamp,
 	create_by varchar(30) null,
-	constraint pk_file_box primary key(box_id)
+	constraint pk_file_box primary key(box_id),
+	CONSTRAINT unique_parent_id_name UNIQUE (parent_id, folder_nm)
 );
 
 -- file_info
@@ -39,15 +40,16 @@ CREATE table if not exists public.file_match(
 	CONSTRAINT pk_board PRIMARY KEY (box_id,file_info_id)
 );
 
+
 select * from file_box;
 select * from file_info ;
 select * from file_match ;
 
-insert into public.file_box ( name, parent_id, note,create_by) values('ROOT',0, 'ROOT', 'System');
+insert into public.file_box ( folder_nm, parent_id, note,create_by) values('ROOT',0, 'ROOT', 'System');
 
 select * from public.file_box fb ;
-insert into public.file_box (name,parent_id) values('해외영업부',1);
-insert into public.file_box (name,parent_id) values('개발부',1);
+insert into public.file_box (folder_nm,parent_id) values('해외영업부',1);
+insert into public.file_box (folder_nm,parent_id) values('개발부',1);
 select * from public.file_box fb ;
 
 
@@ -90,6 +92,7 @@ CREATE table if not exists public.board_file (
 	create_on timestamp not null default current_timestamp,
 	create_by varchar(30) null,
 	CONSTRAINT pk_board_file PRIMARY KEY (board_file_id)
+	
 );
 
 DROP TABLE IF EXISTS public.board_tag_match;
