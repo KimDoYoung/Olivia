@@ -19,12 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AjaxJspInterceptor implements HandlerInterceptor  {
 	
+	public final static String Attr_Is_Ajax = "IS_AJAX__"; 
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
 		log.debug("---------------------------------------------");
 		log.debug("AjaxJsp Interceptor preHandler");
 		log.debug("---------------------------------------------");
+		request.setAttribute(Attr_Is_Ajax, false);
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             
@@ -33,10 +35,11 @@ public class AjaxJspInterceptor implements HandlerInterceptor  {
             // Ajax 호출 여부 확인
             if (isAjaxRequest(request)) {
                 // Ajax 호출일 경우, JSON 응답으로 변경
-                response.setContentType("application/json;charset=UTF-8");
+                //response.setContentType("application/json;charset=UTF-8");
+            	request.setAttribute(Attr_Is_Ajax, true);
             } else {
                 // 그 외의 경우, JSP 응답으로 변경
-                response.setContentType("text/html;charset=UTF-8");
+                //response.setContentType("text/html;charset=UTF-8");
             }
         }
 
@@ -50,20 +53,23 @@ public class AjaxJspInterceptor implements HandlerInterceptor  {
 		log.debug("AjaxJsp Interceptor postHandler");
 		log.debug("---------------------------------------------");
     	
-        if (modelAndView != null && !response.isCommitted()) {
-            // 모델이 존재하면서 응답이 커밋되지 않은 경우
-            if (isAjaxRequest(request)) {
-                // Ajax 호출일 경우, 모델 데이터를 JSON으로 변환하여 응답
-                response.getWriter().write(convertModelToJson(modelAndView.getModel()));
-                response.getWriter().flush();
-            } else {
-                // 그 외의 경우, Controller에서 반환한 뷰의 이름을 설정
-                String viewName = modelAndView.getViewName();
-                if (viewName != null) {
-                    modelAndView.setViewName(viewName);
-                }
-            }
-        }
+//        if (modelAndView != null && !response.isCommitted()) {
+//            // 모델이 존재하면서 응답이 커밋되지 않은 경우
+//        	boolean isAjax = (boolean) request.getAttribute(Attr_Is_Ajax);
+//            if (isAjax) {
+//                // Ajax 호출일 경우, 모델 데이터를 JSON으로 변환하여 응답
+//            	response.setContentType("application/json;charset=UTF-8");
+//                response.getWriter().write(convertModelToJson(modelAndView.getModel()));
+//                response.getWriter().flush();
+//                response.getWriter().close();
+//            } else {
+//                // 그 외의 경우, Controller에서 반환한 뷰의 이름을 설정
+//                String viewName = modelAndView.getViewName();
+//                if (viewName != null) {
+//                    modelAndView.setViewName(viewName);
+//                }
+//            }
+//        }
     }
 
     @Override

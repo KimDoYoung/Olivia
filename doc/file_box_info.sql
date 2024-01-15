@@ -27,6 +27,7 @@ CREATE table if not exists public.file_info (
 	note varchar(1000) NULL,
 	width int4 null,
 	height int4 null,
+	status char(1) null, -- 'D' :  deleted 
 	create_on timestamp not null default current_timestamp,
 	create_by varchar(30) null,
 	CONSTRAINT pk_file_info PRIMARY KEY (file_info_id),
@@ -41,11 +42,7 @@ CREATE table if not exists public.file_match(
 );
 
 
-select * from file_box;
-select * from file_info ;
-select * from file_match ;
 
-insert into public.file_box ( folder_nm, parent_id, note,create_by) values('ROOT',0, 'ROOT', 'System');
 
 select * from public.file_box fb ;
 insert into public.file_box (folder_nm,parent_id) values('해외영업부',1);

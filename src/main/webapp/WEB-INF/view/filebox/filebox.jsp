@@ -45,8 +45,8 @@
 	            <input type="text" class="form-control" id="note" name="note" placeholder="폴더에 대한 간단설명" required>
 	        </div>
 	    	<button type="submit">add-folder</button>
-	    	<button id="btnSendAjax">add-folder(ajax)</button>        
 	    	</form>
+	    	<button id="btnSendAjax">add-folder(ajax)</button>        
     	</div>
     </div>
     <!-- 오른쪽 div -->
@@ -64,54 +64,13 @@
 $( document ).ready(function() {
 	console.log('board list');
 	
-	var jsTreeConfig = {
-		"core": {
-	        "themes": {
-	            "responsive": false
-	        },
-	        // so that create works
-	        "check_callback": true,
-	        'data': {
-	            'url': '/filebox',
-	            'dataType': 'json',
-	            'data': function (node) {
-	                return { 'id': node.id };
-	            },
-	            'success': function (data) {
-	            	console.log(data);
-	            	debugger;
-	            	callback.call(this, data);
-	                // 사용자 지정 콜백 실행
-	                //customCallback(data);
-	            },
-	            'error': function (error) {
-                    // 데이터 가져오기 실패 시 적절한 처리 수행
-                    console.error('Error fetching tree data:', error);
-                }	            
-	        }
-	    },
-	    "types": {
-	        "default": {
-	            "icon": "ki-outline ki-folder text-primary"
-	        },
-	        "file": {
-	            "icon": "ki-outline ki-file  text-primary"
-	        }
-	    },
-// 	    "state": {
-// 	        "key": "demo3"
-// 	    },			
-// 	  	"plugins": ["dnd", "state", "types"]		
-	};
-	
-	//var $jsTree = $('#div-filebox').jstree(jsTreeConfig);
 	
 	
 	$('#btnSendAjax').on('click', function(){
 		var parentId = $('#parentId').val();
 		var folderNm = $('#folderNm').val();
 		var note = $('#note').val();
-		addFolder({parentId, folderNm, note});
+		addFolder({parentId:parentId, folderNm:folderNm, note:note});
 	});
 	
 	function addFolder(data){
@@ -123,14 +82,43 @@ $( document ).ready(function() {
             data: JSON.stringify(dataToSend), // 데이터를 JSON 문자열로 변환하여 전송
             success: function(response) {
                 // 성공 시 서버에서 받은 응답 처리
+                debugger;
                 console.log('Server Response:', response);
             },
             error: function(error) {
+                debugger;
                 // 실패 시 에러 처리
                 console.error('Error:', error);
             }
         });	
 	}
+	//----------------------------------------
+	$.ajax({
+        url: '/filebox/tree-data',  // 실제 서버 엔드포인트에 맞게 변경
+        method: 'GET',
+        dataType: 'json',
+        success: function (serverData) {
+            // jstree에서 사용할 데이터로 가공
+            var treeData = serverData.map(function (item) {
+                return {
+                    id: item.file_id.toString(),
+                    text: item.folderNm,
+                    parent: (item.parent_id !== null) ? item.parent_id.toString() : "#",
+                    children: true
+                };
+            });
+
+            // jstree 초기화
+            $('#tree').jstree({
+                'core': {
+                    'data': treeData
+                }
+            });
+        },
+        error: function (error) {
+            console.error('Error fetching tree data:', error);
+        }
+    });	
 });
 </script>	
 </body>

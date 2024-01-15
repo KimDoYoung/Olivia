@@ -1,7 +1,12 @@
 package kr.co.kalpa.olivia.utils;
 
 import java.util.Enumeration;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.ui.Model;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -37,4 +42,14 @@ public class SysUtil {
 
         log.debug("<-----------End of Request Information.");
     }
+
+	public static void printModel(Model model) {
+		Map<String, Object> md = model.asMap();
+		log.debug("----------------[ Model ]---------------------");
+		for (Object modelKey : md.keySet()) {
+			Object modelValue = md.get(modelKey);
+			log.debug("{} : [{}]",modelKey, modelValue);
+		}
+		log.debug("--------------------------------------------");
+	}
 }
