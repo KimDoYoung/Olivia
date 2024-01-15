@@ -80,8 +80,8 @@ public class FileboxController<T> extends BaseController{
 	
 	@PostMapping("/tree-data/{parentId}")
 	public ModelAndView treeData(@PathVariable Integer parentId, Model model)  {
-		fielboxService.treeData(parentId);
-		
+		//fielboxService.treeData(parentId);
+		return null;
 	}
 
 }

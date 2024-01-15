@@ -10,19 +10,20 @@
    </insert>
    
    <select id="subFolderList" parameterType="Integer" resultType="Filebox">
-	/** subFolderList : parentid 로  폴더 리스트 조회*/
-	select
-		 box_id    AS boxId    
-		,parent_id AS parentId 
-		,folder_nm AS folderNm 
-		,note      AS note     
-		,create_on AS createOn 
-		,create_by AS createBy
-	from
-		public.file_box
-	where
-		parent_id = ${value}
-	order by 
-		box_id	
+		WITH RECURSIVE subfolders (box_id, parent_id, folder_nm, note, create_on, create_by, level, path, cycle) 
+		AS(
+		   SELECT f.box_id, f.parent_id, f.folder_nm, f.note,f.create_on, f.create_by, 0, ARRAY[f.box_id], false
+		   FROM public.file_box f
+		   WHERE f.parent_id = 0
+		   UNION ALL
+		   SELECT d.box_id, d.parent_id, d.folder_nm, d.note,d.create_on, d.create_by, level + 1, path || d.box_id, d.box_id = ANY(path)
+		   FROM public.file_box d, subfolders s
+		   WHERE d.parent_id = s.box_id
+		   AND NOT CYCLE
+		)
+		SELECT box_id, parent_id, folder_nm, note, create_on, create_by, level, path 
+		FROM subfolders
+		--where parent_id = 1
+		ORDER BY path
    </select>
 </mapper>
