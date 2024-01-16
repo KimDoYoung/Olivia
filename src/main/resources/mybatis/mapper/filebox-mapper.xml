@@ -9,21 +9,71 @@
 	(nextval('file_box_box_id_seq'::regclass), #{parentId}, #{folderNm}, #{note}, CURRENT_TIMESTAMP, #{createBy})    
    </insert>
    
-   <select id="subFolderList" parameterType="Integer" resultType="Filebox">
+   <resultMap id="FileboxResultMap" type="Filebox">
+	    <id property="boxId" column="box_id" />
+	    <result property="parentId" column="parent_id" />
+	    <result property="folderNm" column="folder_nm" />
+	    <result property="note" column="note" />
+	    <result property="createOn" column="create_on" />
+	    <result property="createBy" column="create_by" />
+	    <result property="level" column="level" />
+	    <result property="path" column="path" typeHandler="kr.co.kalpa.olivia.utils.mybatis.typehandler.IntegerArrayTypeHandler" />
+	</resultMap>
+   <select id="subFolderList" parameterType="Integer" resultMap="FileboxResultMap">
+<!--    <select id="subFolderList" parameterType="Integer" resultType="Filebox"> -->
 		WITH RECURSIVE subfolders (box_id, parent_id, folder_nm, note, create_on, create_by, level, path, cycle) 
 		AS(
 		   SELECT f.box_id, f.parent_id, f.folder_nm, f.note,f.create_on, f.create_by, 0, ARRAY[f.box_id], false
 		   FROM public.file_box f
-		   WHERE f.parent_id = 0
+		   WHERE f.parent_id = #{value}
 		   UNION ALL
 		   SELECT d.box_id, d.parent_id, d.folder_nm, d.note,d.create_on, d.create_by, level + 1, path || d.box_id, d.box_id = ANY(path)
 		   FROM public.file_box d, subfolders s
 		   WHERE d.parent_id = s.box_id
 		   AND NOT CYCLE
 		)
-		SELECT box_id, parent_id, folder_nm, note, create_on, create_by, level, path 
+		SELECT 
+			box_id 
+			,parent_id 
+			,folder_nm 
+			,note 
+			,create_on 
+			,create_by 
+			,level 
+			,path
 		FROM subfolders
 		--where parent_id = 1
 		ORDER BY path
    </select>
+   <select id="selectFiles" parameterType="Integer" resultMap="FileInfo">
+    /* selectFiles */
+    SELECt
+	      file_info_id AS fileInfoId 
+		, box_id       AS boxId      
+		, phy_folder   AS phyFolder  
+		, phy_name     AS phyName    
+		, org_name     AS orgName    
+		, mime_type    AS mimeType   
+		, file_size    AS fileSize   
+		, ext          AS ext        
+		, note         AS note       
+		, width        AS width      
+		, height       AS height     
+		, status       AS status     
+		, create_on    AS createOn   
+		, create_by    AS createBy
+    from
+    	file_info
+    where 1=1
+    	AND status != 'D'
+    	AND box_id = #{value}
+   </select>
+   <insert id="insertFileInfo" parameterType="FileInfo">
+	INSERT INTO public.file_info
+	(
+		file_info_id, box_id, phy_folder, phy_name, org_name, mime_type, file_size, ext, note, width, height, status, create_on, create_by
+	 ) VALUES(
+		nextval('file_info_file_info_id_seq'::regclass), #{boxId}, #{phyFolder}, #{phyName}, #{orgName}, #{mimeType}, #{fileSize}, #{ext},#{note},0, 0,#{status} , CURRENT_TIMESTAMP, #{createBy}
+	)   
+   </insert>
 </mapper>

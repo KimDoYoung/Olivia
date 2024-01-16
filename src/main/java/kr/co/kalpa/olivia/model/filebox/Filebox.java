@@ -1,9 +1,7 @@
 package kr.co.kalpa.olivia.model.filebox;
 
+import java.util.ArrayList;
 import java.util.Date;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import lombok.Data;
 
@@ -11,8 +9,6 @@ import lombok.Data;
  * 파일을 보관하는 박스 즉 direcotry = folder 의 개념
  */
 @Data
-@JsonSerialize
-@JsonDeserialize
 public class Filebox {
 	private Integer boxId;
 	private Integer parentId;
@@ -20,4 +16,6 @@ public class Filebox {
 	private String note;
 	private Date createOn;
 	private String createBy;
+	private Integer level;
+	private ArrayList<Integer> path;
 }

@@ -1,5 +1,7 @@
 package kr.co.kalpa.olivia.model.filebox;
 
+import java.util.Date;
+
 import lombok.Data;
 
 /**
@@ -7,17 +9,18 @@ import lombok.Data;
  */
 @Data
 public class FileInfo {
-	private String fileInfoId ;
-	private String boxId ;
+	private Integer fileInfoId ;
+	private Integer boxId ;
 	private String phyFolder ;
 	private String phyName ;
 	private String orgName ;
 	private String mimeType ;
-	private String fileSize ;
+	private Long fileSize ;
 	private String ext ;
 	private String note ;
-	private String width ;
-	private String height ;
-	private String createOn ;
+	private Integer width ;
+	private Integer height ;
+	private String status;
+	private Date createOn ;
 	private String createBy ;
 }
