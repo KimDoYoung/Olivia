@@ -32,7 +32,6 @@ public class CustomErrorController extends AbstractErrorController {
 		
 		ModelAndView mav = null ;
 		if(isAjax(request)) {
-			System.out.println("이것은 ajax request...................");
 			mav = new ModelAndView(new JsonView());
 		}else {
 			mav = new ModelAndView("error");

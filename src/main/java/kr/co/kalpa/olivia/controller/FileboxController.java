@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -108,23 +109,53 @@ public class FileboxController<T> extends BaseController{
 		return jsonData.toJson();
 	}
 	@ResponseBody
-	@GetMapping("/{boxId}/upload-files")
-	public String uploadFiles(@PathVariable Integer boxId, @RequestPart("files") List<MultipartFile> files) throws  FileboxException  {
+	@PostMapping("/{boxId}/upload-files")
+	public String uploadFiles(@PathVariable Integer boxId, @RequestParam("files") List<MultipartFile> files) throws  FileboxException  {
 		
 		//file를 옮기고 fileList를 채운다.
 		for (MultipartFile file : files) {
 			if (!file.isEmpty()) {
 				FileInfo fileInfo = moveToRepository(file,boxId);
-				fileboxService.insertFileInfo(fileInfo);
+
+				//file_info테이블 저장
+				int i = fileboxService.insertFileInfoAndMatch(fileInfo);
+				if(i>0) {
+					log.debug("파일저장됨 : {}", fileInfo);
+				}
 			}
 		}
+//		return "forward:/filebox/file-list/" + boxId;
 		List<FileInfo> list = fileboxService.selectFiles(boxId);
 		
 		JsonData jsonData = new JsonData();
 		jsonData.put("list", list);
 		return jsonData.toJson();
-
 	}
+
+	@ResponseBody
+	@GetMapping("/file-list/{boxId}")
+	public String fileListInBox(@PathVariable Integer boxId) throws  FileboxException  {
+		List<FileInfo> list = fileboxService.selectFiles(boxId);
+		
+		JsonData jsonData = new JsonData();
+		jsonData.put("list", list);
+		return jsonData.toJson();
+	}
+	//delete-file
+	@ResponseBody
+	@PostMapping("/{boxId}/delete-file")
+	public String deleteFileInfo(HttpServletRequest request, @RequestBody List<Integer> deleteFileInfoIdList,@PathVariable Integer boxId) throws  FileboxException  {
+		
+		printRequest(request);
+		
+		int deleteCount = fileboxService.deleteFiles(deleteFileInfoIdList);
+		List<FileInfo> list = fileboxService.selectFiles(boxId);
+		JsonData jsonData = new JsonData();
+		jsonData.put("deletedCount", deleteCount);
+		jsonData.put("list", list);
+		return jsonData.toJson();
+	}
+	
 	private FileInfo moveToRepository(MultipartFile file, Integer boxId) throws FileboxException {
 		FileInfo fileInfo = new FileInfo();
 		//0.저장폴더 생성

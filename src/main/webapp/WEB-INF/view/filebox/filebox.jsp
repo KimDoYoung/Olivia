@@ -71,28 +71,103 @@
     <!-- 오른쪽 div -->
     <div class="col-8">
     	<header class="mt-3">
-    		<h2><span id="path-display"></span></h2>
+    		<h2><span id="path-display">파일박스 선택되지 않음</span></h2>
     	</header>
-    	<div id="button-area">
-    		<form id="formFileUpload"  method="post" enctype="multipart/form-data">
-    			<input type="hidden" name="parentId" id="form-file-upload-parentid"/>
-				<label for="file">파일 선택:</label>
-				<input type="file" id="files" name="files" accept=".pdf, .doc, .docx, .txt" multiple required> <!-- 허용할 파일 확장자 지정 -->
-				<button type="submit">업로드</button>
-    		</form>
+        <div id="search-area" class="search-container mt-3 mx-2 d-flex  justify-content-between">
+            <input type="text" id="searchText" name="searchText" class="form-control mx-2" placeholder="검색어를 입력하세요">
+			<button id="btnSearch" class="btn btn-primary"><i class="bi bi-search"></i></button>
+			<button id="btnInitSearch" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i></button>
+			<button id="btnUploadFile" class="btn btn-warning" data-bs-toggle="collapse" data-bs-target="#file-upload-area"><i class="bi bi-plus"></i></button>
+			<button id="btnDeleteFile" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+        </div>
+    	<div id="file-upload-area" class="collapse m-3">
+   			<input type="hidden" name="boxId" id="form-file-upload-box-id" />
+			<label for="file">파일 선택:</label>
+			<input type="file" id="files" name="files"  multiple required> <!-- 허용할 파일 확장자 지정 -->
+			<button class="btn btn-primary" id="btnFileUpload">업로드</button>
+    	</div>
+    	<div id="file-list-area" class="mt-3">
+    		
     	</div>
     </div>
     </div>
 </div>
 
+ <script id="table-template" type="text/x-handlebars-template">
+ {{#if list.length}}
+        <table class="table" id="table-file-list">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+				<th scope="col"><input type="checkbox" id="allFileCheck" name="chkFile" class="form-checkbox"/></th>
+                <th scope="col">파일명</th>
+                <th scope="col">크기</th>
+                <th scope="col">종류</th>
+                <th scope="col">올린 일시</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each list}}
+              <tr scope="row">
+                <th>{{inc @index}}</th>
+				<th><input type="checkbox" data-file-info-id="{{fileInfoId}}" name="chkFile" class="form-checkbox chkFile" value="{{fileInfoId}}" /></th>
+                <td>{{orgName}}</td>
+                <td class="text-end">{{formatComma fileSize}}</td>
+                <td>{{ext}}</td>
+                <td>{{formatDateString createOn}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+    {{else}}
+        <p class="text-danger">데이터가 없습니다.</p>
+    {{/if}}
+    </script>
 <!-- =================================================== -->
 <jsp:include page="../common/footer.jsp" flush="false" />
 <!-- -================================================== -->
-
 <script>
+  
 $( document ).ready(function() {
 	console.log('board list1');
-	
+	// 사용자 함수 inc 등록
+	Handlebars.registerHelper("inc", function(value, options){
+	        return parseInt(value) + 1;
+	});
+    Handlebars.registerHelper('formatComma', function (number) {
+        // 숫자에 콤마 추가
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    });	
+    Handlebars.registerHelper('formatYmdHms', function(date) {
+        // date는 JavaScript Date 객체여야 함
+        var year = date.getFullYear();
+        var month = ('0' + (date.getMonth() + 1)).slice(-2);
+        var day = ('0' + date.getDate()).slice(-2);
+        var hours = ('0' + date.getHours()).slice(-2);
+        var minutes = ('0' + date.getMinutes()).slice(-2);
+        var seconds = ('0' + date.getSeconds()).slice(-2);
+
+        return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+    });
+    Handlebars.registerHelper('formatDateString', function(dateStr) {
+        var months = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ];
+
+        var dateParts = dateStr.split(/[\s,]+/);
+        var monthIndex = months.indexOf(dateParts[0]);
+        var year = dateParts[2];
+        var month = ('0' + (monthIndex + 1)).slice(-2);
+        var day = ('0' + dateParts[1]).slice(-2);
+        var timeParts = dateParts[3].split(':');
+        var hours = ('0' + parseInt(timeParts[0])).slice(-2);
+        var minutes = ('0' + parseInt(timeParts[1])).slice(-2);
+        var seconds = ('0' + parseInt(timeParts[2])).slice(-2);
+        var period = dateParts[4];
+
+        return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds + ' ' + period;
+    });    
 	var $jsTree;
 	$('#btnCloseAll').on('click', function(){
  		$jsTree.jstree('close_all');
@@ -111,9 +186,110 @@ $( document ).ready(function() {
 // 			$jsTree.jstree('close_all');
 // 		}
 	});
+	//파일 리스트 테이블 events
+	//모두체크가 체크될때
+	$('#file-list-area').on('click','#allFileCheck', function(e){
+		e.stopPropagation();
+		var checked = $(this).is(':checked');
+		$('#file-list-area table tbody').find('.chkFile').prop('checked', checked);		
+	});
+	$('#file-list-area').on('click','.chkFile', function(e){
+		e.stopPropagation();
+		var fileCount = $('#file-list-area table tbody').find('input[name=chkFile]').length;	
+		var checkedCount = $('#file-list-area table tbody').find('input[name=chkFile]:checked').length;
+		$('#file-list-area').find('#allFileCheck').prop('checked', fileCount == checkedCount);
+	});
+	//buttons
+	$('#search-area').on('click','#btnSearch', function(){
+		console.log('btnSearch');
+	});
+	$('#search-area').on('click','#btnInitSearch', function(){
+		console.log('btnInitSearch');
+	});
+	$('#search-area').on('click','#btnDeleteFile', function(e){
+		e.stopPropagation();
+//		var checkedCount = $('#file-list-area table tbody').find('input[name=chkFile]:checked');
+		var checkedValues = $('#file-list-area table tbody').find('input[name=chkFile]:checked')
+					.map(function() {
+            				return $(this).val();
+        			}).get();
+// 		console.log(checkedValues);
+		if( checkedValues.length < 1 ){
+			alert("삭제할 파일을 선택해 주십시오");
+			return;
+		}
+		debugger;
+		checkedValues = [16,17];
+		console.log("checkValues:" + checkedValues);
+		var boxId = $('#form-file-upload-box-id').val();
+		if(boxId == false){
+			alert('선택된 파일박스가 없습니다');
+			return;
+		}
+		var url = '/filebox/' + boxId + '/delete-file' 
+        // Ajax 요청
+        $.ajax({
+            url: url, // 실제 서버 엔드포인트로 대체해야 함
+            type: 'POST',
+            contentType: 'application/json',
+            dataType : 'json',
+            data: JSON.stringify({ deleteFileInfoIdList: checkedValues }), // 배열을 JSON 형태로 전송
+            success: function(response) {
+            	//테이블 만들어서 보이기
+                makeFileList(response.list);
+            },
+            error: function(error) {
+            	console.error(error);
+                alert(error);
+            }
+        });		
+		
+	});
 	
-	$('#formFileUpload').submit(function(){
-		console.log('form file upload...');
+	$('#btnFileUpload').on('click', function(){
+		var boxId = $('#form-file-upload-box-id').val();
+		var fileInput = $('#files').get(0);
+		if(!boxId){
+			alert("파일이 담길 파일박스를 선택해 주십시오");
+			return;
+		}
+		var files = fileInput.files;
+		if(files.length < 1){
+			alert("파일을 선택해 주십시오");
+			return;
+		}
+		 var formData = new FormData();
+
+	    for (var i = 0; i < files.length; i++) {
+	        formData.append('files', files[i]);
+	    }
+		var url = '/filebox/' + boxId + '/upload-files';
+	    $.ajax({
+            url: url,
+            method: 'POST',
+            //contentType: 'application/json', // 전송하는 데이터의 타입을 JSON으로 설정
+            data: formData, // 데이터를 JSON 문자열로 변환하여 전송
+            contentType : false,
+            processData : false,
+     		dataType : 'json',
+            success: function(response) {
+                //debugger;
+                //파일선택된 것 모두 해제
+                $('#files').val('');
+                console.log('Server Response:', response);
+                //collapse 부분 hide
+                $('#file-upload-area').collapse('hide');
+                //테이블 만들어서 보이기
+                makeFileList(response.list);
+            },
+            error: function(error) {
+                //debugger;
+                // 실패 시 에러 처리
+                console.error('Error:', error);
+            }
+        });	
+	    return false;
+    	console.log('form file upload...');
 	});
 	
 	$('#btnSendAjax').on('click', function(){
@@ -185,16 +361,24 @@ function createJsTree(jsTreeConfig){
 	$jsTree = $('#divJsTree').jstree(jsTreeConfig);	
 	//노드가 선택되었을 때
 	$jsTree.on('select_node.jstree', function(e, data) {
-	    var selectedNodeId = data.node.id;
-	    console.log(selectedNodeId);
+	    var boxId = data.node.id;
+	    console.log(boxId);
 	    // /filebox/3/upload-files
-	    $('#formFileUpload').prop('action', '/filebox/' + selectedNodeId + "/upload-files");
+	    //$('#formFileUpload').prop('action', '/filebox/' + selectedNodeId + "/upload-files");
+	    $('#form-file-upload-box-id').val(boxId);
 	    
 	 	// 선택된 노드의 경로(조상들)를 가져옵니다.
-	    var path = $jsTree.jstree('get_path', data.node, ' > ');
+	    var path = $jsTree.jstree('get_path', data.node, ' / ');
 	     // Display the path for the selected node
 	    //displayPath(path);
 	     $('#path-display').text(path);
+	     
+	     //파일목록
+	     var url = '/filebox/file-list/'+boxId;
+	     $.get(url, function(response){
+	    	 console.log(response);
+	    	 makeFileList(response.list);
+	     }, "json");
 	});
 }
 
@@ -215,11 +399,24 @@ function displayPath(path) {
         }
     });
 }  
-//------------------------------------------------------
-// 폴더 선택 시 데이터를 가져와서 파일 목록을 보여준다.
-//------------------------------------------------------
+
+function makeHtmlWithHandlebar(templateId, data){
+    var template = $(templateId).html();
+    var compiledTemplate =  Handlebars.compile(template); // compile 함수가 함수를 리턴함
+    var html = compiledTemplate(data);
+    return html;
+}
+/**
+ * 리스트로 table html을 만들어서 file-list-area에 넣는다
+ */
+function makeFileList(list){
+	var html = makeHtmlWithHandlebar('#table-template', {list:list});
+	$('#file-list-area').html(html);
+}
 	
-});
+
+}); //end of document ready 
+
 
 
 

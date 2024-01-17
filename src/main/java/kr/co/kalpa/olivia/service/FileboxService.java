@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.kalpa.olivia.model.filebox.FileInfo;
+import kr.co.kalpa.olivia.model.filebox.FileMatch;
 import kr.co.kalpa.olivia.model.filebox.Filebox;
 import kr.co.kalpa.olivia.repository.FileboxRepository;
 
 @Service
 public class FileboxService {
+
 	private FileboxRepository repository;
 
 	public FileboxService(FileboxRepository repository) {
@@ -46,10 +48,34 @@ public class FileboxService {
 		return repository.selectFiles(boxId);
 	}
 
+	/**
+	 * file_info와 file_match 2개의 테이블에 레코드 추가
+	 * @param fileInfo
+	 * @return
+	 */
 	@Transactional
-	public Integer insertFileInfo(FileInfo fileInfo) {
+	public Integer insertFileInfoAndMatch(FileInfo fileInfo) {
 		
-		return repository.insertFileInfo(fileInfo);
+		repository.insertFileInfo(fileInfo);
+		int id = repository.getFileInfoSeq();
+		FileMatch match = new FileMatch();
+		match.setBoxId(fileInfo.getBoxId());
+		match.setFileInfoId(id);
+		int i = repository.insertFileMatch(match);
+		return i;
+	}
+
+	/**
+	 * file_info에서 파일들을 지운다.
+	 * @param deleteFileInfoIdList
+	 * @return
+	 */
+	public int deleteFiles(List<Integer> deleteFileInfoIdList) {
+		int totalDeletedCount = 0;
+		for (Integer fileInfoId : deleteFileInfoIdList) {
+		  totalDeletedCount += repository.deleteFileInfo(fileInfoId);
+		}
+		return totalDeletedCount;
 	}
 
 }
