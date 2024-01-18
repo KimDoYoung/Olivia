@@ -70,27 +70,57 @@
     </div>
     <!-- 오른쪽 div -->
     <div class="col-8">
-    	<header class="mt-3">
+    	<section id="fileinfo-section">
+    	<div id="fileinfo-path-area" class="mt-3">
     		<h2><span id="path-display">파일박스 선택되지 않음</span></h2>
-    	</header>
-        <div id="search-area" class="search-container mt-3 mx-2 d-flex  justify-content-between">
-            <input type="text" id="searchText" name="searchText" class="form-control mx-2" placeholder="검색어를 입력하세요">
-			<button id="btnSearch" class="btn btn-primary"><i class="bi bi-search"></i></button>
-			<button id="btnInitSearch" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i></button>
-			<button id="btnUploadFile" class="btn btn-warning" data-bs-toggle="collapse" data-bs-target="#file-upload-area"><i class="bi bi-plus"></i></button>
-			<button id="btnDeleteFile" class="btn btn-danger"><i class="bi bi-trash"></i></button>
-        </div>
-    	<div id="file-upload-area" class="collapse m-3">
-   			<input type="hidden" name="boxId" id="form-file-upload-box-id" />
-			<label for="file">파일 선택:</label>
-			<input type="file" id="files" name="files"  multiple required> <!-- 허용할 파일 확장자 지정 -->
-			<button class="btn btn-primary" id="btnFileUpload">업로드</button>
     	</div>
-    	<div id="file-list-area" class="mt-3">
+        <div id="fileinfo-search-area" class="search-container mt-3 mx-2 ">
+        	<div class="d-flex  justify-content-between">
+	            <input type="text" id="searchText" name="searchText" class="form-control mx-2" placeholder="검색어를 입력하세요">
+				<button id="btnSearch" class="btn btn-primary"><i class="bi bi-search"></i></button>
+				<button id="btnInitSearch" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i></button>
+				<button id="btnUploadFile" class="btn btn-warning" data-bs-toggle="collapse" data-bs-target="#file-upload-area"><i class="bi bi-plus"></i></button>
+				<button id="btnDeleteFile" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+			</div>
+           	<div id="file-upload-area" class="collapse m-3">
+	   			<input type="hidden" name="boxId" id="form-file-upload-box-id" />
+				<label for="file">파일 선택:</label>
+				<input type="file" id="files" name="files"  multiple required> <!-- 허용할 파일 확장자 지정 -->
+				<button class="btn btn-primary" id="btnFileUpload">업로드</button>
+    		</div>
+        </div>
+
+    	<div id="fileinfo-table-area" class="mt-3">
     		
     	</div>
+    	</section>
     </div>
     </div>
+</div>
+
+<!-- Create sub 컨테이너 -->
+<div class="modal fade" id="createSubFilebox" tabindex="-1" aria-labelledby="createSubFileboxLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title" id="createSubFileboxLabel">파일 박스 만들기</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted fs-6 mb-4"><span id="parent-box-nm">총무팀</span> 하위에 만들어질 폴더(파일박스)들</p>
+        <input type="hidden" id="parentBoxId" />
+        <input type="text" class="form-control mb-2" name="subFilebox" placeholder="파일박스명을 넣어주세요"/>
+        <input type="text" class="form-control mb-2" name="subFilebox" placeholder="파일박스명을 넣어주세요"/>
+        <input type="text" class="form-control mb-2" name="subFilebox" placeholder="파일박스명을 넣어주세요"/>
+        <input type="text" class="form-control mb-2" name="subFilebox" placeholder="파일박스명을 넣어주세요"/>
+        <input type="text" class="form-control mb-2" name="subFilebox" placeholder="파일박스명을 넣어주세요"/>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btnCreateFilebox btn btn-primary">하위 파일박스 만들기</button>
+      </div>
+    </div>
+  </div>
 </div>
 
  <script id="table-template" type="text/x-handlebars-template">
@@ -126,49 +156,19 @@
 <!-- =================================================== -->
 <jsp:include page="../common/footer.jsp" flush="false" />
 <!-- -================================================== -->
+
 <script>
   
 $( document ).ready(function() {
 	console.log('board list1');
-	// 사용자 함수 inc 등록
-	Handlebars.registerHelper("inc", function(value, options){
-	        return parseInt(value) + 1;
-	});
-    Handlebars.registerHelper('formatComma', function (number) {
-        // 숫자에 콤마 추가
-        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    });	
-    Handlebars.registerHelper('formatYmdHms', function(date) {
-        // date는 JavaScript Date 객체여야 함
-        var year = date.getFullYear();
-        var month = ('0' + (date.getMonth() + 1)).slice(-2);
-        var day = ('0' + date.getDate()).slice(-2);
-        var hours = ('0' + date.getHours()).slice(-2);
-        var minutes = ('0' + date.getMinutes()).slice(-2);
-        var seconds = ('0' + date.getSeconds()).slice(-2);
-
-        return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
-    });
-    Handlebars.registerHelper('formatDateString', function(dateStr) {
-        var months = [
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-        ];
-
-        var dateParts = dateStr.split(/[\s,]+/);
-        var monthIndex = months.indexOf(dateParts[0]);
-        var year = dateParts[2];
-        var month = ('0' + (monthIndex + 1)).slice(-2);
-        var day = ('0' + dateParts[1]).slice(-2);
-        var timeParts = dateParts[3].split(':');
-        var hours = ('0' + parseInt(timeParts[0])).slice(-2);
-        var minutes = ('0' + parseInt(timeParts[1])).slice(-2);
-        var seconds = ('0' + parseInt(timeParts[2])).slice(-2);
-        var period = dateParts[4];
-
-        return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds + ' ' + period;
-    });    
+   
 	var $jsTree;
+	var treeData;
+
+	  // 컨텍스트 메뉴 항목 정의
+
+	
+	
 	$('#btnCloseAll').on('click', function(){
  		$jsTree.jstree('close_all');
 //		 $jsTree.jstree('toggle_all');
@@ -186,54 +186,65 @@ $( document ).ready(function() {
 // 			$jsTree.jstree('close_all');
 // 		}
 	});
+	$('#fileinfo-path-area').on('click', '.btnBreadcrumb',function(){
+		var boxId = $(this).data('box-id');
+		$jsTree.jstree('deselect_all');
+		$jsTree.jstree('select_node', boxId);
+		//makeFileInfoSection(boxId);
+		
+	});
 	//파일 리스트 테이블 events
 	//모두체크가 체크될때
-	$('#file-list-area').on('click','#allFileCheck', function(e){
+	$('#fileinfo-table-area').on('click','#allFileCheck', function(e){
 		e.stopPropagation();
 		var checked = $(this).is(':checked');
-		$('#file-list-area table tbody').find('.chkFile').prop('checked', checked);		
+		$('#fileinfo-table-area table tbody').find('.chkFile').prop('checked', checked);		
 	});
-	$('#file-list-area').on('click','.chkFile', function(e){
+	$('#fileinfo-table-area').on('click','.chkFile', function(e){
 		e.stopPropagation();
-		var fileCount = $('#file-list-area table tbody').find('input[name=chkFile]').length;	
-		var checkedCount = $('#file-list-area table tbody').find('input[name=chkFile]:checked').length;
-		$('#file-list-area').find('#allFileCheck').prop('checked', fileCount == checkedCount);
+		var fileCount = $('#fileinfo-table-area table tbody').find('input[name=chkFile]').length;	
+		var checkedCount = $('#fileinfo-table-area table tbody').find('input[name=chkFile]:checked').length;
+		$('#fileinfo-table-area').find('#allFileCheck').prop('checked', fileCount == checkedCount);
 	});
-	//buttons
-	$('#search-area').on('click','#btnSearch', function(){
+	//-------------------------------------------------------
+	// buttons
+	//-------------------------------------------------------
+	$('#fileinfo-search-area').on('click','#btnSearch', function(){
 		console.log('btnSearch');
 	});
-	$('#search-area').on('click','#btnInitSearch', function(){
+	$('#fileinfo-search-area').on('click','#btnInitSearch', function(){
+		//makeFileInfoSection(2);
 		console.log('btnInitSearch');
 	});
-	$('#search-area').on('click','#btnDeleteFile', function(e){
+
+	//Delete button click
+	$('#fileinfo-search-area').on('click','#btnDeleteFile', function(e){
 		e.stopPropagation();
-//		var checkedCount = $('#file-list-area table tbody').find('input[name=chkFile]:checked');
-		var checkedValues = $('#file-list-area table tbody').find('input[name=chkFile]:checked')
+		var checkedValues = $('#fileinfo-table-area table tbody').find('input[name=chkFile]:checked')
 					.map(function() {
             				return $(this).val();
         			}).get();
-// 		console.log(checkedValues);
 		if( checkedValues.length < 1 ){
 			alert("삭제할 파일을 선택해 주십시오");
 			return;
 		}
-		debugger;
-		checkedValues = [16,17];
 		console.log("checkValues:" + checkedValues);
 		var boxId = $('#form-file-upload-box-id').val();
 		if(boxId == false){
 			alert('선택된 파일박스가 없습니다');
 			return;
 		}
+		
+		if(confirm('선택된 파일 ' + checkedValues.length +"개를 삭제하시겠습니까?") == false) return;
+		
 		var url = '/filebox/' + boxId + '/delete-file' 
         // Ajax 요청
         $.ajax({
             url: url, // 실제 서버 엔드포인트로 대체해야 함
             type: 'POST',
+            data: JSON.stringify( checkedValues ), // 배열을 JSON 형태로 전송
             contentType: 'application/json',
             dataType : 'json',
-            data: JSON.stringify({ deleteFileInfoIdList: checkedValues }), // 배열을 JSON 형태로 전송
             success: function(response) {
             	//테이블 만들어서 보이기
                 makeFileList(response.list);
@@ -330,17 +341,83 @@ $( document ).ready(function() {
 	            "icon": "bi bi-folder2 text-primary"
 	        }			
 		},
-		'plugins' : ["dnd","contextmenu","types"]	
+		"check_callback" : true,
+		'plugins' : ["contextmenu","types"],
+//         'contextmenu' : {
+//     		"items" : {
+//     		  "create" : { 
+//             		"separator_before" : false,
+//     				    "separator_after" : true,
+//     				    "label" : "메뉴추가",
+//     				    "action" : function(t){
+//     				    	alert('111');
+//     				    	var i=$.jstree.reference(t.reference),r=i.get_node(t.reference);i.create_node(r,{},"last",(function(e){try{i.edit(e)}catch(t){setTimeout((function(){i.edit(e)}),0)}}))
+//     				    }
+//     			},
+//     			"rename" : {
+//     				    "separator_before" : false,
+//     				    "separator_after" : true,
+//     				    "label" : "이름바꾸기",
+//     				    "action" : function(t){var i=$.jstree.reference(t.reference),r=i.get_node(t.reference);i.edit(r)}
+//     			},
+//     			"remove" : {
+//     				    "separator_before" : false,
+//     				    "separator_after" : true,
+//     				    "label" : "삭제",
+//     				    "action" : function(t){var i=$.jstree.reference(t.reference),r=i.get_node(t.reference);i.is_selected(r)?i.delete_node(i.get_selected()):i.delete_node(r)}
+//     			}
+//     		}
+//     	}
+	    "contextmenu": {
+	        "items": function ($node) {
+	            var tree = $("#SimpleJSTree").jstree(true);
+	            return {
+	                "Create": {
+	                    "separator_before": false,
+	                    "separator_after": true,
+	                    "label": "파일박스 생성 ",
+	                    "action": function (t) {
+	                        //tree.create($node);
+	                        var i=$.jstree.reference(t.reference),node=i.get_node(t.reference);
+	                        showModalCreateFolder(node);
+	                    }
+
+	                },
+	                "Rename": {
+	                    "separator_before": false,
+	                    "separator_after": false,
+	                    "label": "Rename",
+	                    "action": function (obj) {
+	                        tree.edit($node);
+	                    }
+	                },
+	                "Remove": {
+	                    "separator_before": false,
+	                    "separator_after": false,
+	                    "label": "Remove",
+	                    "action": function (obj) {
+	                        tree.delete_node($node);
+	                    }
+	                },
+	                "Upload": {
+	                    "seperator_beore": false,
+	                    "seperator_after": false,
+	                    "label": "Upload",
+	                    "action": function (obj) {
+	                        tree.upload_node($node);
+	                    }
+	                }
+	            };
+	        }
+	    }
 	};
 	$.ajax({
-        url: '/filebox/tree-data/1',  // 실제 서버 엔드포인트에 맞게 변경
+        url: '/filebox/tree-data/0',  // 실제 서버 엔드포인트에 맞게 변경
         method: 'GET',
         dataType: 'json',
         success: function (response) {
-            // jstree에서 사용할 데이터로 가공
-            //debugger;
             var list = response.list;
-            var treeData = list.map(function (item) {
+            treeData = list.map(function (item) {
                 return {
                     id: item.boxId.toString(),
                     text: item.folderNm,
@@ -351,53 +428,107 @@ $( document ).ready(function() {
 			createJsTree(jsTreeConfig);
         },
         error: function (error) {
-        	debugger;
+        	//debugger;
             console.error('Error fetching jsTree data:', error);
         }
     });	
-	
+//---------------------------------------------------
+// context menu
+//---------------------------------------------------
+function showModalCreateFolder(node){
+	console.log(node);
+	alert(node.id);
+	$('#createSubFilebox').modal('show');
+}	
 //create $jsTree
 function createJsTree(jsTreeConfig){
 	$jsTree = $('#divJsTree').jstree(jsTreeConfig);	
 	//노드가 선택되었을 때
 	$jsTree.on('select_node.jstree', function(e, data) {
+		//debugger;
 	    var boxId = data.node.id;
 	    console.log(boxId);
-	    // /filebox/3/upload-files
-	    //$('#formFileUpload').prop('action', '/filebox/' + selectedNodeId + "/upload-files");
-	    $('#form-file-upload-box-id').val(boxId);
-	    
-	 	// 선택된 노드의 경로(조상들)를 가져옵니다.
-	    var path = $jsTree.jstree('get_path', data.node, ' / ');
-	     // Display the path for the selected node
-	    //displayPath(path);
-	     $('#path-display').text(path);
-	     
-	     //파일목록
-	     var url = '/filebox/file-list/'+boxId;
-	     $.get(url, function(response){
-	    	 console.log(response);
-	    	 makeFileList(response.list);
-	     }, "json");
+	    makeFileInfoSection(boxId);
 	});
+// 	$jsTree.on('contextmenu.jstree', function (e, data) {
+// 		console.log(e, data);
+// 		//var clickedMenuItemId = data.menu_item.id;
+//  		var clickedMenuItemId = data.node.id;
+// 	    // 사용자 정의 함수 호출
+// 	    if (clickedMenuItemId === 'create') {
+// 	      myCreateFunction();
+// 	    }
+// 	});	
+	$jsTree.bind('create_node.jstree', function(evt, data) {
+		alert('111');
+	});
+	$jsTree.bind("rename_node.jstree", function (node, text, old) {
+		alert('rename');
+	});
+
+	
+}
+function makeFileInfoSection(boxId){
+    console.log(boxId);
+    $('#form-file-upload-box-id').val(boxId);
+
+    var selected = findNodeById(boxId);
+    
+    var path=[];
+    var node = selected;
+    do{
+     path.push(node);
+     var parent = node.parent;
+     node = findNodeById(parent)
+    }while(node);
+    
+    var path_desc = path.reverse();
+	//var parents = selected.parents.reverse().filter(function(item){ return item !== '#'});
+// 	var node_path = parents.map(function(id) {
+// 	        return treeData.find(function(node) { return node.id === id; });
+// 	    });	
+    displayPath(path_desc);
+    //$('#path-display').text(path);
+     
+     //파일목록
+     var url = '/filebox/file-list/'+boxId;
+     $.get(url, function(response){
+    	 console.log(response);
+    	 makeFileList(response.list);
+     }, "json");
+}
+function findNodeById(boxId){
+	return treeData.find(item => item.id == boxId);
 }
 
-
-// Function to display the path
-function displayPath(path) {
-    var pathDisplay = $('#path-display');
-    pathDisplay.empty();
-
-    // Iterate through the path and display each node's text
-    path.forEach(function(nodeId, index) {
-        var nodeText = $jsTree.jstree('get_text', nodeId);
-        pathDisplay.append(nodeText);
-
-        // Add a separator if it's not the last node in the path
-        if (index < path.length - 1) {
-            pathDisplay.append(' > ');
-        }
-    });
+// node_path_array
+function displayPath(node_path_array) {
+	var seperator = ' / ';
+	var pathArray = [];
+	for(var i=1; i < node_path_array.length; i++){
+		var node = node_path_array[i];
+		if(i == node_path_array.length -1){
+			pathArray.push( '<span>' + node.text + '</span>' );
+		}else{
+			pathArray.push( '<a class="btnBreadcrumb" href="#" data-box-id="'+node.id+'">'+node.text+'</a>' );
+		}
+	}
+	
+// 	var pathArray = node_path_array.map(function(node) {
+// 	    //return '<a href="javascript:makeFileList('+node.id+');">'+node.text+'</a>';
+// 	    return '<a class="btnBreadcrumb" href="#" data-box-id="'+node.id+'">'+node.text+'</a>';
+// 	});
+	var html = pathArray.join(seperator);
+	console.log(html);
+	$('#path-display').html(html);
+//     var s = '';
+// 	paths.forEach(function(path, index) {
+// 		s += path + ' / '
+//     });
+// 	if(s.endsWith(' / ')){
+// 		s = s.substring(0,s.lastIndexOf(' / '));
+// 	}
+//     $('#path-display').html(paths.join(seperator));
 }  
 
 function makeHtmlWithHandlebar(templateId, data){
@@ -411,13 +542,27 @@ function makeHtmlWithHandlebar(templateId, data){
  */
 function makeFileList(list){
 	var html = makeHtmlWithHandlebar('#table-template', {list:list});
-	$('#file-list-area').html(html);
+	$('#fileinfo-table-area').html(html);
 }
 	
 
 }); //end of document ready 
 
-
+function makeFileList(boxId){
+	console.log(boxId);
+	//$jsTree.on('select_node.jstree'
+//     var url = '/filebox/file-list/'+boxId;
+//     $.get(url, function(response){
+//    	 console.log(response);
+//  	 //var html = makeHtmlWithHandlebar('#table-template', {list:list});
+//  	 var data = {list: response.list};
+//      var template = $('#table-template').html();
+//      var compiledTemplate =  Handlebars.compile(template); // compile 함수가 함수를 리턴함
+//      var html = compiledTemplate(data);
+ 	 
+// 	 $('#file-list-area').html(html);
+//     }, "json");
+}
 
 
 </script>	

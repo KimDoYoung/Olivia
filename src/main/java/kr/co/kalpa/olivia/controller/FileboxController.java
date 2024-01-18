@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,16 +18,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import kr.co.kalpa.olivia.exception.BoardException;
 import kr.co.kalpa.olivia.exception.FileboxException;
 import kr.co.kalpa.olivia.model.JsonData;
-import kr.co.kalpa.olivia.model.board.BoardFile;
-import kr.co.kalpa.olivia.model.board.BoardTag;
 import kr.co.kalpa.olivia.model.filebox.FileInfo;
 import kr.co.kalpa.olivia.model.filebox.Filebox;
 import kr.co.kalpa.olivia.service.FileboxService;
@@ -144,7 +139,7 @@ public class FileboxController<T> extends BaseController{
 	//delete-file
 	@ResponseBody
 	@PostMapping("/{boxId}/delete-file")
-	public String deleteFileInfo(HttpServletRequest request, @RequestBody List<Integer> deleteFileInfoIdList,@PathVariable Integer boxId) throws  FileboxException  {
+	public String deleteFileInfo(HttpServletRequest request, @PathVariable Integer boxId,@RequestBody List<Integer> deleteFileInfoIdList) throws  FileboxException  {
 		
 		printRequest(request);
 		
@@ -155,7 +150,15 @@ public class FileboxController<T> extends BaseController{
 		jsonData.put("list", list);
 		return jsonData.toJson();
 	}
-	
+	/**
+	 * client로부터 전송받은 파일을 server의 repository로 이동 후
+	 * 파일정보 FileInfo를 만들어서 리턴한다.
+	 * 
+	 * @param file
+	 * @param boxId
+	 * @return
+	 * @throws FileboxException
+	 */
 	private FileInfo moveToRepository(MultipartFile file, Integer boxId) throws FileboxException {
 		FileInfo fileInfo = new FileInfo();
 		//0.저장폴더 생성
