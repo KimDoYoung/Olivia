@@ -54,13 +54,7 @@ public class FileboxController<T> extends BaseController{
 		log.debug("********************************************");
 		log.debug("filebox");
 		log.debug("********************************************");
-		//List<Filebox> list = fielboxService.subFolderList(parentId);
-//		for (Filebox filebox : list) {			
-//			Integer[] arrayData = (Integer[]) filebox.getPath().getArray();
-//			log.debug("{}",arrayData);
-//		}
-		//model.addAttribute("list", list);
-		
+
 		return baseUrl + "/filebox";
 	}
 	/**
@@ -71,7 +65,7 @@ public class FileboxController<T> extends BaseController{
 	 * @param model
 	 * @return
 	 */
-	@PostMapping("/add-folder")
+	//@PostMapping("/add-folder")
 	public ModelAndView addFolder(HttpServletRequest request, @ModelAttribute("filebox") Filebox filebox,Model model)  {
 		ModelAndView mav = new ModelAndView();
 		boolean isAjax = isAjax(request); //
@@ -90,6 +84,78 @@ public class FileboxController<T> extends BaseController{
 		}
 		return mav;
 	}
+	@ResponseBody
+	@GetMapping("/create-sub-filebox/{parentId}")
+	public String createSubBox(@PathVariable("parentId") Integer parentId, String name) {
+		Filebox filebox = new Filebox();
+		filebox.setParentId(parentId);
+		filebox.setFolderNm(name);
+		int i = fileboxService.addFolder(filebox);
+		int newId = fileboxService.getFileboxSeq();
+		JsonData jsonData = new JsonData();
+		if(i>0) {
+			jsonData.put("result", "OK");
+			jsonData.put("newId", newId);
+		}else {
+			jsonData.put("result", "NK");
+		}
+		return jsonData.toJson();
+	}
+	@ResponseBody
+	@GetMapping("/rename-filebox/{boxId}")
+	public String renameFilebox(@PathVariable("boxId") Integer boxId, String name) {
+		Filebox filebox = new Filebox();
+		filebox.setBoxId(boxId);
+		filebox.setFolderNm(name);
+		int i = fileboxService.renameFilebox(filebox);
+		JsonData jsonData = new JsonData();
+		if(i>0) {
+			jsonData.put("result", "OK");
+		}else {
+			jsonData.put("result", "NK");
+		}
+		return jsonData.toJson();
+	}
+	/**
+	 * delete file_box
+	 * 포함된 파일이 없을 경우 
+	 * @param boxId
+	 * @return
+	 */
+	@ResponseBody
+	@GetMapping("/delete-filebox/{boxId}")
+	public String deleteFilebox(@PathVariable("boxId") Integer boxId) {
+		
+		JsonData jsonData = new JsonData();
+		int count= fileboxService.countFilesInFilebox(boxId);
+		if(count > 0) {
+			jsonData.put("result", "NK");
+			jsonData.put("msg", "폴더 안에 파일들이 존재합니다. 비어있는 폴더만 삭제할 수 있습니다.");
+			return jsonData.toJson();
+		}
+		int i = fileboxService.deleteFilebox(boxId);
+		if(i > 0) {
+			jsonData.put("result", "OK");
+		}else {
+			jsonData.put("result", "NK");
+			jsonData.put("msg","폴더를 삭제하는 중 에러가 발생했습니다");
+		}
+		return jsonData.toJson();
+	}
+	@ResponseBody
+	@GetMapping("/move-filebox/{boxId}")
+	public String moveFilebox(@PathVariable("boxId") Integer boxId, @RequestParam("newParentId") Integer newParentId ) {
+		
+		JsonData jsonData = new JsonData();
+		int i = fileboxService.moveFilebox(boxId, newParentId);
+		if(i > 0) {
+			jsonData.put("result", "OK");
+		}else {
+			jsonData.put("result", "NK");
+			jsonData.put("msg","폴더를 이동하는 중 에러가 발생했습니다");
+		}
+		return jsonData.toJson();
+	}
 	/**
 	 * jsTree을 만들 수 있는 데이터를 만든다
 	 * @param parentId
@@ -104,7 +170,7 @@ public class FileboxController<T> extends BaseController{
 		return jsonData.toJson();
 	}
 	@ResponseBody
-	@PostMapping("/{boxId}/upload-files")
+	@PostMapping("/upload-files/{boxId}")
 	public String uploadFiles(@PathVariable Integer boxId, @RequestParam("files") List<MultipartFile> files) throws  FileboxException  {
 		
 		//file를 옮기고 fileList를 채운다.
@@ -138,7 +204,7 @@ public class FileboxController<T> extends BaseController{
 	}
 	//delete-file
 	@ResponseBody
-	@PostMapping("/{boxId}/delete-file")
+	@PostMapping("/delete-file/{boxId}")
 	public String deleteFileInfo(HttpServletRequest request, @PathVariable Integer boxId,@RequestBody List<Integer> deleteFileInfoIdList) throws  FileboxException  {
 		
 		printRequest(request);

@@ -9,6 +9,30 @@
 	VALUES
 	(nextval('file_box_box_id_seq'::regclass), #{parentId}, #{folderNm}, #{note}, CURRENT_TIMESTAMP, #{createBy})    
    </insert>   
+   
+   <select id="getFileBoxSeq" resultType="Integer">
+   	SELECT currval('file_box_box_id_seq') as fileBoxSeq 
+   </select>
+   
+   <select id="countFilesInFilebox" resultType="Integer">
+   	select count(*) as cnt from file_info where box_id  = #{value}; 
+   </select>
+   <delete id="deleteFilebox" parameterType="Integer">
+   	 /* deleteFilebox */
+   	 delete from file_box where box_id  = #{value}; 
+   </delete>
+   <update id="moveFilebox" parameterType="Filebox">
+   	 /* moveFilebox */
+   	 update public.file_box 
+   	 set parent_id = #{parentId}
+   	 where box_id = #{boxId} 
+   </update>
+   
+   <update id="renameFilebox" parameterType="Filebox">
+    /* renameFilebox */
+   	update public.file_box set folder_nm = #{folderNm} where box_id = #{boxId} 
+   </update>
+   
    <resultMap id="FileboxResultMap" type="Filebox">
 	    <id property="boxId" column="box_id" />
 	    <result property="parentId" column="parent_id" />

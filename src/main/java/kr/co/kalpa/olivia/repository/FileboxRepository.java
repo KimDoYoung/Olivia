@@ -9,6 +9,7 @@ import kr.co.kalpa.olivia.model.filebox.Filebox;
 public interface FileboxRepository {
 
 	int addFolder(Filebox filebox);
+	int getFileBoxSeq(); //sequence
 
 	List<Filebox> subFolderList(int parentId);
 
@@ -35,5 +36,24 @@ public interface FileboxRepository {
 	int getFileInfoSeq();
 
 	int deleteFileInfo(Integer fileInfoId);
+	/**
+	 * filebox의 이름을 바꾼다.
+	 * @param filebox
+	 * @return
+	 */
+	int renameFilebox(Filebox filebox);
+	/**
+	 * boxId 에 포함된 파일의 갯수를 리턴
+	 * @param boxId
+	 * @return
+	 */
+	int countFilesInFilebox(Integer boxId);
+	/**
+	 * file_box에서 boxId에 해당하는 row를 지운다.
+	 * @param boxId
+	 * @return
+	 */
+	int deleteFilebox(Integer boxId);
+	int moveFilebox(Filebox filebox);
 
 }

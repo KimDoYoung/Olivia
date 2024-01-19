@@ -52,21 +52,6 @@
     	<button id="btnOpenAll">open all</button>
     	<button id="btnCloseAll">close all</button>
     	</div>
-    	<div class="form mt-2">	
-	    	<form action="/filebox/add-folder" method="post">
-	    	 <input type="hidden" name="parentId" id="parentId" value="1"/>
-	    	 <div class="mb-3">
-	            <label for="name" class="form-label">폴더명</label>
-	            <input type="text" class="form-control" id="folderNm" name="folderNm" placeholder="폴더명을 입력하세요" required>
-	        </div>
-	    	 <div class="mb-3">
-	            <label for="note" class="form-label">설명</label>
-	            <input type="text" class="form-control" id="note" name="note" placeholder="폴더에 대한 간단설명" required>
-	        </div>
-	    	<button type="submit">add-folder</button>
-	    	</form>
-	    	<button id="btnSendAjax">add-folder(ajax)</button>        
-    	</div>
     </div>
     <!-- 오른쪽 div -->
     <div class="col-8">
@@ -96,31 +81,6 @@
     	</section>
     </div>
     </div>
-</div>
-
-<!-- Create sub 컨테이너 -->
-<div class="modal fade" id="createSubFilebox" tabindex="-1" aria-labelledby="createSubFileboxLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-light">
-        <h5 class="modal-title" id="createSubFileboxLabel">파일 박스 만들기</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted fs-6 mb-4"><span id="parent-box-nm">총무팀</span> 하위에 만들어질 폴더(파일박스)들</p>
-        <input type="hidden" id="parentBoxId" />
-        <input type="text" class="form-control mb-2" name="subFilebox" placeholder="파일박스명을 넣어주세요"/>
-        <input type="text" class="form-control mb-2" name="subFilebox" placeholder="파일박스명을 넣어주세요"/>
-        <input type="text" class="form-control mb-2" name="subFilebox" placeholder="파일박스명을 넣어주세요"/>
-        <input type="text" class="form-control mb-2" name="subFilebox" placeholder="파일박스명을 넣어주세요"/>
-        <input type="text" class="form-control mb-2" name="subFilebox" placeholder="파일박스명을 넣어주세요"/>
-      </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btnCreateFilebox btn btn-primary">하위 파일박스 만들기</button>
-      </div>
-    </div>
-  </div>
 </div>
 
  <script id="table-template" type="text/x-handlebars-template">
@@ -164,10 +124,6 @@ $( document ).ready(function() {
    
 	var $jsTree;
 	var treeData;
-
-	  // 컨텍스트 메뉴 항목 정의
-
-	
 	
 	$('#btnCloseAll').on('click', function(){
  		$jsTree.jstree('close_all');
@@ -176,15 +132,6 @@ $( document ).ready(function() {
 	$('#btnOpenAll').on('click', function(){
 		console.log('btn open all');
 		$jsTree.jstree('open_all');
-		//$('#jstree').jstree('open_all');
-		//$jsTree.jstree('open_all');
-		
-// 		var allClosed = $('#jstree').jstree('is_closed', -1); // -1 represents the root node
-// 		console.log("All Nodes Closed:", allClosed);
-// 		if(allClosed.length == 0){
-// 		}else {
-// 			$jsTree.jstree('close_all');
-// 		}
 	});
 	$('#fileinfo-path-area').on('click', '.btnBreadcrumb',function(){
 		var boxId = $(this).data('box-id');
@@ -237,7 +184,7 @@ $( document ).ready(function() {
 		
 		if(confirm('선택된 파일 ' + checkedValues.length +"개를 삭제하시겠습니까?") == false) return;
 		
-		var url = '/filebox/' + boxId + '/delete-file' 
+		var url = '/filebox/delete-file/' + boxId; 
         // Ajax 요청
         $.ajax({
             url: url, // 실제 서버 엔드포인트로 대체해야 함
@@ -274,7 +221,7 @@ $( document ).ready(function() {
 	    for (var i = 0; i < files.length; i++) {
 	        formData.append('files', files[i]);
 	    }
-		var url = '/filebox/' + boxId + '/upload-files';
+		var url = '/filebox/upload-files/' + boxId;
 	    $.ajax({
             url: url,
             method: 'POST',
@@ -284,7 +231,7 @@ $( document ).ready(function() {
             processData : false,
      		dataType : 'json',
             success: function(response) {
-                //debugger;
+                ////debugger;
                 //파일선택된 것 모두 해제
                 $('#files').val('');
                 console.log('Server Response:', response);
@@ -334,79 +281,216 @@ $( document ).ready(function() {
 		"core": {
 		    "themes": {
 		       "responsive": false
-		    }
+		    },
+		    "check_callback" : true,
 		},
 		"types" : {
 		    "default": {
 	            "icon": "bi bi-folder2 text-primary"
 	        }			
 		},
-		"check_callback" : true,
-		'plugins' : ["contextmenu","types"],
-//         'contextmenu' : {
-//     		"items" : {
-//     		  "create" : { 
-//             		"separator_before" : false,
-//     				    "separator_after" : true,
-//     				    "label" : "메뉴추가",
-//     				    "action" : function(t){
-//     				    	alert('111');
-//     				    	var i=$.jstree.reference(t.reference),r=i.get_node(t.reference);i.create_node(r,{},"last",(function(e){try{i.edit(e)}catch(t){setTimeout((function(){i.edit(e)}),0)}}))
-//     				    }
-//     			},
-//     			"rename" : {
-//     				    "separator_before" : false,
-//     				    "separator_after" : true,
-//     				    "label" : "이름바꾸기",
-//     				    "action" : function(t){var i=$.jstree.reference(t.reference),r=i.get_node(t.reference);i.edit(r)}
-//     			},
-//     			"remove" : {
-//     				    "separator_before" : false,
-//     				    "separator_after" : true,
-//     				    "label" : "삭제",
-//     				    "action" : function(t){var i=$.jstree.reference(t.reference),r=i.get_node(t.reference);i.is_selected(r)?i.delete_node(i.get_selected()):i.delete_node(r)}
-//     			}
-//     		}
-//     	}
+		"plugins" : ["contextmenu","types"],
 	    "contextmenu": {
 	        "items": function ($node) {
-	            var tree = $("#SimpleJSTree").jstree(true);
+	            var tree = $("#divJsTree").jstree(true);
 	            return {
 	                "Create": {
 	                    "separator_before": false,
 	                    "separator_after": true,
-	                    "label": "파일박스 생성 ",
-	                    "action": function (t) {
-	                        //tree.create($node);
-	                        var i=$.jstree.reference(t.reference),node=i.get_node(t.reference);
-	                        showModalCreateFolder(node);
-	                    }
-
+	                    "label": "하위폴더 생성",
+	                    "icon" : "text-primary bi bi-folder-plus",
+						"action" : function (data) {
+					    var inst = $.jstree.reference(data.reference),
+							obj = inst.get_node(data.reference);
+						inst.create_node(obj, {}, "last", function (new_node) {
+							try {
+								inst.edit(new_node, null, function (the_node, rename_status) {
+									if(rename_status){
+										var parentId = the_node.parents[0];
+										var url = '/filebox/create-sub-filebox/' + parentId;
+										$.get(url,{name:the_node.text},function(response){
+											if(response.result == "OK"){
+												var newId = response.newId;
+												inst.set_id(the_node,newId)
+											}
+										},"json")
+										.fail(function(error){
+											console.log(error);
+											alert('하위 폴더 생성중 오류가 발생했습니다');
+											//refresh
+										});
+									}
+								});
+							} catch (ex) {
+								setTimeout(function () { inst.edit(new_node); },0);
+							}
+						});
+					  }//end create_node
 	                },
 	                "Rename": {
 	                    "separator_before": false,
 	                    "separator_after": false,
-	                    "label": "Rename",
-	                    "action": function (obj) {
-	                        tree.edit($node);
-	                    }
+	                    "icon" : "text-primary bi bi-pencil",	                    
+	                    "label": "폴더명 바꾸기",
+	                    "action": function (data) {
+	    	                var inst = $.jstree.reference(data.reference),
+	    					node = inst.get_node(data.reference);
+		    				inst.edit(node, null, function(the_node, rename_status){
+		    					if(rename_status){
+									var boxId = the_node.id;
+									var url = '/filebox/rename-filebox/' + boxId;
+									$.get(url,{name:the_node.text},function(response){
+										if(response.result == "OK"){
+											var newId = response.newId;
+											inst.set_text(the_node,the_node.text);
+										}
+									},"json")
+									.fail(function(error){
+										console.log(error);
+										alert('하위 폴더 생성중 오류가 발생했습니다');
+										//refresh
+									});
+		    					}
+		    				});
+	                    }//end actionj
 	                },
 	                "Remove": {
 	                    "separator_before": false,
 	                    "separator_after": false,
-	                    "label": "Remove",
-	                    "action": function (obj) {
-	                        tree.delete_node($node);
+	                    "icon" : "text-danger bi bi-folder-x",	
+	                    "label": "폴더 삭제",
+						"_disabled"			: function (data) {
+							var inst = $.jstree.reference(data.reference),
+							node = inst.get_node(data.reference);							
+							var selectedId = node.id;
+	                    	// 선택된 노드의 자식 노드 가져오기
+	                    	var childrenNodes = inst.get_children_dom(selectedId);
+
+	                    	// 자식 노드가 존재하는지 확인
+	                    	if (childrenNodes.length > 0) {
+	                    		return true;
+	                    	}else{
+	                    		return false;
+	                    	}							
+						},	                    
+	                    "action": function (data) {
+	                    	//debugger;
+							var inst = $.jstree.reference(data.reference),
+							node = inst.get_node(data.reference);
+							var selectedId = node.id;
+	                    	// 선택된 노드의 자식 노드 가져오기
+	                    	var childrenNodes = inst.get_children_dom(selectedId);
+
+	                    	// 자식 노드가 존재하는지 확인
+	                    	if (childrenNodes.length > 0) {
+	                    	    console.log('선택된 노드의 자식 노드가 존재합니다.');
+	                    	    alert('선택된 노드의 자식 노드가 존재하여 삭제할 수 없습니다');
+	                    	    return;
+	                    	}
+							var boxId = selectedId;
+							var url = '/filebox/delete-filebox/' + boxId;
+							$.get(url,function(response){
+								if(response.result == "OK"){
+									if(inst.is_selected(node)) {
+										inst.delete_node(inst.get_selected());
+									}
+									else {
+										inst.delete_node(node);
+									}
+								}else {
+									alert(response.msg);
+								}
+							},"json")
+							.fail(function(error){
+								console.log(error);
+								alert('하위 폴더 생성중 오류가 발생했습니다');
+								//refresh
+							});	                    	
 	                    }
 	                },
-	                "Upload": {
-	                    "seperator_beore": false,
-	                    "seperator_after": false,
-	                    "label": "Upload",
-	                    "action": function (obj) {
-	                        tree.upload_node($node);
-	                    }
-	                }
+					"ccp" : { /* cut and paste */
+						"separator_before"	: true,
+						"icon"				: "text-primary bi-clipboard2-check",
+						"separator_after"	: false,
+						"label"				: "편집",
+						"action"			: false,
+						"submenu" : {
+							"cut" : {
+								"separator_before"	: false,
+								"separator_after"	: false,
+								"icon"				: "text-warning bi bi-scissors",
+								"label"				: "잘라내기",
+								"action"			: function (data) {
+									var inst = $.jstree.reference(data.reference),
+										obj = inst.get_node(data.reference);
+									debugger;
+									if(inst.is_selected(obj)) {
+										inst.cut(inst.get_top_selected());
+									}
+									else {
+										inst.cut(obj);
+									}
+								}
+							},
+// 							"copy" : {
+// 								"separator_before"	: false,
+// 								"icon"				: false,
+// 								"separator_after"	: false,
+// 								"label"				: "Copy",
+// 								"action"			: function (data) {
+// 									var inst = $.jstree.reference(data.reference),
+// 										obj = inst.get_node(data.reference);
+// 									if(inst.is_selected(obj)) {
+// 										inst.copy(inst.get_top_selected());
+// 									}
+// 									else {
+// 										inst.copy(obj);
+// 									}
+// 								}
+// 							},
+							"paste" : {
+								"separator_before"	: false,
+								"icon"				: "text-success bi bi-clipboard-plus",
+								"_disabled"			: function (data) {
+									return !$.jstree.reference(data.reference).can_paste();
+								},
+								"separator_after"	: false,
+								"label"				: "붙여넣기",
+								"action"			: function (data) {
+									var inst = $.jstree.reference(data.reference),
+										obj = inst.get_node(data.reference);
+									debugger;
+									//var ccpNode = data.ccp_node;
+									var buffer = inst.get_buffer();
+									var ccp_nodes = buffer.node;
+									if(ccp_node == false){
+										alert("옮길 대상 폴더가 존재하지 않습니다");
+										return;
+									} 
+									var ccp_node = ccp_nodes[0];
+									var boxId = ccp_node.id;
+									var newParentId = obj.id;
+									if(newParentId == ccp_node.parent){
+										alert("옮길 위치 폴더가 동일합니다.");
+										return;
+									}
+									var url = '/filebox/move-filebox/' + boxId;
+									$.get(url,{newParentId:newParentId},function(response){
+										if(response.result == "OK"){
+											inst.paste(obj);
+										}else {
+											alert(response.msg);
+										}
+									},"json")
+									.fail(function(error){
+										console.log(error);
+										alert('하위 폴더 생성중 오류가 발생했습니다');
+										//refresh
+									});	  									
+								}
+							}
+						}
+					}
 	            };
 	        }
 	    }
@@ -443,69 +527,57 @@ function showModalCreateFolder(node){
 //create $jsTree
 function createJsTree(jsTreeConfig){
 	$jsTree = $('#divJsTree').jstree(jsTreeConfig);	
-	//노드가 선택되었을 때
+	//노드가 선택되었을 때 event
 	$jsTree.on('select_node.jstree', function(e, data) {
 		//debugger;
 	    var boxId = data.node.id;
-	    console.log(boxId);
-	    makeFileInfoSection(boxId);
+	    console.log("fileinfo section boxId: " + boxId);
+	   	makeFileInfoSection(boxId);
+	}).on('ready.jstree', function (e, data) {    
+        $jsTree.jstree('open_all');
 	});
-// 	$jsTree.on('contextmenu.jstree', function (e, data) {
-// 		console.log(e, data);
-// 		//var clickedMenuItemId = data.menu_item.id;
-//  		var clickedMenuItemId = data.node.id;
-// 	    // 사용자 정의 함수 호출
-// 	    if (clickedMenuItemId === 'create') {
-// 	      myCreateFunction();
-// 	    }
-// 	});	
-	$jsTree.bind('create_node.jstree', function(evt, data) {
-		alert('111');
-	});
-	$jsTree.bind("rename_node.jstree", function (node, text, old) {
-		alert('rename');
-	});
-
-	
 }
 function makeFileInfoSection(boxId){
     console.log(boxId);
+    // 현재 선택된 boxId를 hidden에 넣는다.
     $('#form-file-upload-box-id').val(boxId);
 
-    var selected = findNodeById(boxId);
-    
+    //박스 id가 1 즉 root라면
+    if(boxId == 1){
+    	
+    }
+    //debugger;
+ 	// jsTree에서 선택된 노드의 ID를 가져옴
+    //var selectedNodeId = $('#yourJsTreeId').jstree('get_selected')[0];
+    var foundNode = $jsTree.jstree('get_node',boxId);
+    // 선택된 노드의 부모 노드들을 가져옴
+    var parentNodes = foundNode.parents;
+
+    // 부모 노드들의 정보 출력
     var path=[];
-    var node = selected;
-    do{
-     path.push(node);
-     var parent = node.parent;
-     node = findNodeById(parent)
-    }while(node);
-    
+    for (var i = 0; i < parentNodes.length; i++) {
+        var parentNode = $jsTree.jstree('get_node',parentNodes[i]);
+        if(parentNode.id == "1" || parentNode.id == "#") continue;
+        path.push(parentNode);
+        console.log('부모 노드 ID: ' + parentNode.id + ', 부모 노드 텍스트: ' + parentNode.text);
+    }    
     var path_desc = path.reverse();
-	//var parents = selected.parents.reverse().filter(function(item){ return item !== '#'});
-// 	var node_path = parents.map(function(id) {
-// 	        return treeData.find(function(node) { return node.id === id; });
-// 	    });	
+    path_desc.push(foundNode); //선택된 노드를 맨 마지막에 넣는다
     displayPath(path_desc);
-    //$('#path-display').text(path);
-     
-     //파일목록
+
+    //파일목록을 리스트한다
      var url = '/filebox/file-list/'+boxId;
      $.get(url, function(response){
     	 console.log(response);
     	 makeFileList(response.list);
      }, "json");
 }
-function findNodeById(boxId){
-	return treeData.find(item => item.id == boxId);
-}
 
-// node_path_array
+// breadcrumb를 화면에 표시한다
 function displayPath(node_path_array) {
 	var seperator = ' / ';
 	var pathArray = [];
-	for(var i=1; i < node_path_array.length; i++){
+	for(var i=0; i < node_path_array.length; i++){
 		var node = node_path_array[i];
 		if(i == node_path_array.length -1){
 			pathArray.push( '<span>' + node.text + '</span>' );
@@ -513,22 +585,9 @@ function displayPath(node_path_array) {
 			pathArray.push( '<a class="btnBreadcrumb" href="#" data-box-id="'+node.id+'">'+node.text+'</a>' );
 		}
 	}
-	
-// 	var pathArray = node_path_array.map(function(node) {
-// 	    //return '<a href="javascript:makeFileList('+node.id+');">'+node.text+'</a>';
-// 	    return '<a class="btnBreadcrumb" href="#" data-box-id="'+node.id+'">'+node.text+'</a>';
-// 	});
 	var html = pathArray.join(seperator);
 	console.log(html);
 	$('#path-display').html(html);
-//     var s = '';
-// 	paths.forEach(function(path, index) {
-// 		s += path + ' / '
-//     });
-// 	if(s.endsWith(' / ')){
-// 		s = s.substring(0,s.lastIndexOf(' / '));
-// 	}
-//     $('#path-display').html(paths.join(seperator));
 }  
 
 function makeHtmlWithHandlebar(templateId, data){
@@ -548,21 +607,7 @@ function makeFileList(list){
 
 }); //end of document ready 
 
-function makeFileList(boxId){
-	console.log(boxId);
-	//$jsTree.on('select_node.jstree'
-//     var url = '/filebox/file-list/'+boxId;
-//     $.get(url, function(response){
-//    	 console.log(response);
-//  	 //var html = makeHtmlWithHandlebar('#table-template', {list:list});
-//  	 var data = {list: response.list};
-//      var template = $('#table-template').html();
-//      var compiledTemplate =  Handlebars.compile(template); // compile 함수가 함수를 리턴함
-//      var html = compiledTemplate(data);
- 	 
-// 	 $('#file-list-area').html(html);
-//     }, "json");
-}
+
 
 
 </script>	

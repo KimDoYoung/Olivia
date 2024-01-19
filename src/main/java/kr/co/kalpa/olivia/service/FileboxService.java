@@ -29,6 +29,9 @@ public class FileboxService {
 	public int addFolder(Filebox filebox) {
 		return repository.addFolder(filebox);
 	}
+	public int getFileboxSeq() {
+		return repository.getFileBoxSeq();
+	}
 	/**
 	 * parentId의 하위 폴더리스트를 구해서 리턴 
 	 * 
@@ -76,6 +79,26 @@ public class FileboxService {
 		  totalDeletedCount += repository.deleteFileInfo(fileInfoId);
 		}
 		return totalDeletedCount;
+	}
+
+	public int renameFilebox(Filebox filebox) {
+		return repository.renameFilebox(filebox);
+	}
+
+	public int countFilesInFilebox(Integer boxId) {
+		return repository.countFilesInFilebox(boxId);
+	}
+
+	@Transactional
+	public int deleteFilebox(Integer boxId) {
+		return repository.deleteFilebox(boxId);
+	}
+
+	public int moveFilebox(Integer boxId, Integer newParentId) {
+		Filebox filebox  = new Filebox();
+		filebox.setBoxId(boxId);
+		filebox.setParentId(newParentId);
+		return repository.moveFilebox(filebox);
 	}
 
 }
