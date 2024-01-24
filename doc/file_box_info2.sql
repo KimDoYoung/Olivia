@@ -151,10 +151,11 @@ COMMENT ON COLUMN public.tags.name IS 'tag name';
 CREATE table if not exists public.board_tag_match (
 	board_id int NOT NULL,
 	tag_id int NOT NULL,
-	CONSTRAINT pk_board_tag_match PRIMARY KEY (board_id, tag_id),
-	constraint fk_board_id  foreign key(board_id) REFERENCES board(board_id) ON DELETE RESTRICT,
-	constraint fk_tag_id  foreign key(tag_id) REFERENCES tags(tag_id) ON DELETE RESTRICT
+	CONSTRAINT pk_board_tag_match PRIMARY KEY (board_id, tag_id)
 );
 COMMENT ON TABLE public.board_tag_match IS '게시판태그매치';
 COMMENT ON COLUMN public.board_tag_match.board_id IS 'board id';
 COMMENT ON COLUMN public.board_tag_match.tag_id IS 'tag id';
+
+
+SELECT * FROM public.board b ;
