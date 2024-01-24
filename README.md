@@ -3,6 +3,9 @@
 - file box and board
 - julia에 포함시키는 것을 염두에 두다.
 
+## history
+
+- 2024-01-24 : 테이블 schema를 수정하다. ERD작성
 
 ## board
 
