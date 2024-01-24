@@ -10,8 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import kr.co.kalpa.olivia.model.QueryAttr;
 import kr.co.kalpa.olivia.model.board.Board;
 import kr.co.kalpa.olivia.model.board.BoardFile;
-import kr.co.kalpa.olivia.model.board.BoardFileMatch;
-import kr.co.kalpa.olivia.model.board.BoardTag;
+import kr.co.kalpa.olivia.model.board.Tags;
 import kr.co.kalpa.olivia.model.board.BoardTagMatch;
 import kr.co.kalpa.olivia.repository.BoardRepository;
 
@@ -28,41 +27,36 @@ public class BoardService {
 		return repository.selectList(qa);
 	}
 
+    /**
+     * 게시판 추가
+     * 
+     * @param board
+     * @return boardId 
+     */
     @Transactional
-	public int insert(@Valid Board board) {
+	public long insert(Board board) {
     	//board
-    	int boardId = repository.getSequence();
-    	board.setBoardId(boardId);
-		int i =  repository.insert(board);
+		repository.insert(board);
+		long boardId = board.getBoardId();
 		
 		//files and filematch
-		if(board.getFileList() != null) {
+		if(board.getFileList() != null && board.getFileList().size() > 0) {
 			int seq = 1;
 			for (BoardFile boardFile : board.getFileList()) {
-				int boardFileId = repository.getSequence();
-				boardFile.setBoardFileId(boardFileId);
-				//boardFile.setBoardFileId(null);
+				boardFile.setBoardId(boardId);
+				boardFile.setSeq(seq++);
 				repository.insertBoardFile(boardFile);
-				
-				BoardFileMatch boardFileMatch = new BoardFileMatch();
-				boardFileMatch.setBoardId(boardId);
-				boardFileMatch.setBoardFileId(boardFileId);
-				boardFileMatch.setSeq(seq++);
-				boardFileMatch.setDeletedYn("N");
-				
-				repository.insertBoardFileMatch(boardFileMatch);
 			}
 		}
 		
 		//tags and tagsmatch
-		if(board.getTagList() != null) {
-			for (BoardTag boardTag : board.getTagList()) {
-				BoardTag foundTag = repository.selectOneTag(boardTag);
-				Integer boardTagId ;
+		if(board.getTagList() != null && board.getTagList().size() > 0) {
+			for (Tags tag : board.getTagList()) {
+				Tags foundTag = repository.selectOneTag(tag);
+				long boardTagId ;
 				if(foundTag == null) {
-					boardTagId = repository.getSequence();
-					boardTag.setTagId(boardTagId);
-					repository.insertBoardTag(boardTag);
+					repository.insertTags(tag);
+					boardTagId =  tag.getTagId();
 				}else {
 					boardTagId = foundTag.getTagId();
 				}
@@ -73,11 +67,7 @@ public class BoardService {
 				repository.insertBoardTagMatch(boardTagMatch);
 			}
 		}
-		return i;
-	}
-
-	public int getSequence() {
-		return repository.getSequence();
+		return boardId;
 	}
 
 	/**
@@ -88,14 +78,14 @@ public class BoardService {
 	 * @param boardId
 	 * @return
 	 */
-	public Board selectBoardOne(Integer boardId) {
+	public Board selectBoardOne(Long boardId) {
 		
 		Board board = new Board();
 		board.setBoardId(boardId);
 		board = repository.selectBoardOne(board);
 		
 		//tag list
-		List<BoardTag> list = repository.selectTagList(board.getBoardId());
+		List<Tags> list = repository.selectTagList(board.getBoardId());
 		board.setTagList(list);
 		
 		//file list
@@ -112,13 +102,13 @@ public class BoardService {
 	 * @return
 	 */
 	@Transactional
-	public int update(Board board, Integer[] deleteFiles) {
+	public int update(Board board, Long[] deleteFiles) {
 		
-		int boardId = board.getBoardId();
+		long boardId = board.getBoardId();
 		//첨부된 파일 지울 게 있으면 지운다.
 		if(deleteFiles != null) {
-			for (Integer boardFileId : deleteFiles) {
-				repository.deleteBoardFileMatch(boardFileId);
+			for (Long boardFileId : deleteFiles) {
+				repository.deleteBoardFileWithFileId(boardFileId);
 			}
 		}
 		
@@ -126,18 +116,9 @@ public class BoardService {
 		if(board.getFileList() != null) {
 			int seq = 1;
 			for (BoardFile boardFile : board.getFileList()) {
-				int boardFileId = repository.getSequence();
-				boardFile.setBoardFileId(boardFileId);
-				//boardFile.setBoardFileId(null);
-				repository.insertBoardFile(boardFile);
-				
-				BoardFileMatch boardFileMatch = new BoardFileMatch();
-				boardFileMatch.setBoardId(boardId);
-				boardFileMatch.setBoardFileId(boardFileId);
-				boardFileMatch.setSeq(seq++);
-				boardFileMatch.setDeletedYn("N");
-				
-				repository.insertBoardFileMatch(boardFileMatch);
+				boardFile.setBoardId(boardId);
+				boardFile.setSeq(seq++);
+				repository.insertBoardFile(boardFile);			
 			}
 		}
 		
@@ -146,13 +127,11 @@ public class BoardService {
 
 		//태그 넣기
 		if(board.getTagList() != null) {
-			for (BoardTag boardTag : board.getTagList()) {
-				BoardTag foundTag = repository.selectOneTag(boardTag);
-				Integer boardTagId ;
+			for (Tags tag : board.getTagList()) {
+				Tags foundTag = repository.selectOneTag(tag);
+				long boardTagId ;
 				if(foundTag == null) {
-					boardTagId = repository.getSequence();
-					boardTag.setTagId(boardTagId);
-					repository.insertBoardTag(boardTag);
+					boardTagId = repository.insertTags(tag);
 				}else {
 					boardTagId = foundTag.getTagId();
 				}
@@ -176,8 +155,7 @@ public class BoardService {
 	 * @param boardId
 	 */
 	@Transactional
-	public int delete(Integer boardId) {
-		repository.deleteBoardFileMatchWithBoardId(boardId);
+	public int delete(Long boardId) {
 		repository.deleteBoardTagMatchWithBoardId(boardId);
 		return repository.delete(boardId);
 	}

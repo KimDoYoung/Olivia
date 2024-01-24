@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -23,7 +22,7 @@ import kr.co.kalpa.olivia.exception.BoardException;
 import kr.co.kalpa.olivia.model.QueryAttr;
 import kr.co.kalpa.olivia.model.board.Board;
 import kr.co.kalpa.olivia.model.board.BoardFile;
-import kr.co.kalpa.olivia.model.board.BoardTag;
+import kr.co.kalpa.olivia.model.board.Tags;
 import kr.co.kalpa.olivia.service.BoardService;
 import kr.co.kalpa.olivia.utils.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -78,7 +77,7 @@ public class BoardController{
 	) throws BoardException {
 
 		board.setFileList(new ArrayList<BoardFile>());
-		board.setTagList(new ArrayList<BoardTag>());
+		board.setTagList(new ArrayList<Tags>());
 		
 		//file를 옮기고 fileList를 채운다.
 		for (MultipartFile file : files) {
@@ -90,18 +89,18 @@ public class BoardController{
 		//tagList를 넣는다.
 		List<String> list = CommonUtil.toListFromString(tags);
 		for (String name : list) {
-			BoardTag tag = new BoardTag();
+			Tags tag = new Tags();
 			tag.setName(name);
 			board.getTagList().add( tag  );
 		}
 		
-		int i = boardService.insert(board);
+		long i = boardService.insert(board);
 
 		return "redirect:/board";
 	}
 
 	@GetMapping("update")
-	public String updatePage(Integer boardId, Model model) throws BoardException {
+	public String updatePage(Long boardId, Model model) throws BoardException {
 		Board board = boardService.selectBoardOne(boardId);
 		if(board == null) {
 			throw new BoardException("board id : " + boardId + " is not exist");
@@ -117,7 +116,7 @@ public class BoardController{
 	@PostMapping("update")
 	public String update(
 			@ModelAttribute("board") Board board, 
-			@RequestParam(name="deletefiles", required=false) Integer[] deleteFiles, 
+			@RequestParam(name="deletefiles", required=false) Long[] deleteFiles, 
 			@RequestPart("files") List<MultipartFile> files,
 			@RequestParam(name="tags", required=false) String tags,			
 			Model model
@@ -127,7 +126,7 @@ public class BoardController{
 		log.debug("deleteFiles:{}", deleteFiles);
 		
 		board.setFileList(new ArrayList<BoardFile>());
-		board.setTagList(new ArrayList<BoardTag>());
+		board.setTagList(new ArrayList<Tags>());
 		
 		//file를 옮기고 fileList를 채운다.
 		for (MultipartFile file : files) {
@@ -139,19 +138,19 @@ public class BoardController{
 		//tagList를 넣는다.
 		List<String> list = CommonUtil.toListFromString(tags);
 		for (String name : list) {
-			BoardTag tag = new BoardTag();
+			Tags tag = new Tags();
 			tag.setName(name);
 			board.getTagList().add( tag  );
 		}
 		
 		//board update
-		int i = boardService.update(board, deleteFiles);	
+		long i = boardService.update(board, deleteFiles);	
 		
 		return "redirect:/board";
 	}
 	
 	@PostMapping("delete")
-	public String delete(@RequestParam("boardId") Integer boardId) {
+	public String delete(@RequestParam("boardId") Long boardId) {
 		
 		int i = boardService.delete(boardId);
 		
@@ -159,7 +158,7 @@ public class BoardController{
 	}
 	
 	@GetMapping("view/{boardId}")
-	public String viewPage(@PathVariable Integer boardId, Model model) throws BoardException {
+	public String viewPage(@PathVariable Long boardId, Model model) throws BoardException {
 		Board board = boardService.selectBoardOne(boardId);
 		model.addAttribute("board", board);
 		return "/board/view";
@@ -188,6 +187,7 @@ public class BoardController{
             boardFile.setPhyFolder(targetFolder);
             boardFile.setPhyName(uuid);
             boardFile.setOrgName(orgName);
+            
             boardFile.setFileSize(fileSize);
             boardFile.setExt(ext);
             log.debug("업로드 파일 boardFile : {}", boardFile);

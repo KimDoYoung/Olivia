@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class BoardTagMatch {
-	private Integer boardId;
-	private Integer tagId;
+	private Long boardId;
+	private Long tagId;
 }

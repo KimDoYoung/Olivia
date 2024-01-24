@@ -56,11 +56,13 @@
 			,start_ymd as startYmd
 			,end_ymd as endYmd
 			,status as status
+			,last_modify_on as lastModifyOn
+			,modify_count as modifyCount
 			,create_on as createOn
 			,create_by as createBy
 			,(
 				select count(*) 
-				from board_file_match  
+				from board_file  
 				where board_id  = A.board_id
 			) AS attached_file_count
 	   FROM 
@@ -90,15 +92,17 @@
 	   WHERE 1=1
 	       	AND board_id = #{boardId}
    </select>
-   
-   <insert id="insert" parameterType="Board">
-   /** 게시판 추가*/
-   INSERT INTO public.board (
-      board_id, board_type, title, content, view_count, start_ymd, end_ymd, status,  create_by
-    ) VALUES (
-      #{boardId}, #{boardType}, #{title}, #{content}, #{viewCount}, replace(#{startYmd},'-',''), replace(#{endYmd},'-',''), COALESCE(#{status},'0'),  #{createBy}
-    )
+
+   <insert id="insert" parameterType="Board" useGeneratedKeys="true" keyProperty="boardId">
+	   /** 게시판 추가*/
+	   INSERT INTO public.board (
+	      board_type, title, "content", view_count, start_ymd, end_ymd, status, create_by
+	    ) VALUES (
+	      #{boardType}, #{title}, #{content}, 0, replace(#{startYmd},'-',''), replace(#{endYmd},'-',''), COALESCE(#{status},'0'), #{createBy}
+	    )
+	    RETURNING board_id
    </insert>
+   
  <update id="update" parameterType="Board">
  	/** 게시판 update*/
     UPDATE public.board
@@ -117,45 +121,39 @@
   	delete from board where board_id = ${value}
   </delete>
   
-  <select id="getSequence" parameterType="Board" resultType="Integer">
-    /** 채번 */
-  	select nextval('sys_seq')
-  </select>
-  <insert id="insertBoardTag" parameterType="BoardTag" >
-    /** 게시판 태그 추가 */
-	INSERT INTO public.board_tag
-		(tag_id, "name")
+  <insert id="insertTags" parameterType="Tags" useGeneratedKeys="true" keyProperty="tagId">
+    /** insertBoardTag :  태그 추가 */
+	INSERT INTO public.tags
+		("name")
 	VALUES
-		(#{tagId}, #{name});
+		( #{name})
+	 RETURNING tag_id
   </insert>
-  <insert id="insertBoardFile" parameterType="BoardFile">
+
+  
+  <insert id="insertBoardFile" parameterType="BoardFile" useGeneratedKeys="true" keyProperty="board_file_id">
   	/** 게시판 첨부파일  추가 */
   	INSERT INTO public.board_file
-	(board_file_id, phy_folder, phy_name, org_name, mime_type, file_size, ext, note, create_on, create_by)
+	( board_id, seq,  phy_folder, phy_name, org_name, mime_type, file_size, ext, note, create_on, create_by)
 	VALUES
-	(#{boardFileId}, #{phyFolder},  #{phyName}, #{orgName}, #{mimeType}, #{fileSize}, #{ext}, #{note}, CURRENT_TIMESTAMP, #{createBy});
-  
+	( #{boardId}, #{seq}, #{phyFolder}, #{phyName}, #{orgName}, #{mimeType}, #{fileSize}, #{ext}, #{note}, CURRENT_TIMESTAMP, #{createBy});
+	RETURNING board_file_id
   </insert>
-  <insert id="insertBoardFileMatch" parameterType="BoardFileMatch">
-  	INSERT INTO public.board_file_match
-	(board_id, board_file_id, seq, deleted_yn )
-	VALUES
-	(#{boardId}, #{boardFileId}, #{seq}, #{deletedYn})
   
-  </insert>
   <insert id="insertBoardTagMatch" parameterType="BoardTagMatch">
+  	/** insertBoardTagMatch */
   	INSERT INTO public.board_tag_match
 	(board_id, tag_id)
 	VALUES
 	(#{boardId}, #{tagId});
   
   </insert>
-  <select id="selectOneTag" parameterType="BoardTag" resultType="BoardTag">
-    /* 1개의 boardTag 조회*/
+  <select id="selectOneTag" parameterType="Tags" resultType="Tags">
+    /* 1개의 Tags 조회*/
   	select 
   		tag_id as tagId, 
   		name 
-  	from public.board_tag 
+  	from public.tags 
   	where 1=1
   	<if test="name != null">
   		and name = #{name}
@@ -165,19 +163,19 @@
   	</if>	
   </select>
 
-  <select id="selectTagList" parameterType="Integer" resultType="BoardTag">
+  <select id="selectTagList" parameterType="Long" resultType="Tags">
 	/* board_id로 tag들 리스트 조회*/
 	select 
 	 B.tag_id as tagId
 	 ,B.name as name
 	from 
 		board_tag_match A
-		inner join board_tag B on A.tag_id  = B.tag_id 
+		inner join tags B on A.tag_id  = B.tag_id 
 	where
 		A.board_id  = #{value}	  	
   </select>
   
-  <select id="selectFileList"  parameterType="Integer" resultType="BoardFile">
+  <select id="selectFileList"  parameterType="Long" resultType="BoardFile">
 	/** board_id에 소속된 BoardFile을 조회*/
 	select 
 		  B.board_file_id AS boardFileId 
@@ -197,13 +195,11 @@
 		and A.board_id  = #{value}
 	order by A.seq   
   </select>
-  <delete id="deleteBoardFileMatch" parameterType="Integer">
-  	/** board_file_match에서 file_id로 삭제*/
-  	delete from 
-  		board_file_match 
-  	where 
-  		board_file_id = #{value}
+  
+  <delete id="deleteBoardFileWithFileId" parameterType="Long">
+  	delete from public.board_file where board_file_id = #{boardFileId};
   </delete>
+
   <delete id="deleteBoardTagMatch" parameterType="Integer">
   	/** board_tag_match에서 board_id로 삭제*/
   	delete from 
@@ -212,12 +208,8 @@
   		board_id = #{value}
   </delete>
   
-  <delete id="deleteBoardFileMatchWithBoardId" parameterType="Integer">
-  	/* board_file_match 를 board_id로 삭제 */
-  	delete from board_file_match where board_id = #{value}
-  </delete>
-  <delete id="deleteBoardTagMatchWithBoardId" parameterType="Integer">
-  	/* board_tag_match 를 board_id로 삭제 */
+  <delete id="deleteBoardTagMatchWithBoardId" parameterType="Long">
+  	/* board_tag_match 를 board_id로 모두 삭제 */
   	delete from board_tag_match where board_id = #{value}
   </delete>
 </mapper>

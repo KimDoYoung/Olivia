@@ -14,9 +14,8 @@
 		<!-- Board -->
 		<typeAlias type="kr.co.kalpa.olivia.model.board.Board" alias="Board"/>
 		<typeAlias type="kr.co.kalpa.olivia.model.board.BoardFile" alias="BoardFile"/>
-		<typeAlias type="kr.co.kalpa.olivia.model.board.BoardFileMatch" alias="BoardFileMatch"/>
-		<typeAlias type="kr.co.kalpa.olivia.model.board.BoardTag" alias="BoardTag"/>
 		<typeAlias type="kr.co.kalpa.olivia.model.board.BoardTagMatch" alias="BoardTagMatch"/>
+		<typeAlias type="kr.co.kalpa.olivia.model.board.Tags" alias="Tags"/>
 		<!-- Filebox -->
 		<typeAlias type="kr.co.kalpa.olivia.model.filebox.Filebox" alias="Filebox"/>
 		<typeAlias type="kr.co.kalpa.olivia.model.filebox.FileInfo" alias="FileInfo"/>

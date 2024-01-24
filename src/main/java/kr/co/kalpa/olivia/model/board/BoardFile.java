@@ -6,7 +6,9 @@ import lombok.Data;
 
 @Data
 public class BoardFile {
-	private Integer boardFileId;
+	private Long boardFileId;
+	private Long boardId;
+	private Integer seq;
 	private String phyFolder;
 	private String phyName;
 	private String orgName;
