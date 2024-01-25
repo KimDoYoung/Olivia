@@ -3,14 +3,6 @@
 <mapper namespace="kr.co.kalpa.olivia.repository.BoardRepository">
    <sql id="whereCondition">
 		<!--    검색조건 -->
-   		<if test="status != null">
-	       	AND status = #{status}
-		</if>		
-
-   		<if test="dateRangeCheck">
-	       	AND TO_CHAR(CURRENT_DATE, 'YYYYMMDD') between start_ymd and end_ymd
-		</if>		
-		
    		<if test="boardId != null">
 	       	AND board_id = #{boardId}
 		</if>		
@@ -45,8 +37,27 @@
    </select>
    <select id="selectList" parameterType="QueryAttr" resultType="Board">
    	   /** 게시판의 리스트 조회*/
+	   WITH attached_file_count AS(
+	   	SELECT 
+	   		board_id 
+	   		, count(*) AS cnt
+	   	FROM board_file 
+	   	GROUP BY board_id	   
+	   ), board_tags AS (
+			SELECT board_id,
+			       string_agg(name, ',') AS tags
+			FROM (
+			    SELECT btm.board_id,
+			           t.name
+			    FROM public.board_tag_match btm
+			           JOIN public.tags t ON btm.tag_id = t.tag_id
+			    ORDER BY t.last_use_on DESC
+			    LIMIT 3
+			) subquery
+			GROUP BY board_id	   
+	   )   	   
 	   SELECT 
-	   		 board_id as boardId
+	   		 A.board_id as boardId
 	   		,board_type as boardType
 			,title as title
 			<if test="includeContent">
@@ -60,14 +71,18 @@
 			,modify_count as modifyCount
 			,create_on as createOn
 			,create_by as createBy
-			,(
-				select count(*) 
-				from board_file  
-				where board_id  = A.board_id
-			) AS attached_file_count
+			,COALESCE (B.cnt,0) AS attachedFileCount
+			,C.tags
 	   FROM 
-	   		board A
+	   		board A 
+	   		LEFT OUTER JOIN attached_file_count B ON A.board_id = B.board_id
+	   		LEFT OUTER JOIN board_tags C ON A.board_id = C.board_id
 	   WHERE 1=1
+	   		AND CASE WHEN A.create_by  = #{currentUser.userId} THEN TRUE
+	   		ELSE  
+	   		  TO_CHAR(CURRENT_DATE, 'YYYYMMDD') between start_ymd and end_ymd 
+	   		  AND status = '1'
+	   		end
 	   	<include refid="whereCondition"/>
 	   ORDER BY boardId desc
 	   <if test="pageAttr != null">	
@@ -85,6 +100,8 @@
 			,start_ymd as startYmd
 			,end_ymd as endYmd
 			,status as status
+			,last_modify_on as lastModifyOn
+			,modify_count as modifyCount
 			,create_on as createOn
 			,create_by as createBy
 	   FROM 
@@ -117,26 +134,31 @@
     WHERE
       board_id = #{boardId}
   </update>  
+  
   <delete id="delete" parameterType="Integer">
-  	delete from board where board_id = ${value}
+  	/* delete board : board_id로 board삭제 */
+  	delete from board 
+  		where board_id = ${value}
   </delete>
   
   <insert id="insertTags" parameterType="Tags" useGeneratedKeys="true" keyProperty="tagId">
     /** insertBoardTag :  태그 추가 */
-	INSERT INTO public.tags
-		("name")
-	VALUES
-		( #{name})
-	 RETURNING tag_id
+	INSERT INTO public.tags (name)
+	VALUES (#{name})
+	ON CONFLICT ON CONSTRAINT tag_must_1
+	DO UPDATE SET
+	    use_count = public.tags.use_count + 1,
+	    last_use_on = current_timestamp
+	RETURNING tag_id	 
   </insert>
 
   
-  <insert id="insertBoardFile" parameterType="BoardFile" useGeneratedKeys="true" keyProperty="board_file_id">
-  	/** 게시판 첨부파일  추가 */
+  <insert id="insertBoardFile" parameterType="BoardFile" useGeneratedKeys="true" keyProperty="boardFileId">
+  	/** insertBoardFile 게시판 첨부파일  추가 */
   	INSERT INTO public.board_file
 	( board_id, seq,  phy_folder, phy_name, org_name, mime_type, file_size, ext, note, create_on, create_by)
 	VALUES
-	( #{boardId}, #{seq}, #{phyFolder}, #{phyName}, #{orgName}, #{mimeType}, #{fileSize}, #{ext}, #{note}, CURRENT_TIMESTAMP, #{createBy});
+	( #{boardId}, #{seq}, #{phyFolder}, #{phyName}, #{orgName}, #{mimeType}, #{fileSize}, #{ext}, #{note}, CURRENT_TIMESTAMP, #{createBy})
 	RETURNING board_file_id
   </insert>
   
@@ -151,7 +173,9 @@
   <select id="selectOneTag" parameterType="Tags" resultType="Tags">
     /* 1개의 Tags 조회*/
   	select 
-  		tag_id as tagId, 
+  		tag_id as tagId,
+  		use_count as useCount,
+  		last_use_on as lastUseOn,
   		name 
   	from public.tags 
   	where 1=1
@@ -176,9 +200,10 @@
   </select>
   
   <select id="selectFileList"  parameterType="Long" resultType="BoardFile">
-	/** board_id에 소속된 BoardFile을 조회*/
+	/** selectFileList: board_id에 소속된 BoardFile을 조회*/
 	select 
-		  B.board_file_id AS boardFileId 
+		  B.board_file_id AS boardFileId
+		, B.seq 		  AS seq   
 		, B.phy_folder    AS phyFolder   
 		, B.phy_name      AS phyName     
 		, B.org_name      AS orgName     
@@ -189,25 +214,28 @@
 		, B.create_on     AS createOn    
 		, B.create_by     AS createBy
 	from 
-		board_file_match A 
-		inner join board_file B on A.board_file_id  = B.board_file_id 
+		board_file B 
 	where 1=1
-		and A.board_id  = #{value}
-	order by A.seq   
+		and B.board_id  = #{value}
+	order by B.seq   
   </select>
-  
+  <select id="getNextBoardFileSeq" parameterType="Long" resultType="Integer">
+	/* getMaxBoardFileSeq : next seq of board_file with board_id*/
+  	SELECT COALESCE (max(seq),0) + 1 AS nextSeq FROM board_file WHERE board_id = #{value}
+  </select>
   <delete id="deleteBoardFileWithFileId" parameterType="Long">
-  	delete from public.board_file where board_file_id = #{boardFileId};
+   /* deleteBoardFileWithFileId : board_file테이블을 file_id로 삭제*/
+  	delete from public.board_file 
+  		where board_file_id = #{boardFileId};
   </delete>
 
-  <delete id="deleteBoardTagMatch" parameterType="Integer">
-  	/** board_tag_match에서 board_id로 삭제*/
-  	delete from 
-  		board_tag_match 
-  	where 
-  		board_id = #{value}
+  <delete id="deleteBoardFileWithBoardId" parameterType="Long">
+  /* deleteBoardFileWithBoardId : board_file테이블을 board_id로 삭제*/
+  	delete from public.board_file 
+  		where board_id = #{boardId};
   </delete>
-  
+
+ 
   <delete id="deleteBoardTagMatchWithBoardId" parameterType="Long">
   	/* board_tag_match 를 board_id로 모두 삭제 */
   	delete from board_tag_match where board_id = #{value}

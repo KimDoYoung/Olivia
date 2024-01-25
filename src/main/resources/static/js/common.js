@@ -112,7 +112,7 @@ var JuliaUtil = (function(){
     }
     
     var displayLoading = function(show) {
-		debugger;
+		//debugger;
 		const loading_div_id = '#julia-loading-div';
 		let loading_div_nm = loading_div_id.substring(1);
 		if( $(loading_div_id).length > 0 ){
@@ -210,6 +210,7 @@ var JuliaUtil = (function(){
         $.each( data, function( key, val ) {
             $form.append($('<input/>', {type: 'hidden', name: key, value: val }));
         });
+        //debugger;
         $form.submit();
     }
     var popupWindow = function popupWin(url, name, prop, pWidth, pHeight){
@@ -300,6 +301,10 @@ var JuliaUtil = (function(){
 	   d = JuliaUtil.displayYmd(d);
 	   return !isNaN(new Date(d));
    }
+   var navigateTo = function navigateToURL(url) {
+    	window.location.href = url;
+   }
+
     return {
         isString : isString,
         isNumber : isNumber,
@@ -323,6 +328,7 @@ var JuliaUtil = (function(){
         submitPost: function(action, dataObject){
             formSubmit('POST', action, dataObject);
         },
+        navigateTo : navigateTo,
         popupWindow : popupWindow,
         formToJson : formToJson,
         displayYmd : displayYmd, 

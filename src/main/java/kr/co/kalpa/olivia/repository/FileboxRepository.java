@@ -2,58 +2,75 @@ package kr.co.kalpa.olivia.repository;
 
 import java.util.List;
 
-import kr.co.kalpa.olivia.model.filebox.FileInfo;
-import kr.co.kalpa.olivia.model.filebox.FileMatch;
-import kr.co.kalpa.olivia.model.filebox.Filebox;
+import kr.co.kalpa.olivia.model.filebox.FbFile;
+import kr.co.kalpa.olivia.model.filebox.FbNode;
 
 public interface FileboxRepository {
 
-	int addFolder(Filebox filebox);
-	int getFileBoxSeq(); //sequence
+	/**
+	 * node를 추가
+	 * 
+	 * @param fbNode
+	 * @return
+	 */
+	Long insertNode(FbNode fbNode);
+	
 
-	List<Filebox> subFolderList(int parentId);
+	/**
+	 * parentId안에 포함되어 있는 node 리스트
+	 * 
+	 * @param parentId
+	 * @return
+	 */
+	List<FbNode> subNodeList(Long parentId);
 
 	/**
 	 * boxId에 담겨져 있는 파일들 리스트 
 	 * @param boxId
 	 * @return
 	 */
-	List<FileInfo> selectFiles(Integer boxId);
+	List<FbFile> selectFiles(Long nodeId);
 
 	/**
 	 * file_info 테이블에 저장
-	 * @param fileInfo
+	 * @param FbFile
 	 * @return
 	 */
-	Integer insertFileInfo(FileInfo fileInfo);
+	Long insertFile(FbFile fbFile);
 
 	/**
-	 * file_match 테이블에 저장한다
-	 * @param match
-	 */
-	Integer insertFileMatch(FileMatch match);
-
-	int getFileInfoSeq();
-
-	int deleteFileInfo(Integer fileInfoId);
-	/**
-	 * filebox의 이름을 바꾼다.
-	 * @param filebox
+	 * fileId에 해당하는 파일을 삭제
+	 * 
+	 * @param fileId
 	 * @return
 	 */
-	int renameFilebox(Filebox filebox);
+	int deleteFile(Long fileId);
+
+	/**
+	 * FbNode의 이름을 바꾼다.
+	 * @param FbNode
+	 * @return
+	 */
+	int renameNode(FbNode fbNode);
 	/**
 	 * boxId 에 포함된 파일의 갯수를 리턴
 	 * @param boxId
 	 * @return
 	 */
-	int countFilesInFilebox(Integer boxId);
+	int countFilesInNode(Long nodeId);
 	/**
 	 * file_box에서 boxId에 해당하는 row를 지운다.
 	 * @param boxId
 	 * @return
 	 */
-	int deleteFilebox(Integer boxId);
-	int moveFilebox(Filebox filebox);
+	int deleteNode(Long nodeId);
+	
+	/**
+	 * node를 새로운 parent_id로 옮긴다.
+	 * 
+	 * @param fbNode
+	 * @return
+	 */
+	int moveNode(FbNode fbNode);
 
 }

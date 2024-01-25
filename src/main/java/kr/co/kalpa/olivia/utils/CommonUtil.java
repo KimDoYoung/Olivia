@@ -69,7 +69,7 @@ public class CommonUtil {
 	public static List<String> toListFromString(String tags) {
 		List<String> list = new ArrayList<>();
 		if(tags == null) return list;
-		String[] tagArray = tags.trim().split("[,|]*\\s+");
+		String[] tagArray = tags.trim().split("[,|]\\s*");
 		for (String s : tagArray) {
 			list.add(s);
 		}

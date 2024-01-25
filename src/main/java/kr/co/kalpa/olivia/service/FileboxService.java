@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.kalpa.olivia.model.filebox.FileInfo;
-import kr.co.kalpa.olivia.model.filebox.FileMatch;
-import kr.co.kalpa.olivia.model.filebox.Filebox;
+import kr.co.kalpa.olivia.model.filebox.FbFile;
+import kr.co.kalpa.olivia.model.filebox.FbNode;
 import kr.co.kalpa.olivia.repository.FileboxRepository;
+
 
 @Service
 public class FileboxService {
@@ -19,86 +19,79 @@ public class FileboxService {
 		this.repository = repository;
 	}
 
+
 	/**
-	 * filebox의 내용으로 폴더를 추가한다
-	 * 
-	 * @param filebox
+	 * node를 하나 추가한다
+	 * @param fbNode
 	 * @return
 	 */
 	@Transactional
-	public int addFolder(Filebox filebox) {
-		return repository.addFolder(filebox);
+	public Long insertNode(FbNode fbNode) {
+		return repository.insertNode(fbNode);
 	}
-	public int getFileboxSeq() {
-		return repository.getFileBoxSeq();
-	}
+
 	/**
 	 * parentId의 하위 폴더리스트를 구해서 리턴 
 	 * 
 	 * @param parentId
 	 * @return
 	 */
-	public List<Filebox> subFolderList(int parentId) {
-		return repository.subFolderList(parentId);
+	public List<FbNode> subNodeList(Long parentId) {
+		return repository.subNodeList(parentId);
 	}
 
 	/**
-	 * boxId에 담겨 있는 파일들을 리스트
-	 * @param boxId
-	 * @return
+	 * nodeId에 담겨 있는 파일들을 리스트
+	 * @param nodeId
+	 * @return FbFile list
 	 */
-	public List<FileInfo> selectFiles(Integer boxId) {
-		return repository.selectFiles(boxId);
+	public List<FbFile> selectFiles(Long nodeId) {
+		return repository.selectFiles(nodeId);
 	}
 
 	/**
-	 * file_info와 file_match 2개의 테이블에 레코드 추가
-	 * @param fileInfo
+	 * file을 추가하고 추가된 파일의 fileId를 리턴한다
+	 * @param FbFile
 	 * @return
 	 */
 	@Transactional
-	public Integer insertFileInfoAndMatch(FileInfo fileInfo) {
+	public Long insertFbFile(FbFile FbFile) {
 		
-		repository.insertFileInfo(fileInfo);
-		int id = repository.getFileInfoSeq();
-		FileMatch match = new FileMatch();
-		match.setBoxId(fileInfo.getBoxId());
-		match.setFileInfoId(id);
-		int i = repository.insertFileMatch(match);
-		return i;
+		Long insertedFileId = repository.insertFile(FbFile);
+		return insertedFileId;
 	}
 
 	/**
 	 * file_info에서 파일들을 지운다.
-	 * @param deleteFileInfoIdList
+	 * @param deleteFbFileIdList
 	 * @return
 	 */
-	public int deleteFiles(List<Integer> deleteFileInfoIdList) {
+	public int deleteFiles(List<Long> deleteFbFileIdList) {
 		int totalDeletedCount = 0;
-		for (Integer fileInfoId : deleteFileInfoIdList) {
-		  totalDeletedCount += repository.deleteFileInfo(fileInfoId);
+		for (Long fileId : deleteFbFileIdList) {
+		  totalDeletedCount += repository.deleteFile(fileId);
 		}
 		return totalDeletedCount;
 	}
 
-	public int renameFilebox(Filebox filebox) {
-		return repository.renameFilebox(filebox);
+	public int renameNode(FbNode fbNode) {
+		return repository.renameNode(fbNode);
 	}
 
-	public int countFilesInFilebox(Integer boxId) {
-		return repository.countFilesInFilebox(boxId);
+	public int countFilesInNode(Long nodeId) {
+		return repository.countFilesInNode(nodeId);
 	}
 
 	@Transactional
-	public int deleteFilebox(Integer boxId) {
-		return repository.deleteFilebox(boxId);
+	public int deleteNode(Long nodeId) {
+		return repository.deleteNode(nodeId);
 	}
 
-	public int moveFilebox(Integer boxId, Integer newParentId) {
-		Filebox filebox  = new Filebox();
-		filebox.setBoxId(boxId);
-		filebox.setParentId(newParentId);
-		return repository.moveFilebox(filebox);
+	public int moveNode(Long nodeId, Long newParentId) {
+		FbNode node = new FbNode();
+		node.setNodeId(nodeId);
+		node.setParentId(newParentId);
+		return repository.moveNode(node);
 	}
 
 }

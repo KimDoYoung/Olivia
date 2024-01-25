@@ -29,22 +29,31 @@ public interface BoardRepository {
 	// board_id에 소속된 BoardFile을 조회
 	List<BoardFile> selectFileList(Long boardId);
 	
-	//board_file_match에서 boardFileId로 삭제한다
-	void deleteBoardFileMatch(Long boardFileId);
-	
-	//board_tag_match에서 board_id로 모두 지운다.
-	void deleteBoardTagMatch(Long boardId);
-	
 	//board update
 	int update(Board board);
 	
 	//board delete
 	int delete(Long board);
-	//boardtagmatch delete
+	
+	/**
+	 * board_id로 board_tag_match를 지운다.
+	 * @param boardId
+	 */
 	void deleteBoardTagMatchWithBoardId(Long boardId);
 	/**
 	 * board_file을 file_id로  삭제한다. 즉 1개 삭제한다
 	 * @param boardFileId
 	 */
 	void deleteBoardFileWithFileId(Long boardFileId);
+	/**
+	 * boardId로 board에 딸려 있는 파일들을 모두 지운다.
+	 * @param boardId
+	 */
+	void deleteBoardFileWithBoardId(Long boardId);
+	/**
+	 * 다음번 seq
+	 * @param boardId
+	 * @return
+	 */
+	int getNextBoardFileSeq(long boardId);
 }

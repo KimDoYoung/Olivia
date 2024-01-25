@@ -2,6 +2,7 @@ package kr.co.kalpa.olivia.model.board;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.Data;
@@ -27,11 +28,11 @@ public class Board {
 	private List<BoardFile> fileList;
 	
 	//관련 태그들
-	private List<Tags> tagList;
-	
+	private Set<Tags> tagSet;
+		
 	public String getTags() {
-		if(tagList == null || tagList.size() == 0) return "";
-		String tags = tagList.stream()
+		if(tagSet == null || tagSet.size() == 0) return "";
+		String tags = tagSet.stream()
 					.map(Tags::getName)
 					.collect(Collectors.joining(", "));
 		return tags;

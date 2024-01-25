@@ -1,8 +1,8 @@
 package kr.co.kalpa.olivia.service;
 
+import java.util.HashSet;
 import java.util.List;
-
-import javax.validation.Valid;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import kr.co.kalpa.olivia.model.QueryAttr;
 import kr.co.kalpa.olivia.model.board.Board;
 import kr.co.kalpa.olivia.model.board.BoardFile;
-import kr.co.kalpa.olivia.model.board.Tags;
 import kr.co.kalpa.olivia.model.board.BoardTagMatch;
+import kr.co.kalpa.olivia.model.board.Tags;
 import kr.co.kalpa.olivia.repository.BoardRepository;
 
 @Service
@@ -50,11 +50,12 @@ public class BoardService {
 		}
 		
 		//tags and tagsmatch
-		if(board.getTagList() != null && board.getTagList().size() > 0) {
-			for (Tags tag : board.getTagList()) {
+		if(board.getTagSet() != null && board.getTagSet().size() > 0) {
+			for (Tags tag : board.getTagSet()) {
 				Tags foundTag = repository.selectOneTag(tag);
 				long boardTagId ;
 				if(foundTag == null) {
+					if(tag.getName() == null || tag.getName().length()< 1) continue;
 					repository.insertTags(tag);
 					boardTagId =  tag.getTagId();
 				}else {
@@ -86,7 +87,8 @@ public class BoardService {
 		
 		//tag list
 		List<Tags> list = repository.selectTagList(board.getBoardId());
-		board.setTagList(list);
+		Set<Tags> tagSet = new HashSet<>(list);
+		board.setTagSet(tagSet);
 		
 		//file list
 		List<BoardFile> fileList = repository.selectFileList(board.getBoardId());
@@ -105,6 +107,7 @@ public class BoardService {
 	public int update(Board board, Long[] deleteFiles) {
 		
 		long boardId = board.getBoardId();
+		
 		//첨부된 파일 지울 게 있으면 지운다.
 		if(deleteFiles != null) {
 			for (Long boardFileId : deleteFiles) {
@@ -114,7 +117,7 @@ public class BoardService {
 		
 		//files and filematch
 		if(board.getFileList() != null) {
-			int seq = 1;
+			int seq = repository.getNextBoardFileSeq(boardId);
 			for (BoardFile boardFile : board.getFileList()) {
 				boardFile.setBoardId(boardId);
 				boardFile.setSeq(seq++);
@@ -123,11 +126,11 @@ public class BoardService {
 		}
 		
 		//태그를 모두 지우고.
-		repository.deleteBoardTagMatch(board.getBoardId());
+		repository.deleteBoardTagMatchWithBoardId(board.getBoardId());
 
 		//태그 넣기
-		if(board.getTagList() != null) {
-			for (Tags tag : board.getTagList()) {
+		if(board.getTagSet() != null) {
+			for (Tags tag : board.getTagSet()) {
 				Tags foundTag = repository.selectOneTag(tag);
 				long boardTagId ;
 				if(foundTag == null) {
@@ -149,7 +152,7 @@ public class BoardService {
 	/**
 	 * boardId에 해당하는 board를 삭제
 	 * 1. tag Match 삭제
-	 * 2. file Match 삭제
+	 * 2. board_file 삭제
 	 * 3. board 자체를 삭제
 	 * 
 	 * @param boardId
@@ -157,7 +160,9 @@ public class BoardService {
 	@Transactional
 	public int delete(Long boardId) {
 		repository.deleteBoardTagMatchWithBoardId(boardId);
+		repository.deleteBoardFileWithBoardId(boardId);
 		return repository.delete(boardId);
 	}
+
 	
 }

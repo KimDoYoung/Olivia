@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS public.fb_node (
     node_name varchar(300) not null,
     owner_auth char(3) NOT NULL DEFAULT 'RWX',
     group_auth char(3) NOT NULL DEFAULT 'RWX',
-    guest_auth char(3) NOT NULL DEFAULT 'RWX',
+    guest_auth char(3) NOT NULL DEFAULT 'RWX',file
     create_on timestamp not null default current_timestamp,
     create_by varchar(30) null,
     CONSTRAINT pk_node PRIMARY KEY(node_id),
@@ -107,7 +107,7 @@ COMMENT ON COLUMN public.board.create_by IS '작성자id';
 
 
 CREATE table if not exists public.board_file (
-	board_file_id int NOT NULL,
+	board_file_id serial NOT NULL,
 	board_id int NOT NULL, 
 	seq int NOT NULL, 
 	phy_folder varchar(500) not null,
@@ -140,11 +140,14 @@ COMMENT ON COLUMN public.board_file.create_by IS '생성자id';
 
 CREATE table if not exists public.tags (
 	tag_id serial NOT NULL,
+	use_count int NOT NULL DEFAULT 1,
+	last_use_on timestamp NOT NULL DEFAULT current_timestamp,
 	name varchar(100) NOT null  CONSTRAINT tag_must_1 UNIQUE,
 	CONSTRAINT pk_tags PRIMARY KEY (tag_id)
 );
 COMMENT ON TABLE public.tags IS '게시판태그매치';
 COMMENT ON COLUMN public.tags.tag_id IS 'board id';
+COMMENT ON COLUMN public.tags.use_count IS '사용한 횟수';
 COMMENT ON COLUMN public.tags.name IS 'tag name';
 
 
@@ -158,4 +161,27 @@ COMMENT ON COLUMN public.board_tag_match.board_id IS 'board id';
 COMMENT ON COLUMN public.board_tag_match.tag_id IS 'tag id';
 
 
-SELECT * FROM public.board b ;
+SELECT * FROM public.board  ;
+SELECT * FROM public.board_file ;
+SELECT * FROM public.board_tag_match btm ;
+SELECT * FROM public.tags t ;
+--DELETE FROM public.tags;
+	select 
+		  B.board_file_id AS boardFileId
+		, B.seq 		  AS seq   
+		, B.phy_folder    AS phyFolder   
+		, B.phy_name      AS phyName     
+		, B.org_name      AS orgName     
+		, B.mime_type     AS mimeType    
+		, B.file_size     AS fileSize    
+		, B.ext           AS ext         
+		, B.note          AS note        
+		, B.create_on     AS createOn    
+		, B.create_by     AS createBy
+	from 
+		board_file B 
+	where 1=1
+		and B.board_id  = 7
+	order by B.seq   ;
+
+SELECT COALESCE (max(seq),0) + 1 AS nextSeq FROM board_file WHERE board_id = 6;

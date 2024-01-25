@@ -24,8 +24,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import kr.co.kalpa.olivia.exception.FileboxException;
 import kr.co.kalpa.olivia.model.JsonData;
-import kr.co.kalpa.olivia.model.filebox.FileInfo;
-import kr.co.kalpa.olivia.model.filebox.Filebox;
+import kr.co.kalpa.olivia.model.filebox.FbFile;
+import kr.co.kalpa.olivia.model.filebox.FbNode;
 import kr.co.kalpa.olivia.service.FileboxService;
 import kr.co.kalpa.olivia.servlet.view.JsonView;
 import kr.co.kalpa.olivia.utils.CommonUtil;
@@ -33,51 +33,54 @@ import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @Slf4j
-@RequestMapping("/filebox")
-public class FileboxController<T> extends BaseController{
+@RequestMapping("/FbNode")
+public class FileboxController extends BaseController{
 
-	private String baseUrl ="/filebox";
-	private FileboxService fileboxService;
+	private String baseUrl ="/FbNode";
+	private FileboxService nodeService;
 
 	@Value("${file.base.repository}")
 	private String fileBaseRepository;
 	
     public FileboxController(FileboxService fielboxService) {
-        this.fileboxService = fielboxService;
+        this.nodeService = fielboxService;
     }
 
 	
 	@GetMapping("")
-	public String filebox(
+	public String FbNode(
 			@RequestParam(value="parentId", required=false, defaultValue="0") Integer parentId,
 			Model model) throws SQLException {
 		log.debug("********************************************");
-		log.debug("filebox");
+		log.debug("FbNode");
 		log.debug("********************************************");
 
-		return baseUrl + "/filebox";
+		return baseUrl + "/FbNode";
 	}
 	/**
 	 * client에서 form으로 보낼 수도 있고
 	 * ajx로 보낼 수도 있고 
 	 * 2가지모두 1개의 controller에서 처리
-	 * @param filebox
+	 * @param fbNode
 	 * @param model
 	 * @return
 	 */
 	//@PostMapping("/add-folder")
-	public ModelAndView addFolder(HttpServletRequest request, @ModelAttribute("filebox") Filebox filebox,Model model)  {
+	public ModelAndView addFolder(HttpServletRequest request, @ModelAttribute("FbNode") FbNode fbNode, Model model)  {
+		
 		ModelAndView mav = new ModelAndView();
 		boolean isAjax = isAjax(request); //
 		if(isAjax) {
-			filebox = getClassFromBody(request, Filebox.class);
+			fbNode = getClassFromBody(request, FbNode.class);
 			mav.setView(new JsonView());
 		}else {
 			mav.setViewName("redirect:" + baseUrl);
 		}
-		int i = fileboxService.addFolder(filebox);
-		if(i>0) {			
-			mav.addObject("filebox", filebox);
+		Long nodeId = nodeService.insertNode(fbNode);
+		fbNode.setNodeId(nodeId);
+		
+		if(nodeId>0) {			
+			mav.addObject("FbNode", fbNode);
 			mav.addObject("result", "OK");
 		}else {
 			mav.addObject("result", "NK");
@@ -85,29 +88,26 @@ public class FileboxController<T> extends BaseController{
 		return mav;
 	}
 	@ResponseBody
-	@GetMapping("/create-sub-filebox/{parentId}")
-	public String createSubBox(@PathVariable("parentId") Integer parentId, String name) {
-		Filebox filebox = new Filebox();
-		filebox.setParentId(parentId);
-		filebox.setFolderNm(name);
-		int i = fileboxService.addFolder(filebox);
-		int newId = fileboxService.getFileboxSeq();
+	@GetMapping("/create-sub-node/{parentId}")
+	public String createSubBox(@PathVariable("parentId") Long parentId, String name) {
+		FbNode fbNode = new FbNode();
+		fbNode.setParentId(parentId);
+		fbNode.setNodeName(name);
+		Long nodeId = nodeService.insertNode(fbNode);
+		fbNode.setNodeId(nodeId);
+		
 		JsonData jsonData = new JsonData();
-		if(i>0) {
-			jsonData.put("result", "OK");
-			jsonData.put("newId", newId);
-		}else {
-			jsonData.put("result", "NK");
-		}
+		jsonData.put("result", "OK");
+		jsonData.put("newId", nodeId);
 		return jsonData.toJson();
 	}
 	@ResponseBody
-	@GetMapping("/rename-filebox/{boxId}")
-	public String renameFilebox(@PathVariable("boxId") Integer boxId, String name) {
-		Filebox filebox = new Filebox();
-		filebox.setBoxId(boxId);
-		filebox.setFolderNm(name);
-		int i = fileboxService.renameFilebox(filebox);
+	@GetMapping("/rename-node/{nodeId}")
+	public String renameFbNode(@PathVariable("nodeId") Long nodeId, String name) {
+		FbNode fbNode = new FbNode();
+		fbNode.setNodeId(nodeId);
+		fbNode.setNodeName(name);
+		int i = nodeService.renameNode(fbNode);
 		JsonData jsonData = new JsonData();
 		if(i>0) {
 			jsonData.put("result", "OK");
@@ -123,17 +123,17 @@ public class FileboxController<T> extends BaseController{
 	 * @return
 	 */
 	@ResponseBody
-	@GetMapping("/delete-filebox/{boxId}")
-	public String deleteFilebox(@PathVariable("boxId") Integer boxId) {
+	@GetMapping("/delete-node/{nodeId}")
+	public String deleteFbNode(@PathVariable("nodeId") Long nodeId) {
 		
 		JsonData jsonData = new JsonData();
-		int count= fileboxService.countFilesInFilebox(boxId);
+		int count= nodeService.countFilesInNode(nodeId);
 		if(count > 0) {
 			jsonData.put("result", "NK");
 			jsonData.put("msg", "폴더 안에 파일들이 존재합니다. 비어있는 폴더만 삭제할 수 있습니다.");
 			return jsonData.toJson();
 		}
-		int i = fileboxService.deleteFilebox(boxId);
+		int i = nodeService.deleteNode(nodeId);
 		if(i > 0) {
 			jsonData.put("result", "OK");
 		}else {
@@ -143,11 +143,11 @@ public class FileboxController<T> extends BaseController{
 		return jsonData.toJson();
 	}
 	@ResponseBody
-	@GetMapping("/move-filebox/{boxId}")
-	public String moveFilebox(@PathVariable("boxId") Integer boxId, @RequestParam("newParentId") Integer newParentId ) {
+	@GetMapping("/move-FbNode/{nodeId}")
+	public String moveFbNode(@PathVariable("nodeId") Long nodeId, @RequestParam("newParentId") Long newParentId ) {
 		
 		JsonData jsonData = new JsonData();
-		int i = fileboxService.moveFilebox(boxId, newParentId);
+		int i = nodeService.moveNode(nodeId, newParentId);
 		if(i > 0) {
 			jsonData.put("result", "OK");
 		}else {
@@ -163,30 +163,30 @@ public class FileboxController<T> extends BaseController{
 	 */
 	@ResponseBody
 	@GetMapping("/tree-data/{parentId}")
-	public String treeData(@PathVariable Integer parentId)  {
-		List<Filebox> list = fileboxService.subFolderList(parentId);
+	public String treeData(@PathVariable Long parentId)  {
+		List<FbNode> list = nodeService.subNodeList(parentId);
 		JsonData jsonData = new JsonData();
 		jsonData.put("list", list);
 		return jsonData.toJson();
 	}
 	@ResponseBody
 	@PostMapping("/upload-files/{boxId}")
-	public String uploadFiles(@PathVariable Integer boxId, @RequestParam("files") List<MultipartFile> files) throws  FileboxException  {
+	public String uploadFiles(@PathVariable Long nodeId, @RequestParam("files") List<MultipartFile> files) throws  FileboxException  {
 		
 		//file를 옮기고 fileList를 채운다.
 		for (MultipartFile file : files) {
 			if (!file.isEmpty()) {
-				FileInfo fileInfo = moveToRepository(file,boxId);
+				FbFile FbFile = moveToRepository(file,nodeId);
 
-				//file_info테이블 저장
-				int i = fileboxService.insertFileInfoAndMatch(fileInfo);
+				//fb_file테이블 저장
+				Long i = nodeService.insertFbFile(FbFile);
 				if(i>0) {
-					log.debug("파일저장됨 : {}", fileInfo);
+					log.debug("파일저장됨 : {}", FbFile);
 				}
 			}
 		}
-//		return "forward:/filebox/file-list/" + boxId;
-		List<FileInfo> list = fileboxService.selectFiles(boxId);
+//		return "forward:/FbNode/file-list/" + boxId;
+		List<FbFile> list = nodeService.selectFiles(nodeId);
 		
 		JsonData jsonData = new JsonData();
 		jsonData.put("list", list);
@@ -194,9 +194,9 @@ public class FileboxController<T> extends BaseController{
 	}
 
 	@ResponseBody
-	@GetMapping("/file-list/{boxId}")
-	public String fileListInBox(@PathVariable Integer boxId) throws  FileboxException  {
-		List<FileInfo> list = fileboxService.selectFiles(boxId);
+	@GetMapping("/file-list/{nodeId}")
+	public String fileListInBox(@PathVariable Long nodeId) throws  FileboxException  {
+		List<FbFile> list = nodeService.selectFiles(nodeId);
 		
 		JsonData jsonData = new JsonData();
 		jsonData.put("list", list);
@@ -205,12 +205,12 @@ public class FileboxController<T> extends BaseController{
 	//delete-file
 	@ResponseBody
 	@PostMapping("/delete-file/{boxId}")
-	public String deleteFileInfo(HttpServletRequest request, @PathVariable Integer boxId,@RequestBody List<Integer> deleteFileInfoIdList) throws  FileboxException  {
+	public String deleteFbFile(HttpServletRequest request, @PathVariable Long nodeId,@RequestBody List<Long> deleteFbFileIdList) throws  FileboxException  {
 		
 		printRequest(request);
 		
-		int deleteCount = fileboxService.deleteFiles(deleteFileInfoIdList);
-		List<FileInfo> list = fileboxService.selectFiles(boxId);
+		int deleteCount = nodeService.deleteFiles(deleteFbFileIdList);
+		List<FbFile> list = nodeService.selectFiles(nodeId);
 		JsonData jsonData = new JsonData();
 		jsonData.put("deletedCount", deleteCount);
 		jsonData.put("list", list);
@@ -218,15 +218,15 @@ public class FileboxController<T> extends BaseController{
 	}
 	/**
 	 * client로부터 전송받은 파일을 server의 repository로 이동 후
-	 * 파일정보 FileInfo를 만들어서 리턴한다.
+	 * 파일정보 FbFile를 만들어서 리턴한다.
 	 * 
 	 * @param file
-	 * @param boxId
+	 * @param nodeId
 	 * @return
 	 * @throws FileboxException
 	 */
-	private FileInfo moveToRepository(MultipartFile file, Integer boxId) throws FileboxException {
-		FileInfo fileInfo = new FileInfo();
+	private FbFile moveToRepository(MultipartFile file, Long nodeId) throws FileboxException {
+		FbFile fbFile = new FbFile();
 		//0.저장폴더 생성
 		String[] ymdArray = CommonUtil.getTodayAsArray();
 		String targetFolder = String.format("%s/%s/%s", fileBaseRepository, ymdArray[0], ymdArray[1]);
@@ -245,20 +245,20 @@ public class FileboxController<T> extends BaseController{
         try {
             //저장장소로 file을 옮긴다.
         	file.transferTo(destinationFilePath.toFile());
-            //fileInfo를 채운다
-        	fileInfo.setBoxId(boxId);
-            fileInfo.setPhyFolder(targetFolder);
-            fileInfo.setPhyName(uuid);
-            fileInfo.setOrgName(orgName);
-            fileInfo.setFileSize(fileSize);
-            fileInfo.setStatus("O");
+            //FbFile를 채운다
+        	fbFile.setNodeId(nodeId);
+            fbFile.setPhyFolder(targetFolder);
+            fbFile.setPhyName(uuid);
+            fbFile.setOrgName(orgName);
+            fbFile.setFileSize(fileSize);
+            fbFile.setStatus("O");
             //TODO image이면  w,h 를 구하자
-            fileInfo.setExt(ext);
-            log.debug("업로드 파일 boardFile : {}", fileInfo);
+            fbFile.setExt(ext);
+            log.debug("업로드 파일 boardFile : {}", fbFile);
         } catch (IOException e) {
         	throw new FileboxException(e.getMessage());
         }
 
-        return fileInfo;
+        return fbFile;
 	}	
 }

@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,7 @@ import kr.co.kalpa.olivia.model.QueryAttr;
 import kr.co.kalpa.olivia.model.board.Board;
 import kr.co.kalpa.olivia.model.board.BoardFile;
 import kr.co.kalpa.olivia.model.board.Tags;
+import kr.co.kalpa.olivia.security.UserPrincipal;
 import kr.co.kalpa.olivia.service.BoardService;
 import kr.co.kalpa.olivia.utils.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -44,16 +47,21 @@ public class BoardController{
 	}
 	
 	@GetMapping("")
-	public String list(@ModelAttribute QueryAttr queryAttr, Model model) {
-
+	public String list(@ModelAttribute QueryAttr queryAttr, Model model, Authentication auth) {
+		
 		log.debug("********************************************");
 		log.debug("board list");
 		log.debug("********************************************");
-		queryAttr.put("status", "1");
+		UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+		log.debug("user: {}", user);
+		
 		queryAttr.put("dateRangeCheck", true);
+		queryAttr.put("currentUser", user);
+		
 		
 		List<Board> list=boardService.selectList(queryAttr);
 		model.addAttribute("list", list);
+		model.addAttribute("currentUser", user );
 		return "board/list";
 	}
 	@GetMapping("insert")
@@ -73,11 +81,14 @@ public class BoardController{
 	@PostMapping("insert")
 	public String insert(@ModelAttribute("board")Board board, 
 			@RequestPart("files") List<MultipartFile> files,
-			@RequestParam(name="tags", required=false) String tags
+			@RequestParam(name="tags", required=false) String tags,
+			Authentication auth
 	) throws BoardException {
-
+		UserPrincipal user =  (UserPrincipal) auth.getPrincipal();
+		String userId = user.getUserId();
+				
 		board.setFileList(new ArrayList<BoardFile>());
-		board.setTagList(new ArrayList<Tags>());
+		board.setTagSet(new HashSet<Tags>());
 		
 		//file를 옮기고 fileList를 채운다.
 		for (MultipartFile file : files) {
@@ -91,16 +102,16 @@ public class BoardController{
 		for (String name : list) {
 			Tags tag = new Tags();
 			tag.setName(name);
-			board.getTagList().add( tag  );
+			board.getTagSet().add( tag  );
 		}
-		
-		long i = boardService.insert(board);
-
+		board.setCreateBy(userId);
+		long boardId = boardService.insert(board);
+		log.debug("boardId {} inserted", boardId);
 		return "redirect:/board";
 	}
 
-	@GetMapping("update")
-	public String updatePage(Long boardId, Model model) throws BoardException {
+	@GetMapping("update/{boardId}")
+	public String updatePage(@PathVariable("boardId") Long boardId, Model model) throws BoardException {
 		Board board = boardService.selectBoardOne(boardId);
 		if(board == null) {
 			throw new BoardException("board id : " + boardId + " is not exist");
@@ -126,7 +137,7 @@ public class BoardController{
 		log.debug("deleteFiles:{}", deleteFiles);
 		
 		board.setFileList(new ArrayList<BoardFile>());
-		board.setTagList(new ArrayList<Tags>());
+		board.setTagSet(new HashSet<Tags>());
 		
 		//file를 옮기고 fileList를 채운다.
 		for (MultipartFile file : files) {
@@ -138,22 +149,28 @@ public class BoardController{
 		//tagList를 넣는다.
 		List<String> list = CommonUtil.toListFromString(tags);
 		for (String name : list) {
+			if(name == null || name.length() < 1) continue;
 			Tags tag = new Tags();
 			tag.setName(name);
-			board.getTagList().add( tag  );
+
+			board.getTagSet().add( tag  );
 		}
 		
 		//board update
-		long i = boardService.update(board, deleteFiles);	
+		boardService.update(board, deleteFiles);	
 		
 		return "redirect:/board";
 	}
 	
-	@PostMapping("delete")
-	public String delete(@RequestParam("boardId") Long boardId) {
+	@GetMapping("delete/{boardId}")
+	public String delete(@PathVariable("boardId") Long boardId) {
 		
 		int i = boardService.delete(boardId);
-		
+		if(i>0) {
+			log.debug("delete board id : {}", boardId);
+		}else {
+			log.debug("delete is failed");
+		}
 		return "redirect:/board";
 	}
 	
