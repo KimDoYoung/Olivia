@@ -75,9 +75,9 @@ INSERT INTO public.fb_node (node_type,parent_id,owner_id,node_name,create_by )
 SELECT 'D',0,'kdy987','Kim Do Young','kdy987' UNION ALL
 SELECT 'D',0,'admin','Admin','admin'   
 ;
-SELECT * FROM public.fb_node fn ;
-SELECT * FROM public.fb_file ff ;
-
+SELECT * FROM public.fb_node fn WHERE node_id = 20;
+SELECT * FROM public.fb_file ff WHERE node_id = 34;
+SELECT * FROM public.fb_node WHERE node_type = 'F' AND parent_id = 20;
 --
 -- board, board_file, board_tag_match, tags 
 -- 
