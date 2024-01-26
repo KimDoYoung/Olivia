@@ -1,18 +1,18 @@
-drop table if exists public.fb_file;
-drop table if exists public.fb_node;
-
 --
 -- fb_node, fb_file 
 --
+drop table if exists public.fb_file;
+drop table if exists public.fb_node;
+
 CREATE TABLE IF NOT EXISTS public.fb_node (
     node_id serial not null,
     node_type char(1) NOT NULL CHECK (node_type IN ('D', 'F', 'L')), -- D: dir, F:file, L:link 
     parent_id int not null,
     owner_id varchar(30) NOT NULL,
-    node_name varchar(300) not null,
+    node_name varchar(300)  null, 
     owner_auth char(3) NOT NULL DEFAULT 'RWX',
     group_auth char(3) NOT NULL DEFAULT 'RWX',
-    guest_auth char(3) NOT NULL DEFAULT 'RWX',file
+    guest_auth char(3) NOT NULL DEFAULT 'RWX',
     create_on timestamp not null default current_timestamp,
     create_by varchar(30) null,
     CONSTRAINT pk_node PRIMARY KEY(node_id),
@@ -66,6 +66,17 @@ COMMENT ON COLUMN public.fb_file.height IS '이미지높이';
 COMMENT ON COLUMN public.fb_file.status IS '상태: D  deleted, N : Normal';
 COMMENT ON COLUMN public.fb_file.create_on IS '생성시각';
 COMMENT ON COLUMN public.fb_file.create_by IS '생성자 ID';
+
+INSERT INTO public.fb_node (node_id, node_type,parent_id,owner_id,node_name,create_by )
+SELECT 0, 'D',0,'system','ROOT','system';
+
+
+INSERT INTO public.fb_node (node_type,parent_id,owner_id,node_name,create_by )
+SELECT 'D',0,'kdy987','Kim Do Young','kdy987' UNION ALL
+SELECT 'D',0,'admin','Admin','admin'   
+;
+SELECT * FROM public.fb_node fn ;
+SELECT * FROM public.fb_file ff ;
 
 --
 -- board, board_file, board_tag_match, tags 

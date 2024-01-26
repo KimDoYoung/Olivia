@@ -47,11 +47,14 @@
     	<header class="mt-3">
     		<h2>파일 보관함</h2>
     	</header>
-    	<div id="divJsTree" class="mt-2"></div>
-    	<div>
-    	<button id="btnOpenAll">open all</button>
-    	<button id="btnCloseAll">close all</button>
+    	<div id="treeButtons" class="mt-2">
+    		<div class="btn-group">
+    			<button id="btnOpenAll" class="btn btn-warning"><i class="bi bi-folder-plus"></i></button>
+    			<button id="btnCloseAll" class="btn btn-secondary"><i class="bi bi-folder-minus"></i></button>
+    		</div>
     	</div>
+    	<div id="divJsTree" class="mt-2"></div>
+    	<div></div>
     </div>
     <!-- 오른쪽 div -->
     <div class="col-8">
@@ -61,14 +64,16 @@
     	</div>
         <div id="fileinfo-search-area" class="search-container mt-3 mx-2 ">
         	<div class="d-flex  justify-content-between">
-	            <input type="text" id="searchText" name="searchText" class="form-control mx-2" placeholder="검색어를 입력하세요">
+	            <input type="text" id="searchText" name="searchText" class="form-control me-2" placeholder="검색어를 입력하세요">
+	            <div class="btn-group">
 				<button id="btnSearch" class="btn btn-primary"><i class="bi bi-search"></i></button>
 				<button id="btnInitSearch" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i></button>
 				<button id="btnUploadFile" class="btn btn-warning" data-bs-toggle="collapse" data-bs-target="#file-upload-area"><i class="bi bi-plus"></i></button>
 				<button id="btnDeleteFile" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+				</div>
 			</div>
            	<div id="file-upload-area" class="collapse m-3">
-	   			<input type="hidden" name="boxId" id="form-file-upload-box-id" />
+	   			<input type="hidden" name="nodeId" id="form-file-upload-node-id" />
 				<label for="file">파일 선택:</label>
 				<input type="file" id="files" name="files"  multiple required> <!-- 허용할 파일 확장자 지정 -->
 				<button class="btn btn-primary" id="btnFileUpload">업로드</button>
@@ -94,17 +99,24 @@
                 <th scope="col">크기</th>
                 <th scope="col">종류</th>
                 <th scope="col">올린 일시</th>
+                <th scope="col">동작</th>
               </tr>
             </thead>
             <tbody>
               {{#each list}}
               <tr scope="row">
                 <th>{{inc @index}}</th>
-				<th><input type="checkbox" data-file-info-id="{{fileInfoId}}" name="chkFile" class="form-checkbox chkFile" value="{{fileInfoId}}" /></th>
+				<th><input type="checkbox" data-file-info-id="{{fileId}}" name="chkFile" class="form-checkbox chkFile" value="{{fileId}}" /></th>
                 <td>{{orgName}}</td>
                 <td class="text-end">{{formatComma fileSize}}</td>
                 <td>{{ext}}</td>
                 <td>{{formatDateString createOn}}</td>
+                <td>
+					<div class="btn-group">
+    				<button class="btnView btn btn-warning btn-sm"><i class="bi bi-eye bi-sm"></i></button>
+    				<button class="btnDownload btn btn-secondary btn-sm"><i class="bi bi-cloud-download bi-sm"></i></button>
+				    </div>
+				</td>
               </tr>
               {{/each}}
             </tbody>
@@ -134,10 +146,10 @@ $( document ).ready(function() {
 		$jsTree.jstree('open_all');
 	});
 	$('#fileinfo-path-area').on('click', '.btnBreadcrumb',function(){
-		var boxId = $(this).data('box-id');
+		var nodeId = $(this).data('node-id');
 		$jsTree.jstree('deselect_all');
-		$jsTree.jstree('select_node', boxId);
-		//makeFileInfoSection(boxId);
+		$jsTree.jstree('select_node', nodeId);
+		//makeFileInfoSection(nodeId);
 		
 	});
 	//파일 리스트 테이블 events
@@ -176,15 +188,15 @@ $( document ).ready(function() {
 			return;
 		}
 		console.log("checkValues:" + checkedValues);
-		var boxId = $('#form-file-upload-box-id').val();
-		if(boxId == false){
+		var nodeId = $('#form-file-upload-node-id').val();
+		if(nodeId == false){
 			alert('선택된 파일박스가 없습니다');
 			return;
 		}
 		
 		if(confirm('선택된 파일 ' + checkedValues.length +"개를 삭제하시겠습니까?") == false) return;
 		
-		var url = '/filebox/delete-file/' + boxId; 
+		var url = '/filebox/delete-file/' + nodeId; 
         // Ajax 요청
         $.ajax({
             url: url, // 실제 서버 엔드포인트로 대체해야 함
@@ -197,17 +209,18 @@ $( document ).ready(function() {
                 makeFileList(response.list);
             },
             error: function(error) {
-            	console.error(error);
-                alert(error);
+            	console.error(error.responseJSON);
+                alert("삭제 중 오류가 발생했습니다");
             }
         });		
 		
 	});
 	
+	//파일업로드
 	$('#btnFileUpload').on('click', function(){
-		var boxId = $('#form-file-upload-box-id').val();
+		var nodeId = $('#form-file-upload-node-id').val();
 		var fileInput = $('#files').get(0);
-		if(!boxId){
+		if(!nodeId){
 			alert("파일이 담길 파일박스를 선택해 주십시오");
 			return;
 		}
@@ -221,7 +234,7 @@ $( document ).ready(function() {
 	    for (var i = 0; i < files.length; i++) {
 	        formData.append('files', files[i]);
 	    }
-		var url = '/filebox/upload-files/' + boxId;
+		var url = '/filebox/upload-files/' + nodeId;
 	    $.ajax({
             url: url,
             method: 'POST',
@@ -280,7 +293,8 @@ $( document ).ready(function() {
 	var jsTreeConfig  = {
 		"core": {
 		    "themes": {
-		       "responsive": false
+		       "responsive": false,
+		       "dots": false 
 		    },
 		    "check_callback" : true,
 		},
@@ -307,7 +321,7 @@ $( document ).ready(function() {
 								inst.edit(new_node, null, function (the_node, rename_status) {
 									if(rename_status){
 										var parentId = the_node.parents[0];
-										var url = '/filebox/create-sub-filebox/' + parentId;
+										var url = '/filebox/create-sub-node/' + parentId;
 										$.get(url,{name:the_node.text},function(response){
 											if(response.result == "OK"){
 												var newId = response.newId;
@@ -337,8 +351,8 @@ $( document ).ready(function() {
 	    					node = inst.get_node(data.reference);
 		    				inst.edit(node, null, function(the_node, rename_status){
 		    					if(rename_status){
-									var boxId = the_node.id;
-									var url = '/filebox/rename-filebox/' + boxId;
+									var nodeId = the_node.id;
+									var url = '/filebox/rename-node/' + nodeId;
 									$.get(url,{name:the_node.text},function(response){
 										if(response.result == "OK"){
 											var newId = response.newId;
@@ -387,8 +401,8 @@ $( document ).ready(function() {
 	                    	    alert('선택된 노드의 자식 노드가 존재하여 삭제할 수 없습니다');
 	                    	    return;
 	                    	}
-							var boxId = selectedId;
-							var url = '/filebox/delete-filebox/' + boxId;
+							var nodeId = selectedId;
+							var url = '/filebox/delete-node/' + nodeId;
 							$.get(url,function(response){
 								if(response.result == "OK"){
 									if(inst.is_selected(node)) {
@@ -468,13 +482,13 @@ $( document ).ready(function() {
 										return;
 									} 
 									var ccp_node = ccp_nodes[0];
-									var boxId = ccp_node.id;
+									var nodeId = ccp_node.id;
 									var newParentId = obj.id;
 									if(newParentId == ccp_node.parent){
 										alert("옮길 위치 폴더가 동일합니다.");
 										return;
 									}
-									var url = '/filebox/move-filebox/' + boxId;
+									var url = '/filebox/move-node/' + nodeId;
 									$.get(url,{newParentId:newParentId},function(response){
 										if(response.result == "OK"){
 											inst.paste(obj);
@@ -503,9 +517,9 @@ $( document ).ready(function() {
             var list = response.list;
             treeData = list.map(function (item) {
                 return {
-                    id: item.boxId.toString(),
-                    text: item.folderNm,
-                    parent: (item.level !== 0) ? item.parentId.toString() : "#"
+                    id: item.nodeId.toString(),
+                    text: item.nodeName,
+                    parent: (item.level === 0) ? "#" : item.parentId.toString() 
                 };
             });
 			jsTreeConfig.core.data = treeData;
@@ -530,26 +544,26 @@ function createJsTree(jsTreeConfig){
 	//노드가 선택되었을 때 event
 	$jsTree.on('select_node.jstree', function(e, data) {
 		//debugger;
-	    var boxId = data.node.id;
-	    console.log("fileinfo section boxId: " + boxId);
-	   	makeFileInfoSection(boxId);
+	    var nodeId = data.node.id;
+	    console.log("fileinfo section nodeId: " + nodeId);
+	   	makeFileInfoSection(nodeId);
 	}).on('ready.jstree', function (e, data) {    
         $jsTree.jstree('open_all');
 	});
 }
-function makeFileInfoSection(boxId){
-    console.log(boxId);
-    // 현재 선택된 boxId를 hidden에 넣는다.
-    $('#form-file-upload-box-id').val(boxId);
+function makeFileInfoSection(nodeId){
+    console.log(nodeId);
+    // 현재 선택된 nodeId를 hidden에 넣는다.
+    $('#form-file-upload-node-id').val(nodeId);
 
     //박스 id가 1 즉 root라면
-    if(boxId == 1){
+    if(nodeId == 1){
     	
     }
     //debugger;
  	// jsTree에서 선택된 노드의 ID를 가져옴
     //var selectedNodeId = $('#yourJsTreeId').jstree('get_selected')[0];
-    var foundNode = $jsTree.jstree('get_node',boxId);
+    var foundNode = $jsTree.jstree('get_node',nodeId);
     // 선택된 노드의 부모 노드들을 가져옴
     var parentNodes = foundNode.parents;
 
@@ -566,7 +580,7 @@ function makeFileInfoSection(boxId){
     displayPath(path_desc);
 
     //파일목록을 리스트한다
-     var url = '/filebox/file-list/'+boxId;
+     var url = '/filebox/file-list/'+nodeId;
      $.get(url, function(response){
     	 console.log(response);
     	 makeFileList(response.list);

@@ -8,8 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import kr.co.kalpa.olivia.model.filebox.FbFile;
 import kr.co.kalpa.olivia.model.filebox.FbNode;
 import kr.co.kalpa.olivia.repository.FileboxRepository;
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @Service
 public class FileboxService {
 
@@ -36,8 +38,8 @@ public class FileboxService {
 	 * @param parentId
 	 * @return
 	 */
-	public List<FbNode> subNodeList(Long parentId) {
-		return repository.subNodeList(parentId);
+	public List<FbNode> subNodeList(FbNode fbNode) {
+		return repository.subNodeList(fbNode);
 	}
 
 	/**
@@ -50,14 +52,19 @@ public class FileboxService {
 	}
 
 	/**
+	 * 
 	 * file을 추가하고 추가된 파일의 fileId를 리턴한다
-	 * @param FbFile
+	 * @param file
 	 * @return
 	 */
 	@Transactional
-	public Long insertFbFile(FbFile FbFile) {
+	public Long insertFile(FbNode node, FbFile file) {
 		
-		Long insertedFileId = repository.insertFile(FbFile);
+		Long insertedNodeId = repository.insertNode(node);
+		insertedNodeId = node.getNodeId();
+		file.setNodeId(insertedNodeId);
+		Long insertedFileId = repository.insertFile(file);
+		log.debug("file inserted : node:{}, file:{}",insertedNodeId, insertedFileId);
 		return insertedFileId;
 	}
 
@@ -66,10 +73,19 @@ public class FileboxService {
 	 * @param deleteFbFileIdList
 	 * @return
 	 */
+	@Transactional
 	public int deleteFiles(List<Long> deleteFbFileIdList) {
 		int totalDeletedCount = 0;
 		for (Long fileId : deleteFbFileIdList) {
+
+		  FbFile file = repository.selectFileOne(fileId);	
+		  Long nodeId = file.getNodeId();
+
+		  //파일을 지운다.
 		  totalDeletedCount += repository.deleteFile(fileId);
+
+		  //노드를 지운다		  
+		  repository.deleteNode(nodeId);
 		}
 		return totalDeletedCount;
 	}

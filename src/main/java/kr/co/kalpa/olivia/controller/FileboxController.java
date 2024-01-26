@@ -9,6 +9,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +29,7 @@ import kr.co.kalpa.olivia.exception.FileboxException;
 import kr.co.kalpa.olivia.model.JsonData;
 import kr.co.kalpa.olivia.model.filebox.FbFile;
 import kr.co.kalpa.olivia.model.filebox.FbNode;
+import kr.co.kalpa.olivia.security.UserPrincipal;
 import kr.co.kalpa.olivia.service.FileboxService;
 import kr.co.kalpa.olivia.servlet.view.JsonView;
 import kr.co.kalpa.olivia.utils.CommonUtil;
@@ -33,10 +37,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @Slf4j
-@RequestMapping("/FbNode")
+@RequestMapping("/filebox")
 public class FileboxController extends BaseController{
 
-	private String baseUrl ="/FbNode";
+	private String baseUrl ="/filebox";
 	private FileboxService nodeService;
 
 	@Value("${file.base.repository}")
@@ -48,15 +52,31 @@ public class FileboxController extends BaseController{
 
 	
 	@GetMapping("")
-	public String FbNode(
-			@RequestParam(value="parentId", required=false, defaultValue="0") Integer parentId,
-			Model model) throws SQLException {
+	public String FbNode() throws SQLException {
 		log.debug("********************************************");
 		log.debug("FbNode");
 		log.debug("********************************************");
-
-		return baseUrl + "/FbNode";
+		return baseUrl + "/filebox";
 	}
+	/**
+	 * jsTree을 만들 수 있는 데이터를 만든다
+	 * @param parentId
+	 * @return
+	 */
+	@ResponseBody
+	@GetMapping("/tree-data/{parentId}")
+	public String treeData(@PathVariable Long parentId, HttpServletRequest request)  {
+		
+		String userId = (String) request.getSession().getAttribute("userId");
+		FbNode fbNode = new FbNode();
+		fbNode.setNodeId(parentId);
+		fbNode.setOwnerId(userId);
+		
+		List<FbNode> list = nodeService.subNodeList(fbNode);
+		JsonData jsonData = new JsonData();
+		jsonData.put("list", list);
+		return jsonData.toJson();
+	}	
 	/**
 	 * client에서 form으로 보낼 수도 있고
 	 * ajx로 보낼 수도 있고 
@@ -87,20 +107,35 @@ public class FileboxController extends BaseController{
 		}
 		return mav;
 	}
+	/**
+	 * ajax로 처리되면서 parentId 밑에 name으로 하위폴더를 생성한다
+	 * @param parentId
+	 * @param name
+	 * @return
+	 */
 	@ResponseBody
 	@GetMapping("/create-sub-node/{parentId}")
 	public String createSubBox(@PathVariable("parentId") Long parentId, String name) {
 		FbNode fbNode = new FbNode();
+		fbNode.setNodeType("D");
 		fbNode.setParentId(parentId);
+		fbNode.setOwnerId(loginUserId());
 		fbNode.setNodeName(name);
-		Long nodeId = nodeService.insertNode(fbNode);
-		fbNode.setNodeId(nodeId);
+		fbNode.setOwnerAuth("RWX");
+		fbNode.setGroupAuth("RWX");
+		fbNode.setGuestAuth("RWX");
+		fbNode.setCreateBy(loginUserId());
+
+		nodeService.insertNode(fbNode);
+		Long nodeId = fbNode.getNodeId();
 		
 		JsonData jsonData = new JsonData();
 		jsonData.put("result", "OK");
 		jsonData.put("newId", nodeId);
 		return jsonData.toJson();
 	}
+
+
 	@ResponseBody
 	@GetMapping("/rename-node/{nodeId}")
 	public String renameFbNode(@PathVariable("nodeId") Long nodeId, String name) {
@@ -143,7 +178,7 @@ public class FileboxController extends BaseController{
 		return jsonData.toJson();
 	}
 	@ResponseBody
-	@GetMapping("/move-FbNode/{nodeId}")
+	@GetMapping("/move-node/{nodeId}")
 	public String moveFbNode(@PathVariable("nodeId") Long nodeId, @RequestParam("newParentId") Long newParentId ) {
 		
 		JsonData jsonData = new JsonData();
@@ -156,32 +191,20 @@ public class FileboxController extends BaseController{
 		}
 		return jsonData.toJson();
 	}
-	/**
-	 * jsTree을 만들 수 있는 데이터를 만든다
-	 * @param parentId
-	 * @return
-	 */
+
 	@ResponseBody
-	@GetMapping("/tree-data/{parentId}")
-	public String treeData(@PathVariable Long parentId)  {
-		List<FbNode> list = nodeService.subNodeList(parentId);
-		JsonData jsonData = new JsonData();
-		jsonData.put("list", list);
-		return jsonData.toJson();
-	}
-	@ResponseBody
-	@PostMapping("/upload-files/{boxId}")
+	@PostMapping("/upload-files/{nodeId}")
 	public String uploadFiles(@PathVariable Long nodeId, @RequestParam("files") List<MultipartFile> files) throws  FileboxException  {
 		
 		//file를 옮기고 fileList를 채운다.
 		for (MultipartFile file : files) {
 			if (!file.isEmpty()) {
-				FbFile FbFile = moveToRepository(file,nodeId);
-
+				FbNode fbNode = newFileNode(nodeId);
+				FbFile fbFile = moveToRepository(file);
 				//fb_file테이블 저장
-				Long i = nodeService.insertFbFile(FbFile);
+				Long i = nodeService.insertFile(fbNode, fbFile);
 				if(i>0) {
-					log.debug("파일저장됨 : {}", FbFile);
+					log.debug("파일저장됨 : {}", fbFile);
 				}
 			}
 		}
@@ -192,6 +215,20 @@ public class FileboxController extends BaseController{
 		jsonData.put("list", list);
 		return jsonData.toJson();
 	}
+
+	private FbNode newFileNode(Long parentId) {
+		FbNode node = new FbNode();
+		node.setNodeType("F");
+		node.setParentId(parentId);
+		node.setOwnerId(loginUserId());
+		node.setNodeName(null);
+		node.setOwnerAuth("RWX");
+		node.setGroupAuth("RWX");
+		node.setGuestAuth("RWX");		
+		node.setCreateBy(loginUserId());
+		return node;
+	}
+
 
 	@ResponseBody
 	@GetMapping("/file-list/{nodeId}")
@@ -204,12 +241,13 @@ public class FileboxController extends BaseController{
 	}
 	//delete-file
 	@ResponseBody
-	@PostMapping("/delete-file/{boxId}")
+	@PostMapping("/delete-file/{nodeId}")
 	public String deleteFbFile(HttpServletRequest request, @PathVariable Long nodeId,@RequestBody List<Long> deleteFbFileIdList) throws  FileboxException  {
 		
 		printRequest(request);
 		
 		int deleteCount = nodeService.deleteFiles(deleteFbFileIdList);
+		
 		List<FbFile> list = nodeService.selectFiles(nodeId);
 		JsonData jsonData = new JsonData();
 		jsonData.put("deletedCount", deleteCount);
@@ -221,11 +259,10 @@ public class FileboxController extends BaseController{
 	 * 파일정보 FbFile를 만들어서 리턴한다.
 	 * 
 	 * @param file
-	 * @param nodeId
 	 * @return
 	 * @throws FileboxException
 	 */
-	private FbFile moveToRepository(MultipartFile file, Long nodeId) throws FileboxException {
+	private FbFile moveToRepository(MultipartFile file) throws FileboxException {
 		FbFile fbFile = new FbFile();
 		//0.저장폴더 생성
 		String[] ymdArray = CommonUtil.getTodayAsArray();
@@ -246,12 +283,12 @@ public class FileboxController extends BaseController{
             //저장장소로 file을 옮긴다.
         	file.transferTo(destinationFilePath.toFile());
             //FbFile를 채운다
-        	fbFile.setNodeId(nodeId);
+        	fbFile.setNodeId(null);
             fbFile.setPhyFolder(targetFolder);
             fbFile.setPhyName(uuid);
             fbFile.setOrgName(orgName);
             fbFile.setFileSize(fileSize);
-            fbFile.setStatus("O");
+            fbFile.setStatus("N");
             //TODO image이면  w,h 를 구하자
             fbFile.setExt(ext);
             log.debug("업로드 파일 boardFile : {}", fbFile);
@@ -260,5 +297,6 @@ public class FileboxController extends BaseController{
         }
 
         return fbFile;
-	}	
+	}
+	
 }

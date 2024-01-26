@@ -7,68 +7,118 @@
 	INSERT INTO public.fb_node
 		(node_type, parent_id, owner_id, node_name, owner_auth, group_auth, guest_auth, create_on, create_by)
 	VALUES
-		(#{nodeType}, #{parentId}, #{ownerId}, #{nodeName}, 'RWX'::bpchar, 'RWX'::bpchar, 'RWX'::bpchar, CURRENT_TIMESTAMP, #{createBy})
+		(#{nodeType}, #{parentId}, #{ownerId}, #{nodeName}, #{ownerAuth}, #{groupAuth}, #{guestAuth}, CURRENT_TIMESTAMP, #{createBy})
 	RETURNING node_id
    </insert>   
    
-   <resultMap id="FileboxResultMap" type="Filebox">
-	    <id property="boxId" column="box_id" />
+   <resultMap id="FbNodeResultMap" type="FbNode">
+	    <id property="nodeId" column="node_id" />
 	    <result property="parentId" column="parent_id" />
-	    <result property="folderNm" column="folder_nm" />
-	    <result property="note" column="note" />
+	    <result property="nodeName" column="node_name" />
+	    <result property="ownerId" column="owner_id" />
 	    <result property="createOn" column="create_on" />
 	    <result property="createBy" column="create_by" />
 	    <result property="level" column="level" />
-	    <result property="path" column="path" typeHandler="kr.co.kalpa.olivia.utils.mybatis.typehandler.IntegerArrayTypeHandler" />
+	    <result property="path" column="path" typeHandler="kr.co.kalpa.olivia.utils.mybatis.typehandler.LongArrayTypeHandler" />
 	</resultMap>
-   <select id="subNodeList" parameterType="Integer" resultMap="FileboxResultMap">
-		WITH RECURSIVE subfolders (box_id, parent_id, folder_nm, note, create_on, create_by, level, path, cycle) 
+   <select id="subNodeList" parameterType="FbNode" resultMap="FbNodeResultMap">
+		WITH RECURSIVE subfolders (node_id, parent_id, owner_id, node_name, create_on, create_by, level, path, cycle) 
 		AS(
-		   SELECT f.box_id, f.parent_id, f.folder_nm, f.note,f.create_on, f.create_by, 0, ARRAY[f.box_id], false
-		   FROM public.file_box f
-		   WHERE f.parent_id = #{value}
+		   SELECT f.node_id, f.parent_id, f.owner_id, f.node_name, f.create_on, f.create_by, 0 AS level, ARRAY[f.node_id], false
+		   FROM public.fb_node f
+		   WHERE 1=1
+		   AND parent_id = 0  AND node_type = 'D'
+		   <if test="ownerId != null and ownerId != ''">
+ 	       AND owner_id = #{ownerId}
+ 	       </if>
 		   UNION ALL
-		   SELECT d.box_id, d.parent_id, d.folder_nm, d.note,d.create_on, d.create_by, level + 1, path || d.box_id, d.box_id = ANY(path)
-		   FROM public.file_box d, subfolders s
-		   WHERE d.parent_id = s.box_id
+		   SELECT d.node_id, d.parent_id, d.owner_id, d.node_name, d.create_on, d.create_by, level + 1, path || d.node_id, d.node_id = ANY(path)
+		   FROM public.fb_node d INNER JOIN  subfolders s ON d.parent_id = s.node_id AND d.node_type = 'D' AND d.node_name != 'ROOT'
+		   <if test="ownerId != null and ownerId != ''">
+ 	       AND d.owner_id = #{ownerId}
+ 	       </if>
 		   AND NOT CYCLE
 		)
+--		SELECT * FROM subfolders;
 		SELECT 
-			box_id 
-			,parent_id 
-			,folder_nm 
-			,note 
-			,create_on 
-			,create_by 
-			,level 
+			node_id  
+			,parent_id
+			,owner_id
+			,node_name
+			,create_on
+			,create_by
+			,level
 			,path
 		FROM subfolders
-		--where parent_id = 1
 		ORDER BY path
    </select>
+
+   <update id="renameNode" parameterType="FbNode">
+    /* renameFbNode : node의 이름을 바꾼다.*/
+   	update 
+   		public.fb_node 
+   	set 
+   		node_name = #{nodeName} 
+   	where 
+   		node_id = #{nodeId} 
+   </update>
+
+   <delete id="deleteNode" parameterType="Long">
+   	 /* deleteNode : node를 1개 지움*/
+   	 delete from fb_node 
+   	 where node_id  = #{value}; 
+   </delete>
    
+  <update id="moveNode" parameterType="FbNode">
+   	 /* moveNode : parent id를 새로 설정 */
+   	 update public.fb_node 
+   	 set parent_id = #{parentId}
+   	 where node_id = #{nodeId} 
+   </update>
+   <select id="selectFileOne" parameterType="Long" resultType="FbFile">
+  	SELECT
+	      A.file_id 	 AS fileId 
+		, A.node_id      AS nodeId      
+		, A.phy_folder   AS phyFolder  
+		, A.phy_name     AS phyName    
+		, A.org_name     AS orgName    
+		, A.mime_type    AS mimeType   
+		, A.file_size    AS fileSize   
+		, A.ext          AS ext        
+		, A.note         AS note       
+		, A.width        AS width      
+		, A.height       AS height     
+		, A.status       AS status     
+		, A.create_on    AS createOn   
+		, A.create_by    AS createBy
+    from
+    	fb_file A  
+	where   	
+		file_id = #{value}
+   </select>
    <select id="selectFiles" parameterType="Long" resultType="FbFile">
     /* selectFiles : fb_file에서 조회 */
-    SELECt
-	      file_id 	   AS fileId 
-		, node_id      AS nodeId      
-		, phy_folder   AS phyFolder  
-		, phy_name     AS phyName    
-		, org_name     AS orgName    
-		, mime_type    AS mimeType   
-		, file_size    AS fileSize   
-		, ext          AS ext        
-		, note         AS note       
-		, width        AS width      
-		, height       AS height     
-		, status       AS status     
-		, create_on    AS createOn   
-		, create_by    AS createBy
+  	SELECT
+	      A.file_id 	 AS fileId 
+		, A.node_id      AS nodeId      
+		, A.phy_folder   AS phyFolder  
+		, A.phy_name     AS phyName    
+		, A.org_name     AS orgName    
+		, A.mime_type    AS mimeType   
+		, A.file_size    AS fileSize   
+		, A.ext          AS ext        
+		, A.note         AS note       
+		, A.width        AS width      
+		, A.height       AS height     
+		, A.status       AS status     
+		, A.create_on    AS createOn   
+		, A.create_by    AS createBy
     from
-    	fb_file
+    	fb_file A INNER JOIN fb_node B ON A.node_id  = B.node_id 
     where 1=1
+    	AND B.parent_id  = #{value}
     	AND status != 'D'
-    	AND node_id = #{value}
+    order by A.file_id	
    </select>
    
    <insert id="insertFile" parameterType="FbFile"  useGeneratedKeys="true" keyProperty="fileId">
@@ -82,48 +132,13 @@
    
    <delete id="deleteFile" parameterType="Long">
    /** deleteFile : file 1개 삭제 */
-   	delete 	
-   	from 
-   		public.fb_file 
-   	where 
-   		file_id = #{value}
+    delete  from  public.fb_file where file_id = #{value}
    </delete>
-   
-   
-   <update id="renameNode" parameterType="FbNode">
-    /* renameFbNode : node의 이름을 바꾼다.*/
-   	update 
-   		public.fb_node 
-   	set 
-   		node_name = #{nodeName} 
-   	where 
-   		node_id = #{nodeId} 
-   </update>
-   
-   
    
    <select id="countFilesInNode" resultType="Integer">
    /** countFilesInNode : node안에 있는 파일갯수 */
-   	select count(*) as cnt from fb_file where node_id  = #{value}; 
+   	SELECT count(*) as cnt FROM public.fb_node WHERE node_type = 'F' AND parent_id = #{value}
    </select>
    
-   <delete id="deleteNode" parameterType="Long">
-   	 /* deleteNode */
-   	 delete from fb_node 
-   	 where node_id  = #{value}; 
-   </delete>
-   
-   <update id="moveNode" parameterType="FbNode">
-   	 /* moveNode : parent id를 새로 설정 */
-   	 update public.fb_node 
-   	 set parent_id = #{parentId}
-   	 where node_id = #{nodeId} 
-   </update>
-   
-
-   
-
-   
-
 
 </mapper>

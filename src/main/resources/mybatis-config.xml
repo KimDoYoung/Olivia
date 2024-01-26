@@ -17,13 +17,12 @@
 		<typeAlias type="kr.co.kalpa.olivia.model.board.BoardTagMatch" alias="BoardTagMatch"/>
 		<typeAlias type="kr.co.kalpa.olivia.model.board.Tags" alias="Tags"/>
 		<!-- Filebox -->
-		<typeAlias type="kr.co.kalpa.olivia.model.filebox.Filebox" alias="Filebox"/>
-		<typeAlias type="kr.co.kalpa.olivia.model.filebox.FileInfo" alias="FileInfo"/>
-		<typeAlias type="kr.co.kalpa.olivia.model.filebox.FileMatch" alias="FileMatch"/>
+		<typeAlias type="kr.co.kalpa.olivia.model.filebox.FbNode" alias="FbNode"/>
+		<typeAlias type="kr.co.kalpa.olivia.model.filebox.FbFile" alias="FbFile"/>
 	</typeAliases>
 	
 	<typeHandlers>
-		<typeHandler handler="kr.co.kalpa.olivia.utils.mybatis.typehandler.IntegerArrayTypeHandler"/>
+		<typeHandler handler="kr.co.kalpa.olivia.utils.mybatis.typehandler.LongArrayTypeHandler"/>
 	</typeHandlers>
 	
 </configuration>

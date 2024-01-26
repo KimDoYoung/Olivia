@@ -11,46 +11,46 @@ import java.util.List;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
-public class IntegerArrayTypeHandler extends BaseTypeHandler<List<Integer>>{
+public class LongArrayTypeHandler extends BaseTypeHandler<List<Long>>{
 
 	/**
 	 * SQL문장을 만들때
 	 */
 	@Override
-	public void setNonNullParameter(PreparedStatement ps, int i, List<Integer> parameter, JdbcType jdbcType)
+	public void setNonNullParameter(PreparedStatement ps, int i, List<Long> parameter, JdbcType jdbcType)
 			throws SQLException {
 		if(parameter == null || parameter.size() == 0) {
 			ps.setArray(i, null);
 			return;
 		}
 		
-		Integer[] ints = parameter.toArray(Integer[]::new);
+		Long[] ints = parameter.toArray(Long[]::new);
 		ps.setArray(i, ps.getConnection().createArrayOf("int", ints));
 	}
 
 	@Override
-	public List<Integer> getNullableResult(ResultSet rs, String columnName) throws SQLException {
+	public List<Long> getNullableResult(ResultSet rs, String columnName) throws SQLException {
 		return getArrayListFromSqlArray(rs.getArray(columnName));
 	}
 
 	@Override
-	public List<Integer> getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+	public List<Long> getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
 		return getArrayListFromSqlArray(rs.getArray(columnIndex));
 	}
 
 	@Override
-	public List<Integer> getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+	public List<Long> getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
 		return getArrayListFromSqlArray(cs.getArray(columnIndex));
 	}
-	private List<Integer> getArrayListFromSqlArray(Array array) throws SQLException {
+	private List<Long> getArrayListFromSqlArray(Array array) throws SQLException {
 		if(array == null) return null;
-		Integer[] ints = (Integer[])array.getArray();
-		if(ints == null	) {
+		Integer[] longs = (Integer[])array.getArray();
+		if(longs == null	) {
 			return null;
 		}
-		List<Integer> list = new ArrayList<Integer>();
-		for(int i=0;i<ints.length;i++) {
-			list.add(ints[i]);
+		List<Long> list = new ArrayList<Long>();
+		for(int i=0;i<longs.length;i++) {
+			list.add(Long.parseLong(longs[i].toString()));
 		}
 		return list;
 	}

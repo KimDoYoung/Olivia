@@ -8,10 +8,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 
 import com.google.gson.Gson;
 
+import kr.co.kalpa.olivia.security.UserPrincipal;
 import kr.co.kalpa.olivia.servlet.interceptor.AjaxJspInterceptor;
 import kr.co.kalpa.olivia.utils.SysUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +32,16 @@ public class BaseController {
 	protected boolean isAjax(HttpServletRequest request) {
 		return (boolean)request.getAttribute(AjaxJspInterceptor.Attr_Is_Ajax);
 	}
+	
+	protected String loginUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication != null) {
+	        UserPrincipal userPricipal = (UserPrincipal) authentication.getPrincipal();
+	        return userPricipal.getUserId();
+        }
+        return null;
+	}
+
 	
 	protected void printModel(Model model) {
 		SysUtil.printModel(model);

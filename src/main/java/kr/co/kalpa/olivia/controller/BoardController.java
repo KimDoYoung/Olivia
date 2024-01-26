@@ -166,9 +166,9 @@ public class BoardController{
 	public String delete(@PathVariable("boardId") Long boardId) {
 		
 		int i = boardService.delete(boardId);
-		if(i>0) {
+		if (i > 0) {
 			log.debug("delete board id : {}", boardId);
-		}else {
+		} else {
 			log.debug("delete is failed");
 		}
 		return "redirect:/board";

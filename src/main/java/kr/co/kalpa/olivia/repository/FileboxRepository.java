@@ -22,8 +22,17 @@ public interface FileboxRepository {
 	 * @param parentId
 	 * @return
 	 */
-	List<FbNode> subNodeList(Long parentId);
+	List<FbNode> subNodeList(FbNode fbNode);
 
+	
+	/**
+	 * FbNode의 이름을 바꾼다.
+	 * @param FbNode
+	 * @return
+	 */
+	int renameNode(FbNode fbNode);
+
+	
 	/**
 	 * boxId에 담겨져 있는 파일들 리스트 
 	 * @param boxId
@@ -47,12 +56,6 @@ public interface FileboxRepository {
 	int deleteFile(Long fileId);
 
 	/**
-	 * FbNode의 이름을 바꾼다.
-	 * @param FbNode
-	 * @return
-	 */
-	int renameNode(FbNode fbNode);
-	/**
 	 * boxId 에 포함된 파일의 갯수를 리턴
 	 * @param boxId
 	 * @return
@@ -72,5 +75,13 @@ public interface FileboxRepository {
 	 * @return
 	 */
 	int moveNode(FbNode fbNode);
+
+
+	/**
+	 * fileId로 fb_file에서 1개를 찾는다.
+	 * @param fileId
+	 * @return
+	 */
+	FbFile selectFileOne(Long fileId);
 
 }

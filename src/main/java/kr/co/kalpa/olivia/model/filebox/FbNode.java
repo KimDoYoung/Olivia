@@ -21,5 +21,5 @@ public class FbNode {
 	private Date createOn;
 	private String createBy;
 	private Integer level;
-	private ArrayList<Integer> path;
+	private ArrayList<Long> path;
 }
