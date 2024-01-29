@@ -66,10 +66,10 @@
         	<div class="d-flex  justify-content-between">
 	            <input type="text" id="searchText" name="searchText" class="form-control me-2" placeholder="검색어를 입력하세요">
 	            <div class="btn-group">
-				<button id="btnSearch" class="btn btn-primary"><i class="bi bi-search"></i></button>
-				<button id="btnInitSearch" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i></button>
-				<button id="btnUploadFile" class="btn btn-warning" data-bs-toggle="collapse" data-bs-target="#file-upload-area"><i class="bi bi-plus"></i></button>
-				<button id="btnDeleteFile" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+				<button id="btnSearch" class="btn btn-primary" title="검색"><i class="bi bi-search"></i></button>
+				<button id="btnInitSearch" class="btn btn-secondary" title="초기화"><i class="bi bi-arrow-counterclockwise"></i></button>
+				<button id="btnUploadFile" class="btn btn-warning" title="upload files" data-bs-toggle="collapse" data-bs-target="#file-upload-area"><i class="bi bi-plus"></i></button>
+				<button id="btnDeleteFile" class="btn btn-danger" title="파일 삭제"><i class="bi bi-trash"></i></button>
 				</div>
 			</div>
            	<div id="file-upload-area" class="collapse m-3">
@@ -108,13 +108,13 @@
                 <th>{{inc @index}}</th>
 				<th><input type="checkbox" data-file-info-id="{{fileId}}" name="chkFile" class="form-checkbox chkFile" value="{{fileId}}" /></th>
                 <td>{{orgName}}</td>
-                <td class="text-end">{{formatComma fileSize}}</td>
+                <td class="text-end">{{humanFileSize fileSize}}</td>
                 <td>{{ext}}</td>
                 <td>{{formatDateString createOn}}</td>
                 <td>
 					<div class="btn-group">
-    				<button class="btnView btn btn-warning btn-sm"><i class="bi bi-eye bi-sm"></i></button>
-    				<button class="btnDownload btn btn-secondary btn-sm"><i class="bi bi-cloud-download bi-sm"></i></button>
+    				<button class="btnView btn btn-warning btn-sm" title="view"><i class="bi bi-eye bi-sm"></i></button>
+    				<button class="btnDownload btn btn-secondary btn-sm" title="download"><i class="bi bi-cloud-download bi-sm"></i></button>
 				    </div>
 				</td>
               </tr>

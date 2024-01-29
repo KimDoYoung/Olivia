@@ -39,3 +39,51 @@
 
         return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds + ' ' + period;
     }); 
+    /**
+     * 파일 사이즈를 사람이 인식하기 쉽게 표시
+     * {{humanFileSize 123456787}}
+     */
+    Handlebars.registerHelper("humanFileSize", function(fileSize){
+        var si = true;
+        var thresh = si ? 1000 : 1024;
+        var bytes = parseInt(fileSize, 10);
+        if (bytes < thresh) return bytes + ' B';
+        var units = si ? ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+        var u = -1;
+        do {
+            bytes /= thresh;
+            ++u;
+        } while (bytes >= thresh);
+        var html =  bytes.toFixed(1) + ' ' + units[u];        
+        return new Handlebars.SafeString(html);
+    });
+    /**
+     * gcTest가 호출하는 함수로 직접 html에는 사용하지 않아야함
+     */
+    Handlebars.registerHelper("t", function( exp, options){
+        // debugger;
+        // logger.log(this);
+        var r = (function(){
+                try {
+                    var r =  eval(exp);
+                    return r;
+                } catch (error) {
+                    logger.error("gctest : " + error + ' [' + exp +']');
+                }
+            }).call(this);
+        return r;
+    }); 
+    /**
+     * javascript문법으로 논리식을 판별
+     */       
+    Handlebars.registerHelper("test", function(expression, options){
+        // logger.log(this);
+        var exp = '(' + expression.replace(/^\s+|\s+$/,'') +')';
+        
+        var result = Handlebars.helpers["t"].call(this, exp, options);
+        if(result === true){
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        }
+    });    

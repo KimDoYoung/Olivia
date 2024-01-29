@@ -23,6 +23,9 @@ header.sticky {
 	        <li class="nav-item">
 	          <a class="nav-link text-white" aria-current="page" href="/filebox">File-Box</a>
 	        </li>
+	        <li class="nav-item">
+	          <a class="nav-link text-white" aria-current="page" href="/schedule">Schedule</a>
+	        </li>
 	       </ul>
 	     </div>
          <div  class="d-flex">

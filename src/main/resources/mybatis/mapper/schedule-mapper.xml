@@ -1,0 +1,43 @@
+<!-- src/main/resources/mapper/ScheduleMapper.xml -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kalpa.olivia.repository.ScheduleRepository">
+
+    <!-- Insert a new schedule -->
+    <insert id="insertSchedule" parameterType="Schedule">
+        <![CDATA[
+        INSERT INTO schedule (lunar_or_solar, repeat_option, ymd, content, created_by, created_on)
+        VALUES (#{lunarOrSolar}, #{repeatOption}, #{ymd}, #{content}, #{createdBy}, #{createdOn})
+        ]]>
+    </insert>
+
+    <!-- Select a schedule by ID -->
+    <select id="selectScheduleById" resultType="Schedule" parameterType="Long">
+        <![CDATA[
+        SELECT * FROM schedule WHERE id = #{id}
+        ]]>
+    </select>
+
+    <!-- Update a schedule -->
+    <update id="updateSchedule" parameterType="Schedule">
+        <![CDATA[
+        UPDATE schedule
+        SET lunar_or_solar = #{lunarOrSolar},
+            repeat_option = #{repeatOption},
+            ymd = #{ymd},
+            content = #{content},
+            created_by = #{createdBy},
+            created_on = #{createdOn}
+        WHERE id = #{id}
+        ]]>
+    </update>
+
+    <!-- Delete a schedule by ID -->
+    <delete id="deleteScheduleById" parameterType="Long">
+        <![CDATA[
+        DELETE FROM schedule WHERE id = #{id}
+        ]]>
+    </delete>
+
+</mapper>

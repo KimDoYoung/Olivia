@@ -3,7 +3,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-    
+<%@ taglib prefix="kfs" tagdir="/WEB-INF/tags"%>
+<%@ taglib prefix="olivia"  uri="/WEB-INF/olivia-tags/olivia.tld"%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,7 +30,7 @@
               </button>
               
               <!-- 텍스트 입력란 -->
-              <input type="text" class="form-control" placeholder="사용자 이름" aria-label="사용자 이름" aria-describedby="button-addon1">
+              <input type="text" class="form-control" placeholder="검색어, 태그명 입력...">
             </div>
           </div>
           
@@ -66,9 +68,9 @@
 	  	<c:forEach var="board" items="${list}" varStatus="status">
 		    <tr class="align-middle">
 		      <td scope="row" class="text-center fw-bold">${status.count }</td>
-		      <td class="text-start"><a href="/board/view/${board.boardId}">${board.title}</a></td>
-		      <td>${board.startYmd } ~ ${board.endYmd } </td>
-		      <td>${board.createOn}</td>
+		      <td class="text-start"><a href="/board/view/${board.boardId}"><c:out value="${board.title}"/></a></td>
+		      <td><olivia:displayYmd ymd="${board.startYmd }"/> ~ <olivia:displayYmd ymd="${board.endYmd }"/></td>
+		      <td><olivia:displayDate date="${board.createOn}"/></td>
 		      <td>${board.createBy}</td>
 		      <td>
 		      	<c:if test="${board.status == '1' }">

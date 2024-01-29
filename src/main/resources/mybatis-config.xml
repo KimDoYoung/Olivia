@@ -19,6 +19,8 @@
 		<!-- Filebox -->
 		<typeAlias type="kr.co.kalpa.olivia.model.filebox.FbNode" alias="FbNode"/>
 		<typeAlias type="kr.co.kalpa.olivia.model.filebox.FbFile" alias="FbFile"/>
+		<!-- Schedule -->
+		<typeAlias type="kr.co.kalpa.olivia.model.schedule.Schedule" alias="Schedule"/>
 	</typeAliases>
 	
 	<typeHandlers>
