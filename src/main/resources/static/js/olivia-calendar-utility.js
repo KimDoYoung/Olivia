@@ -308,6 +308,8 @@ var LunarCalendar = (function(){
 })();
 
 const CalendarMaker = (function() {
+	let currentYear;
+	let currentMonth;
     // 요일(일요일부터 토요일까지)을 숫자(0부터 6)로 반환하는 함수
     const yoilNumber = function(yyyy, mm, dd) {
         let date = new Date(yyyy, mm - 1, dd);
@@ -328,9 +330,10 @@ const CalendarMaker = (function() {
 
     // 날짜에 일정 일 수를 더한 날짜(yyyymmdd 형식)를 반환하는 함수
     const addYmd = function(ymd, days) {
+		ymd = ymd.toString();
         let date = new Date(ymd.substring(0, 4), parseInt(ymd.substring(4, 6)) - 1, ymd.substring(6));
         date.setDate(date.getDate() + days);
-        return date.getFullYear() + zeroPad(date.getMonth() + 1) + zeroPad(date.getDate());
+        return date.getFullYear().toString() + zeroPad(date.getMonth() + 1) + zeroPad(date.getDate());
     }
 
     // 해당 월의 마지막 날짜를 구하는 함수
@@ -341,6 +344,8 @@ const CalendarMaker = (function() {
 
     // 주어진 년도와 월에 대한 달력 HTML을 생성하는 함수
     const calendarHtml = function(yyyy, mm) {
+		currentYear = yyyy;
+		currentMonth = mm;
         let startYoil = yoilNumber(yyyy, mm, 1);
         let endYmd = getEndYmd(yyyy, mm);
         let dd = endYmd.substring(6);
@@ -351,7 +356,7 @@ const CalendarMaker = (function() {
         endYmd = addYmd(endYmd, 6 - endYoil);
 
         let html = '<div class="row">';
-        html += '<div class="col text-center week">일</div>';
+        html += '<div class="col text-center text-danger week">일</div>';
         html += '<div class="col text-center week">월</div>';
         html += '<div class="col text-center week">화</div>';
         html += '<div class="col text-center week">수</div>';
@@ -369,7 +374,14 @@ const CalendarMaker = (function() {
                 html += '<div class="row">';
                 saveCloseDiv = '</div>';
             }
-            html += '<div class="col day">' + ymd.substring(6) + "</div>";
+            if(i%7 == 0){
+				html += '<div class="col day text-danger">' + Number(ymd.toString().substring(6)) + "</div>";	
+			}else if(i%7 == 6){
+				html += '<div class="col day text-primary">' + Number(ymd.toString().substring(6)) + "</div>";				
+			}else{
+				html += '<div class="col day">' + Number(ymd.toString().substring(6)) + "</div>";
+			}
+            
             ymd = addYmd(ymd, 1);
             i++;
         }
@@ -391,19 +403,19 @@ const CalendarMaker = (function() {
 	}
 
    const prevYearMonth =  function prevYearMonth(year, month) {
-    if (month < 1 || month > 12) {
-        throw new Error("Invalid month. Month should be between 1 and 12.");
+	    if (month < 1 || month > 12) {
+	        throw new Error("Invalid month. Month should be between 1 and 12.");
+	    }
+	
+	    if (month === 1) {
+	        // If current month is January, return previous year and December
+	        return [year - 1, 12];
+	    } else {
+	        // Otherwise, return same year and previous month
+	        return [year, month - 1];
+	    }
     }
-
-    if (month === 1) {
-        // If current month is January, return previous year and December
-        return [year - 1, 12];
-    } else {
-        // Otherwise, return same year and previous month
-        return [year, month - 1];
-    }
-  }
-
+	
     return {
         yoilNumber: yoilNumber,
         zeroPad: zeroPad,
@@ -412,7 +424,8 @@ const CalendarMaker = (function() {
         getEndYmd: getEndYmd,
         calendarHtml: calendarHtml,
         nextYearMonth : nextYearMonth,
-        prevYearMonth : prevYearMonth
+        prevYearMonth : prevYearMonth,
+        currentYearMonth : () => [currentYear, currentMonth]
     };
 })();
 

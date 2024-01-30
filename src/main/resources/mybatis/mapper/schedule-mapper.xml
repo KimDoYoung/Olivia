@@ -8,7 +8,7 @@
     <insert id="insertSchedule" parameterType="Schedule">
         <![CDATA[
         INSERT INTO schedule (lunar_or_solar, repeat_option, ymd, content, created_by, created_on)
-        VALUES (#{lunarOrSolar}, #{repeatOption}, #{ymd}, #{content}, #{createdBy}, #{createdOn})
+        VALUES (#{lunarOrSolar}, #{repeatOption}, #{ymd}, #{content}, #{createdBy}, current_timestamp)
         ]]>
     </insert>
 
@@ -16,6 +16,24 @@
     <select id="selectScheduleById" resultType="Schedule" parameterType="Long">
         <![CDATA[
         SELECT * FROM schedule WHERE id = #{id}
+        ]]>
+    </select>
+    
+    <select id="selectSchedule" resultType="Schedule" parameterType="Long">
+        <![CDATA[
+        SELECT 
+        	  lunar_or_solar AS lunarOrSolar
+        	, repeat_option AS repeatOption
+        	, ymd AS ymd
+        	, content AS content
+        	, created_by AS createdBy
+        	, created_on AS createdOn 
+        FROM schedule 
+        WHERE 1=1
+		AND CASE repeat_option 
+			WHEN 'S' THEN ymd >= TO_CHAR(CURRENT_DATE, 'YYYYMMDD')
+			ELSE TRUE
+		END        
         ]]>
     </select>
 
@@ -40,4 +58,51 @@
         ]]>
     </delete>
 
+	<!--  *************************************************************************** -->
+	<!--  Special day -->
+	<!--  *************************************************************************** -->
+
+    <!-- Insert a new special day -->
+    <insert id="insertSpecialDay" parameterType="SpecialDay">
+        INSERT INTO public.special_day (loc_date, seq, date_kind, holiday_yn, date_name, created_by, created_on)
+        VALUES (#{locDate}, #{seq}, #{dateKind}, #{holidayYn}, #{dateName}, #{createdBy}, current_timestamp)
+    </insert>
+
+    <!-- Select all special days -->
+    <select id="selectAllSpecialDays" resultType="SpecialDay">
+        SELECT 
+			loc_date
+			,seq
+			,date_kind
+			,holiday_yn
+			,date_name
+			,created_by
+			,created_on        	 
+        FROM 
+        	public.special_day
+        WHERE 1=1
+        		
+        ORDER BY
+        	loc_date, seq	
+    </select>
+
+    <!-- Select a specific special day by locdate and seq -->
+    <select id="selectSpecialDay" parameterType="SpecialDay" resultType="SpecialDay">
+        SELECT * FROM public.special_day
+        WHERE loc_date = #{locDate} AND seq = #{seq}
+    </select>
+
+    <!-- Update a special day by locdate and seq -->
+    <update id="updateSpecialDay" parameterType="SpecialDay">
+        UPDATE public.special_day
+        SET date_kind = #{dateKind}, holiday_yn = #{holidayYn}, date_name = #{dateName}
+        WHERE loc_date = #{locDate} AND seq = #{seq}
+    </update>
+
+    <!-- Delete a special day by locdate and seq -->
+    <delete id="deleteSpecialDay" parameterType="SpecialDay">
+        DELETE FROM public.special_day
+        WHERE loc_date = #{locDate} AND seq = #{seq}
+    </delete>
+	
 </mapper>
