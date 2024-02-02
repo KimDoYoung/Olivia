@@ -28,7 +28,7 @@ public class FileController {
 	 * @param response
 	 * @param auth
 	 */
-	@RequestMapping(value="/download", method = RequestMethod.GET)
+	@RequestMapping(value="/download/{fileId}", method = RequestMethod.GET)
 	public ModelAndView download(FileInfo fileInfo,	HttpServletResponse response, Authentication auth) {
 		log.debug(fileInfo.toString());
 		ModelAndView mav = new ModelAndView();
