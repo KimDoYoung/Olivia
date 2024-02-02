@@ -44,7 +44,7 @@
               <i class="bi bi-arrow-counterclockwise"></i> 초기화
             </button>
             
-            <button type="button" class="btn btn-success">
+            <button type="button" class="btn btn-success" id="btnInsertPage">
               <i class="bi bi-plus"></i> 추가
             </button>
           </div>

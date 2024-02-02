@@ -18,7 +18,7 @@
 <!-- =================================================== -->
 <article class="container">
 	<header class="mt-3">
-		<h2>제목 : ${board.title }</h2>
+		<h2>${board.title }</h2>
 		<p class="m-0">작성자: <span class="author">${board.createBy }</span>
 		<time datetime="${board.createOn }">게시일 : ${board.createOn }</time>
 		<p>
@@ -26,13 +26,13 @@
 	<section class="bg-light mt-3">
 		<h2>글의 내용</h2>
 		<div>
-		<c:out value="${board.content }" escapeXml="false"/>
+			<c:out value="${board.content }" escapeXml="false"/>
 		</div>
 	</section>
 	<section class="mt-3">
 		<h2>태그</h2>
 		<ul class="tags">
-			<c:forEach var="tag" items="${board.tagList}" varStatus="status">
+			<c:forEach var="tag" items="${board.tagSet}" varStatus="status">
 				<li><span class="badge bg-success rounded-pill mr-2">${tag.name }</span>
 			</c:forEach>
 		</ul>
@@ -41,7 +41,7 @@
 		<h2>첨부파일</h2>
 		<ul class="attached-file list-group">
 			<c:forEach var="file" items="${board.fileList}" varStatus="status">
-				<li><a href="/download">${file.orgName }</a></span>
+				<li><a href="/download">${file.orgName }</a>
 			</c:forEach>
 		</ul>
 	</section>	
@@ -65,11 +65,12 @@ $( document ).ready(function() {
 	});
 	$('#btnDelete').on('click', function(){
 		var boardId = $(this).data('board-id');
-		JuliaUtil.submitGet("/board/delete",{boardId:boardId});
+		if(confirm("삭제하시겠습니까?") == false) return;
+		JuliaUtil.submitGet("/board/delete/"+boardId);
 	});
 	$('#btnEdit').on('click', function(){
 		var boardId = $(this).data('board-id');
-		JuliaUtil.submitGet("/board/update",{boardId:boardId});		
+		JuliaUtil.submitGet("/board/update/"+boardId);		
 	});
 
 });

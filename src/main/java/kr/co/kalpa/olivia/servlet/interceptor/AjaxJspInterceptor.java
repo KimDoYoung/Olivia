@@ -26,6 +26,8 @@ public class AjaxJspInterceptor implements HandlerInterceptor  {
 		log.debug("---------------------------------------------");
 		log.debug("AjaxJsp Interceptor preHandler");
 		log.debug("---------------------------------------------");
+		String clientIP = request.getRemoteAddr();
+		log.info("접속Ip: {}", clientIP );
 		request.setAttribute(Attr_Is_Ajax, false);
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
