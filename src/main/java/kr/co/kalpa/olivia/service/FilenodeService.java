@@ -7,17 +7,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.kalpa.olivia.model.filebox.FbFile;
 import kr.co.kalpa.olivia.model.filebox.FbNode;
-import kr.co.kalpa.olivia.repository.FileboxRepository;
+import kr.co.kalpa.olivia.repository.FilenodeRepository;
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
 @Service
-public class FileboxService {
+public class FilenodeService {
 
-	private FileboxRepository repository;
+	private FilenodeRepository repository;
 
-	public FileboxService(FileboxRepository repository) {
+	public FilenodeService(FilenodeRepository repository) {
 		this.repository = repository;
 	}
 
@@ -109,5 +109,15 @@ public class FileboxService {
 		node.setParentId(newParentId);
 		return repository.moveNode(node);
 	}
+
+	/**
+	 * fileId에 해당하는 FbFile을 조회한다.
+	 * @param fileId
+	 * @return
+	 */
+	public FbFile selectOneFile(Long fileId) {
+		return repository.selectFileOne(fileId);
+	}
+	
 
 }

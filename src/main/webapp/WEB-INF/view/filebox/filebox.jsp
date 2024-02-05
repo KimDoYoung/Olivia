@@ -113,8 +113,8 @@
                 <td>{{formatDateString createOn}}</td>
                 <td>
 					<div class="btn-group">
-    				<button class="btnView btn btn-warning btn-sm" title="view"><i class="bi bi-eye bi-sm"></i></button>
-    				<button class="btnDownload btn btn-secondary btn-sm" title="download"><i class="bi bi-cloud-download bi-sm"></i></button>
+    				<button class="btnView btn btn-warning btn-sm" title="view" data-file-id="{{fileId}}"><i class="bi bi-eye bi-sm"></i></button>
+    				<button class="btnDownload btn btn-secondary btn-sm" title="download"  data-file-id="{{fileId}}"><i class="bi bi-cloud-download bi-sm"></i></button>
 				    </div>
 				</td>
               </tr>
@@ -165,18 +165,28 @@ $( document ).ready(function() {
 		var checkedCount = $('#fileinfo-table-area table tbody').find('input[name=chkFile]:checked').length;
 		$('#fileinfo-table-area').find('#allFileCheck').prop('checked', fileCount == checkedCount);
 	});
+	
 	//-------------------------------------------------------
-	// buttons
+	// file-list에서의 event
 	//-------------------------------------------------------
+// 	$('#fileinfo-table-area').on('click', '.btnDownload', function(){
+// 		var fileId = $(this).data('file-id');
+// 		console.log('fileId : ', fileId);
+// 	});
+	//-------------------------------------------------------
+	// 상단 buttons
+	//-------------------------------------------------------
+	//검색
 	$('#fileinfo-search-area').on('click','#btnSearch', function(){
 		console.log('btnSearch');
 	});
+	//초기화
 	$('#fileinfo-search-area').on('click','#btnInitSearch', function(){
 		//makeFileInfoSection(2);
 		console.log('btnInitSearch');
 	});
 
-	//Delete button click
+	//Delete 삭제 button click
 	$('#fileinfo-search-area').on('click','#btnDeleteFile', function(e){
 		e.stopPropagation();
 		var checkedValues = $('#fileinfo-table-area table tbody').find('input[name=chkFile]:checked')
@@ -612,10 +622,20 @@ function makeHtmlWithHandlebar(templateId, data){
 }
 /**
  * 리스트로 table html을 만들어서 file-list-area에 넣는다
+ * 개별 다운로드, 개별 view event를 걸어준다
  */
 function makeFileList(list){
 	var html = makeHtmlWithHandlebar('#table-template', {list:list});
 	$('#fileinfo-table-area').html(html);
+	$('#fileinfo-table-area').find('.btnDownload').on('click', function(){
+		var fileId = $(this).data('file-id');
+		console.log('download fileId : ', fileId);
+		JuliaUtil.submitGet('/file/download/' + fileId);
+	});
+	$('#fileinfo-table-area').find('.btnView').on('click', function(){
+		var fileId = $(this).data('file-id');
+		console.log('download fileId : ', fileId);
+	});	
 }
 	
 

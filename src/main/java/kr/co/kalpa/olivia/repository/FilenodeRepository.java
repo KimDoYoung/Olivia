@@ -5,7 +5,7 @@ import java.util.List;
 import kr.co.kalpa.olivia.model.filebox.FbFile;
 import kr.co.kalpa.olivia.model.filebox.FbNode;
 
-public interface FileboxRepository {
+public interface FilenodeRepository {
 
 	/**
 	 * node를 추가
