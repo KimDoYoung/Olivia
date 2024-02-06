@@ -2,10 +2,16 @@ package kr.co.kalpa.olivia.servlet.view;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,8 +55,74 @@ public class DownloadView extends AbstractView {
 	@Override
 	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
+		
+//		List<FbFile> list = (List<FbFile>) model.get("list");
+//		FileInfo fileInfo = (FileInfo) model.get("fileInfo");
+//		if(list != null) {
+//			downloadMultiFiles(request,response, list);
+//		}else if(fileInfo != null){
+//			downloadFile(request,response, fileInfo );
+//		}
+		List<FileInfo> list = (List<FileInfo>) model.get("list");
+		if(list == null) return;
+		if( list.size() == 1) {
+			FileInfo fileInfo = list.get(0);
+			downloadFile(request, response, fileInfo );
+		}else {
+			downloadMultiFiles(request, response, list);
+		}
+	}
 
-		FileInfo fileInfo = (FileInfo) model.get("fileInfo");
+	
+	private void downloadMultiFiles(HttpServletRequest request, HttpServletResponse response,List<FileInfo> list) throws IOException {
+		// zip파일생성
+        File zipFile = File.createTempFile("download", ".zip");
+
+        try (FileOutputStream fos = new FileOutputStream(zipFile);
+             ZipOutputStream zipOut = new ZipOutputStream(fos)) {
+            
+        	for (FileInfo fileInfo : list) {
+        		FbFile fbFile = fileInfo.getFbFile();
+        		String srcFile = fbFile.getPhyFolder() + "/" + fbFile.getPhyName();
+                FileInputStream fis = new FileInputStream(srcFile);
+                ZipEntry zipEntry = new ZipEntry(fbFile.getOrgName());
+                zipOut.putNextEntry(zipEntry);
+
+                byte[] bytes = new byte[1024*4];
+                int length;
+                while ((length = fis.read(bytes)) >= 0) {
+                    zipOut.write(bytes, 0, length);
+                }
+                zipOut.closeEntry();
+                fis.close();
+            }
+        }
+        //사용자가 다운로드 받을 파일명
+        String zipFileName = downloadFileName("download");
+        
+        // Set response headers
+        response.setContentType("application/zip");
+        response.setHeader("Content-Disposition", "attachment; filename="+zipFileName);
+
+        // Copy the zip file to the response output stream
+        FileInputStream zipInputStream = new FileInputStream(zipFile);
+        FileCopyUtils.copy(zipInputStream, response.getOutputStream());
+        zipInputStream.close();
+
+        // Delete the temporary zip file
+        zipFile.delete();
+		
+	}
+
+
+	private String downloadFileName(String prefix) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String formattedDate = sdf.format(new Date());
+        return prefix +"_" +formattedDate + ".zip";
+	}
+
+
+	private void downloadFile(HttpServletRequest request,HttpServletResponse response, FileInfo fileInfo) {
 		FbFile fbFile = fileInfo.getFbFile();
 		String saveFileName = fbFile.getOrgName();
 		String serverFullPath = fbFile.getPhyFolder() + "/" + fbFile.getPhyName();
@@ -74,9 +146,9 @@ public class DownloadView extends AbstractView {
 	      
 	    }			
 
+		
 	}
 
-	
 	private String contentTypeWithExtension(String ext) {
 		if(ext == null) return defaultContentType;
 		if(ext.startsWith(".")) {

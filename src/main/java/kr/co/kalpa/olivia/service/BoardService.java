@@ -164,5 +164,9 @@ public class BoardService {
 		return repository.delete(boardId);
 	}
 
+	public long selectCount(QueryAttr queryAttr) {
+		return repository.selectCount(queryAttr);
+	}
+
 	
 }

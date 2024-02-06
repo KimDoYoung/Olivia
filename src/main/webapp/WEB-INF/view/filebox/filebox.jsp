@@ -70,6 +70,7 @@
 				<button id="btnInitSearch" class="btn btn-secondary" title="초기화"><i class="bi bi-arrow-counterclockwise"></i></button>
 				<button id="btnUploadFile" class="btn btn-warning" title="upload files" data-bs-toggle="collapse" data-bs-target="#file-upload-area"><i class="bi bi-plus"></i></button>
 				<button id="btnDeleteFile" class="btn btn-danger" title="파일 삭제"><i class="bi bi-trash"></i></button>
+				<button id="btnDownloadFiles" class="btn btn-secondary" title="여러파일 다운로드"><i class="bi bi-cloud-download bi-sm"></i></button>
 				</div>
 			</div>
            	<div id="file-upload-area" class="collapse m-3">
@@ -272,13 +273,28 @@ $( document ).ready(function() {
 	    return false;
     	console.log('form file upload...');
 	});
-	
-	$('#btnSendAjax').on('click', function(){
-		var parentId = $('#parentId').val();
-		var folderNm = $('#folderNm').val();
-		var note = $('#note').val();
-		addFolder({parentId:parentId, folderNm:folderNm, note:note});
+	//여러파일 다운로드
+	$('#btnDownloadFiles').on('click', function(e){
+		e.stopPropagation();
+		var checkedValues = $('#fileinfo-table-area table tbody').find('input[name=chkFile]:checked')
+					.map(function() {
+            				return $(this).val();
+        			}).get();
+		if( checkedValues.length < 1 ){
+			alert("다운로드 받을 파일들을 선택해 주십시오");
+			return;
+		}
+		if( checkedValues.length == 1 ){
+			if(!confirm("1개의 파일이 선택되었습니다. zip파일형태로 다운로드됩니다.")){
+				return;
+			}
+		}
+		console.log("checkValues:" + checkedValues);
+		var data = {"fileIds":checkedValues};
+		JuliaUtil.submitPost("/file/downloads",data);
 	});
+	
+	//------------------------------------------------------------------
 	
 	function addFolder(data){
 		var dataToSend = data;

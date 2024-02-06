@@ -13,7 +13,7 @@
 	<nav aria-label="Page navigation example">
 	  <ul id=${id } class="pagination">
 	  	<c:if test="${pageAttr.isExistPrevPageNumber }">
-	    	<li class="page-item"><a class="page-link" href="#">Previous</a></li>
+	    	<li class="page-item"><a class="page-link" href="javascript:${functionName }(${pageAttr.startPageNumber-1 })">Previous</a></li>
 	    </c:if>
 	    
 		<c:forEach var="i" begin="${pageAttr.startPageNumber }" end="${pageAttr.endPageNumber }" step="1">
@@ -28,7 +28,7 @@
 			
 		</c:forEach>
 	    <c:if test="${pageAttr.isExistNextPageNumber }">
-	    	<li class="page-item"><a class="page-link" href="#">Next</a></li>
+	    	<li class="page-item"><a class="page-link" href="javascript:${functionName }(${pageAttr.endPageNumber+1 })">Next</a></li>
 	    </c:if>
 	  </ul>
 	</nav>

@@ -18,8 +18,8 @@
 <!-- =================================================== -->
 <article class="container">
 	<header class="mt-3">
-		<h2>${board.title }</h2>
-		<p class="m-0">작성자: <span class="author">${board.createBy }</span>
+		<h2 class="text-center">${board.title }</h2>
+		<p class="text-end me-2">작성자: <span class="author">${board.createBy }</span>
 		<time datetime="${board.createOn }">게시일 : ${board.createOn }</time>
 		<p>
 	</header>

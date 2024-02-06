@@ -28,19 +28,20 @@
               <button class="btn btn-warning" type="button" id="button-addon1">
                 <i class="bi bi-list"></i>
               </button>
-              
               <!-- 텍스트 입력란 -->
-              <input type="text" class="form-control" placeholder="검색어, 태그명 입력...">
+              <input type="hidden" id="pageSize" value="${param.pageSize}" >
+              <input type="hidden" id="currentPageNumber"  value="${param.currentPageNumber}">
+              <input type="text" id="searchText"  value="${param.searchText }" class="form-control" placeholder="검색어, 태그명 입력...">
             </div>
           </div>
           
           <!-- 검색, 초기화, 추가 버튼 -->
           <div class="col-md-6">
-            <button type="button" class="btn btn-primary me-2">
+            <button type="button" class="btn btn-primary me-2" id="btnSearch">
               <i class="bi bi-search"></i> 검색
             </button>
             
-            <button type="button" class="btn btn-secondary me-2">
+            <button type="button" class="btn btn-secondary me-2" id="btnInit">
               <i class="bi bi-arrow-counterclockwise"></i> 초기화
             </button>
             
@@ -67,7 +68,7 @@
 	  <tbody class="table-group-divider text-center">
 	  	<c:forEach var="board" items="${list}" varStatus="status">
 		    <tr class="align-middle">
-		      <td scope="row" class="text-center fw-bold">${status.count }</td>
+		      <td scope="row" class="text-center fw-bold">${(pageAttr.currentPageNumber -1 ) * pageAttr.pageSize + status.count }</td>
 		      <td class="text-start"><a href="/board/view/${board.boardId}"><c:out value="${board.title}"/></a></td>
 		      <td><olivia:displayYmd ymd="${board.startYmd }"/> ~ <olivia:displayYmd ymd="${board.endYmd }"/></td>
 		      <td><olivia:displayDate date="${board.createOn}"/></td>
@@ -101,7 +102,13 @@
 		    </tr>
 	    </c:forEach>
 	  </tbody>
-	</table>	
+	</table>
+	<div class="page-information mt-2">
+	    <div class="row">
+	        <div class="col"><kfs:Pagination pageAttr="${pageAttr }" id="pageAttr"></kfs:Pagination> </div>
+	        <div class="col"><kfs:PageInfo pageAttr="${pageAttr }" id="pageAttr"></kfs:PageInfo> </div>
+	    </div>
+	</div>
 	</section>
 </main>
 <!-- =================================================== -->
@@ -110,6 +117,18 @@
 <script>
 $( document ).ready(function() {
 	console.log('board list');
+// 	function parameterData(){
+		
+// 		var pageSize = $('#pageSize').val();
+// 		var currentPageNumber = $('#currentPageNumber').val();
+// 		var searchText = $('#searchText').val();
+// 		return {
+// 			pageSize: pageSize,
+// 			currentPageNumber : currentPageNumber,
+// 			searchText : searchText
+// 		}
+// 	}
+
 	$('#btnInsertPage').on('click', function(){
 		JuliaUtil.submitGet("/board/insert");
 	});
@@ -123,7 +142,51 @@ $( document ).ready(function() {
 			JuliaUtil.submitGet("/board/delete/" + boardId);			
 		}
 	});
+	$('.btnDelete').on('click', function(){
+		if(confirm('삭제하시겠습니까?')){
+			var boardId = $(this).data('board-id');
+			JuliaUtil.submitGet("/board/delete/" + boardId);			
+		}
+	});
+	//검색창에서 enter이면 조회
+	$("#searchText").on("keyup",function(key){
+        if(key.keyCode==13) { //enter
+        	$('#btnSearch').trigger('click');
+        }else if(key.keyCode == 46){ //DEL
+        	$(this).val('');
+        }
+	});	
+	$('#btnSearch').on('click', function(){
+		console.log('search ...');
+		$('#currentPageNumber').val(1);
+		var data = parameterData();
+		JuliaUtil.submitGet("/board",data);
+	});
+	$('#btnInit').on('click', function(){
+		console.log('init ...');
+		$('#searchText').val('');
+		$('#currentPageNumber').val(1);
+		var data = parameterData();
+		JuliaUtil.submitGet("/board",data);
+	});
 });
+function parameterData(){
+	
+	var pageSize = $('#pageSize').val();
+	var currentPageNumber = $('#currentPageNumber').val();
+	var searchText = $('#searchText').val();
+	return {
+		pageSize: pageSize,
+		currentPageNumber : currentPageNumber,
+		searchText : searchText
+	}
+}
+function goPageClick(pageNo){
+	$('#currentPageNumber').val(pageNo);
+	var data = parameterData();
+	JuliaUtil.submitGet("/board",data);
+}
+
 </script>	
 </body>
 </html>

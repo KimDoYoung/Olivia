@@ -9,8 +9,10 @@ import lombok.Setter;
 @Setter
 public class QueryAttr extends HashMap<String,Object>{
 
-	private String searchText;
-	private PageAttr pageAttr;
+//	private String searchText;
+//	private Integer currentPageNumber = 1;
+//	private Integer pageSize = 10;
+	
 	/**
 	 * 
 	 */
@@ -18,7 +20,5 @@ public class QueryAttr extends HashMap<String,Object>{
 
 	public void clear() {
 		super.clear();
-		this.searchText = null;
-		this.pageAttr = null;
 	}
 }

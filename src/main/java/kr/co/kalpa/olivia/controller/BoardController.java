@@ -28,6 +28,7 @@ import kr.co.kalpa.olivia.model.board.Tags;
 import kr.co.kalpa.olivia.security.UserPrincipal;
 import kr.co.kalpa.olivia.service.BoardService;
 import kr.co.kalpa.olivia.utils.CommonUtil;
+import kr.co.kalpa.olivia.utils.PageAttr;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
@@ -47,7 +48,11 @@ public class BoardController{
 	}
 	
 	@GetMapping("")
-	public String list(@ModelAttribute QueryAttr queryAttr, Model model, Authentication auth) {
+	public String list(@ModelAttribute QueryAttr queryAttr, 
+			@RequestParam(value="searchText", required=false) String searchText,
+			@RequestParam(value="pageSize", required=false, defaultValue="10") Integer pageSize,
+			@RequestParam(value="currentPageNumber", required=false, defaultValue="1") Integer currentPageNumber,			
+			Model model, Authentication auth) {
 		
 		log.debug("********************************************");
 		log.debug("board list");
@@ -57,11 +62,18 @@ public class BoardController{
 		
 		queryAttr.put("dateRangeCheck", true);
 		queryAttr.put("currentUser", user);
+		queryAttr.put("searchText", searchText);
 		
-		
+		long totalCount = boardService.selectCount(queryAttr);
+
+		PageAttr pageAttr = new PageAttr(totalCount, pageSize, currentPageNumber);
+		queryAttr.put("pageAttr", pageAttr);
 		List<Board> list=boardService.selectList(queryAttr);
+		
+		
 		model.addAttribute("list", list);
 		model.addAttribute("currentUser", user );
+		model.addAttribute("pageAttr", pageAttr);
 		return "board/list";
 	}
 	@GetMapping("insert")

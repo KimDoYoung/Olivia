@@ -1,13 +1,15 @@
 package kr.co.kalpa.olivia.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.springframework.security.core.Authentication;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import kr.co.kalpa.olivia.exception.FileboxException;
@@ -30,6 +32,30 @@ public class FileController extends BaseController {
 	public FileController(FilenodeService fileService) {
 		this.fileService = fileService;
 	}
+	@GetMapping("/downloads")
+	public ModelAndView downloads(@RequestParam("fileIds") List<Long> fileIds, HttpServletRequest request) throws FileboxException {
+		String userId = super.loginUserId();
+		if(userId == null) {
+			throw new FileboxException("로그인 한 후에 다운로드 가능합니다");
+		}
+		List<FileInfo> list = new ArrayList<>();
+		for (Long fileId : fileIds) {
+			FbFile fbFile = fileService.selectOneFile(fileId);
+			if(fbFile != null) {
+				FileInfo fileInfo = new FileInfo();
+				fileInfo.setFbFile(fbFile);
+				fileInfo.setRequestUserId(userId);
+				fileInfo.setAuthKey(request.getSession().getId());
+				
+				list.add(fileInfo);
+			}
+		}
+		ModelAndView mav = new ModelAndView();
+		mav.setView( new DownloadView() );
+		mav.addObject("list", list);
+		return mav;
+		
+	}
 	/**
 	 * 1개의 파일을 다운로드 한다.
 	 * @param fileInfo
@@ -38,7 +64,7 @@ public class FileController extends BaseController {
 	 * @throws FileboxException 
 	 */
 	@GetMapping("/download/{fileId}")
-	public ModelAndView download(@PathVariable("fileId") Long fileId, HttpServletRequest request, Authentication auth) throws FileboxException {
+	public ModelAndView download(@PathVariable("fileId") Long fileId, HttpServletRequest request) throws FileboxException {
 		
 		String userId = super.loginUserId();
 		if(userId == null) {
@@ -52,10 +78,12 @@ public class FileController extends BaseController {
 		fileInfo.setRequestUserId(userId);
 		fileInfo.setAuthKey(request.getSession().getId());
 		
+		List<FileInfo> list = new ArrayList<>();
+		list.add(fileInfo);
 		log.debug(fileInfo.toString());
 		ModelAndView mav = new ModelAndView();
 		mav.setView( new DownloadView() );
-		mav.addObject("fileInfo", fileInfo);
+		mav.addObject("list", list);
 		return mav;
 	}
 	

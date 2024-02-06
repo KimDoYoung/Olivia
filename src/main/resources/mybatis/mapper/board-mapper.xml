@@ -2,19 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.kalpa.olivia.repository.BoardRepository">
    <sql id="whereCondition">
+   		AND CASE WHEN A.create_by  = #{currentUser.userId} THEN TRUE
+   		ELSE  
+   		  TO_CHAR(CURRENT_DATE, 'YYYYMMDD') between start_ymd and end_ymd 
+   		  AND status = '1'
+   		END   
 		<!--    검색조건 -->
    		<if test="boardId != null">
 	       	AND board_id = #{boardId}
 		</if>		
-   		<if test="searchText != null">
+   		<if test="searchText != null and searchText != ''">
 	       	AND concat(title, ' ', content) like concat('%',#{searchText},'%')
 		</if>
    </sql>	
-	<select id="selectCount" parameterType="QueryAttr" resultType="Integer">
+	<select id="selectCount" parameterType="QueryAttr" resultType="Long">
    		SELECT 
    			count(*) as count
    		FROM
-   			board
+   			board A
    		WHERE 1=1
    			<include refid="whereCondition"/>	
    </select> 
@@ -78,11 +83,7 @@
 	   		LEFT OUTER JOIN attached_file_count B ON A.board_id = B.board_id
 	   		LEFT OUTER JOIN board_tags C ON A.board_id = C.board_id
 	   WHERE 1=1
-	   		AND CASE WHEN A.create_by  = #{currentUser.userId} THEN TRUE
-	   		ELSE  
-	   		  TO_CHAR(CURRENT_DATE, 'YYYYMMDD') between start_ymd and end_ymd 
-	   		  AND status = '1'
-	   		end
+
 	   	<include refid="whereCondition"/>
 	   ORDER BY boardId desc
 	   <if test="pageAttr != null">	
