@@ -63,6 +63,7 @@ public class DownloadView extends AbstractView {
 //		}else if(fileInfo != null){
 //			downloadFile(request,response, fileInfo );
 //		}
+		@SuppressWarnings("unchecked")
 		List<FileInfo> list = (List<FileInfo>) model.get("list");
 		if(list == null) return;
 		if( list.size() == 1) {

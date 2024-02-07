@@ -1,0 +1,136 @@
+<!-- src/main/resources/mapper/ScheduleMapper.xml -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kalpa.olivia.repository.CrawlingRepository">
+	<sql id="fields">
+	    seq AS seq /* 시퀀스 */,
+	    track_id AS trackId /* 트랙 ID */,
+	    stock_name AS stockName /* 회사 개요: 종목명 */,
+	    status AS status /* 회사 개요: 진행상황 */,
+	    market_type AS marketType /* 회사 개요: 시장구분 */,
+	    stock_code AS stockCode /* 회사 개요: 종목코드 */,
+	    industry AS industry /* 회사 개요: 업종 */,
+	    ceo AS ceo /* 회사 개요: 대표자 */,
+	    business_type AS businessType /* 회사 개요: 기업구분 */,
+	    headquarters_location AS headquartersLocation /* 회사 개요: 본점소재지 */,
+	    website AS website /* 회사 개요: 홈페이지 */,
+	    phone_number AS phoneNumber /* 회사 개요: 대표전화 */,
+	    major_shareholder AS majorShareholder /* 회사 개요: 최대주주 */,
+	    revenue AS revenue /* 회사 개요: 매출액 */,
+	    pre_tax_continuing_operations_profit AS preTaxContinuingOperationsProfit /* 회사 개요: 법인세비용차감전 계속사업이익 */,
+	    net_profit AS netProfit /* 회사 개요: 순이익 */,
+	    capital AS capital /* 회사 개요: 자본금 */,
+	    total_ipo_shares AS totalIpoShares /* IPO 정보: 총공모주식수 */,
+	    face_value AS faceValue /* IPO 정보: 액면가 */,
+	    listing_ipo AS listingIpo /* IPO 정보: 상장공모 */,
+	    desired_ipo_price AS desiredIpoPrice /* IPO 정보: 희망공모가액 */,
+	    subscription_competition_rate AS subscriptionCompetitionRate /* IPO 정보: 청약경쟁률 */,
+	    final_ipo_price AS finalIpoPrice /* IPO 정보: 확정공모가 */,
+	    ipo_proceeds AS ipoProceeds /* IPO 정보: 공모금액 */,
+	    lead_manager AS leadManager /* IPO 정보: 주간사 */,
+	    demand_forecast_date AS demandForecastDate /* 청약 일정: 수요예측일 */,
+	    ipo_subscription_date AS ipoSubscriptionDate /* 청약 일정: 공모청약일 */,
+	    newspaper_allocation_announcement_date AS newspaperAllocationAnnouncementDate /* 청약 일정: 배정공고일(신문) */,
+	    payment_date AS paymentDate /* 청약 일정: 납입일 */,
+	    refund_date AS refundDate /* 청약 일정: 환불일 */,
+	    listing_date AS listingDate /* 청약 일정: 상장일 */,
+	    ir_data AS irData /* 청약 일정: IR일자 */,
+	    ir_location_time AS irLocationTime /* 청약 일정: IR장소/시간 */,
+	    institutional_competition_rate AS institutionalCompetitionRate /* 청약 일정: 기관경쟁률 */,
+	    lock_up_agreement AS lockUpAgreement /* 청약 일정: 의무보유확약 */	
+	</sql>
+	<select id="selectIpoList" resultType="IpoData">
+	SELECT
+		<include refid="fields"/>
+	FROM
+	    public.ipo_data
+	WHERE 1=1
+	AND track_id  = (SELECT max(track_id) FROM public.ipo_data)  
+	ORDER BY seq
+	</select>	
+	
+	<select id="selectIpoOne" resultType="IpoData" parameterType="Long">
+	/* selectIpoOne : IpoData 1개를 seq로 조회*/
+	SELECT
+		<include refid="fields"/>
+	FROM
+	    public.ipo_data
+	WHERE 1=1
+		AND seq = #{value}
+	</select>
+	<insert id="insertIpoData" parameterType="IpoData">
+    <!-- ipo_data 테이블에 새로운 데이터를 삽입하는 쿼리 -->
+    INSERT INTO ipo_data (
+        trackId, /* 트랙 ID */
+        stockName, /* 회사 개요: 종목명 */
+        status, /* 회사 개요: 진행상황 */
+        marketType, /* 회사 개요: 시장구분 */
+        stockCode, /* 회사 개요: 종목코드 */
+        industry, /* 회사 개요: 업종 */
+        ceo, /* 회사 개요: 대표자 */
+        businessType, /* 회사 개요: 기업구분 */
+        headquartersLocation, /* 회사 개요: 본점소재지 */
+        website, /* 회사 개요: 홈페이지 */
+        phoneNumber, /* 회사 개요: 대표전화 */
+        majorShareholder, /* 회사 개요: 최대주주 */
+        revenue, /* 회사 개요: 매출액 */
+        preTaxContinuingOperationsProfit, /* 회사 개요: 법인세비용차감전 계속사업이익 */
+        netProfit, /* 회사 개요: 순이익 */
+        capital, /* 회사 개요: 자본금 */
+        totalIpoShares, /* IPO 정보: 총공모주식수 */
+        faceValue, /* IPO 정보: 액면가 */
+        listingIpo, /* IPO 정보: 상장공모 */
+        desiredIpoPrice, /* IPO 정보: 희망공모가액 */
+        subscriptionCompetitionRate, /* IPO 정보: 청약경쟁률 */
+        finalIpoPrice, /* IPO 정보: 확정공모가 */
+        ipoProceeds, /* IPO 정보: 공모금액 */
+        leadManager, /* IPO 정보: 주간사 */
+        demandForecastDate, /* 청약 일정: 수요예측일 */
+        ipoSubscriptionDate, /* 청약 일정: 공모청약일 */
+        newspaperAllocationAnnouncementDate, /* 청약 일정: 배정공고일(신문) */
+        paymentDate, /* 청약 일정: 납입일 */
+        refundDate, /* 청약 일정: 환불일 */
+        listingDate, /* 청약 일정: 상장일 */
+        irData, /* 청약 일정: IR일자 */
+        irLocationTime, /* 청약 일정: IR장소/시간 */
+        institutionalCompetitionRate, /* 청약 일정: 기관경쟁률 */
+        lockUpAgreement /* 청약 일정: 의무보유확약 */
+    ) VALUES (
+        #{trackId},
+        #{stockName},
+        #{status},
+        #{marketType},
+        #{stockCode},
+        #{industry},
+        #{ceo},
+        #{businessType},
+        #{headquartersLocation},
+        #{website},
+        #{phoneNumber},
+        #{majorShareholder},
+        #{revenue},
+        #{preTaxContinuingOperationsProfit},
+        #{netProfit},
+        #{capital},
+        #{totalIpoShares},
+        #{faceValue},
+        #{listingIpo},
+        #{desiredIpoPrice},
+        #{subscriptionCompetitionRate},
+        #{finalIpoPrice},
+        #{ipoProceeds},
+        #{leadManager},
+        #{demandForecastDate},
+        #{ipoSubscriptionDate},
+        #{newspaperAllocationAnnouncementDate},
+        #{paymentDate},
+        #{refundDate},
+        #{listingDate},
+        #{irData},
+        #{irLocationTime},
+        #{institutionalCompetitionRate},
+        #{lockUpAgreement}
+    )
+	</insert>
+</mapper>

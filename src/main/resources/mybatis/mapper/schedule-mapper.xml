@@ -2,25 +2,11 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="kr.co.kalpa.olivia.repository.ScheduleRepository">
-
-    <!-- Insert a new schedule -->
-    <insert id="insertSchedule" parameterType="Schedule">
-        <![CDATA[
-        INSERT INTO schedule (lunar_or_solar, repeat_option, ymd, content, created_by, created_on)
-        VALUES (#{lunarOrSolar}, #{repeatOption}, #{ymd}, #{content}, #{createdBy}, current_timestamp)
-        ]]>
-    </insert>
-
-    <!-- Select a schedule by ID -->
-    <select id="selectScheduleById" resultType="Schedule" parameterType="Long">
-        <![CDATA[
-        SELECT * FROM schedule WHERE id = #{id}
-        ]]>
-    </select>
-    
+<mapper namespace="kr.co.kalpa.olivia.repository.CrawlingRepository">
+   
     <select id="selectSchedule" resultType="Schedule" parameterType="Long">
         <![CDATA[
+        /** select
         SELECT 
         	  lunar_or_solar AS lunarOrSolar
         	, repeat_option AS repeatOption

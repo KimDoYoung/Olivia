@@ -22,6 +22,8 @@
 		<!-- Schedule -->
 		<typeAlias type="kr.co.kalpa.olivia.model.schedule.Schedule" alias="Schedule"/>
 		<typeAlias type="kr.co.kalpa.olivia.model.schedule.SpecialDay" alias="SpecialDay"/>
+		<!-- Crawling -->
+		<typeAlias type="kr.co.kalpa.olivia.model.IpoData" alias="IpoData"/>
 	</typeAliases>
 	
 	<typeHandlers>
