@@ -62,40 +62,40 @@
 	<insert id="insertIpoData" parameterType="IpoData">
     <!-- ipo_data 테이블에 새로운 데이터를 삽입하는 쿼리 -->
     INSERT INTO ipo_data (
-        trackId, /* 트랙 ID */
-        stockName, /* 회사 개요: 종목명 */
-        status, /* 회사 개요: 진행상황 */
-        marketType, /* 회사 개요: 시장구분 */
-        stockCode, /* 회사 개요: 종목코드 */
-        industry, /* 회사 개요: 업종 */
-        ceo, /* 회사 개요: 대표자 */
-        businessType, /* 회사 개요: 기업구분 */
-        headquartersLocation, /* 회사 개요: 본점소재지 */
-        website, /* 회사 개요: 홈페이지 */
-        phoneNumber, /* 회사 개요: 대표전화 */
-        majorShareholder, /* 회사 개요: 최대주주 */
-        revenue, /* 회사 개요: 매출액 */
-        preTaxContinuingOperationsProfit, /* 회사 개요: 법인세비용차감전 계속사업이익 */
-        netProfit, /* 회사 개요: 순이익 */
-        capital, /* 회사 개요: 자본금 */
-        totalIpoShares, /* IPO 정보: 총공모주식수 */
-        faceValue, /* IPO 정보: 액면가 */
-        listingIpo, /* IPO 정보: 상장공모 */
-        desiredIpoPrice, /* IPO 정보: 희망공모가액 */
-        subscriptionCompetitionRate, /* IPO 정보: 청약경쟁률 */
-        finalIpoPrice, /* IPO 정보: 확정공모가 */
-        ipoProceeds, /* IPO 정보: 공모금액 */
-        leadManager, /* IPO 정보: 주간사 */
-        demandForecastDate, /* 청약 일정: 수요예측일 */
-        ipoSubscriptionDate, /* 청약 일정: 공모청약일 */
-        newspaperAllocationAnnouncementDate, /* 청약 일정: 배정공고일(신문) */
-        paymentDate, /* 청약 일정: 납입일 */
-        refundDate, /* 청약 일정: 환불일 */
-        listingDate, /* 청약 일정: 상장일 */
-        irData, /* 청약 일정: IR일자 */
-        irLocationTime, /* 청약 일정: IR장소/시간 */
-        institutionalCompetitionRate, /* 청약 일정: 기관경쟁률 */
-        lockUpAgreement /* 청약 일정: 의무보유확약 */
+		track_id
+		,stock_name
+		,status
+		,market_type
+		,stock_code
+		,industry
+		,ceo
+		,business_type
+		,headquarters_location
+		,website
+		,phone_number
+		,major_shareholder
+		,revenue
+		,pre_tax_continuing_operations_profit
+		,net_profit
+		,capital
+		,total_ipo_shares
+		,face_value
+		,listing_ipo
+		,desired_ipo_price
+		,subscription_competition_rate
+		,final_ipo_price
+		,ipo_proceeds
+		,lead_manager
+		,demand_forecast_date
+		,ipo_subscription_date
+		,newspaper_allocation_announcement_date
+		,payment_date
+		,refund_date
+		,listing_date
+		,ir_data
+		,ir_location_time
+		,institutional_competition_rate
+		,lock_up_agreement
     ) VALUES (
         #{trackId},
         #{stockName},

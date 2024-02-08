@@ -67,8 +67,101 @@ th, td {
         </c:forEach>
     </tbody>
 </table>
-
 </div>
+<script id="ipodata-template" type="text/x-handlebars-template">
+<table class="table table-sm table-hover mt-3 userTable font-size-small">
+    <tbody>
+        <tr>
+            <th>종목명</th>
+            <td>{{stockName}}</td>
+            <th>진행상황</th>
+            <td>{{status}}</td>
+            <th>시장구분</th>
+            <td>{{marketType}}</td>
+        </tr>
+        <tr>
+            <th>종목코드</th>
+            <td>{{stockCode}}</td>
+            <th>업종</th>
+            <td>{{industry}}</td>
+            <th>대표자</th>
+            <td>{{ceo}}</td>
+        </tr>
+        <tr>
+            <th>기업구분</th>
+            <td>{{businessType}}</td>
+            <th>본점소재지</th>
+            <td>{{headquartersLocation}}</td>
+            <th>홈페이지</th>
+            <td>{{website}}</td>
+        </tr>
+        <tr>
+            <th>대표전화</th>
+            <td>{{phoneNumber}}</td>
+            <th>최대주주</th>
+            <td>{{majorShareholder}}</td>
+            <th>매출액</th>
+            <td>{{revenue}}</td>
+        </tr>
+        <tr>
+            <th>법인세비용차감전 계속사업이익</th>
+            <td>{{preTaxContinuingOperationsProfit}}</td>
+            <th>순이익</th>
+            <td>{{netProfit}}</td>
+            <th>자본금</th>
+            <td>{{capital}}</td>
+        </tr>
+        <tr>
+            <th>총공모주식수</th>
+            <td>{{totalIpoShares}}</td>
+            <th>액면가</th>
+            <td>{{faceValue}}</td>
+            <th>상장공모</th>
+            <td>{{listingIpo}}</td>
+        </tr>
+        <tr>
+            <th>희망공모가액</th>
+            <td>{{desiredIpoPrice}}</td>
+            <th>청약경쟁률</th>
+            <td>{{subscriptionCompetitionRate}}</td>
+            <th>확정공모가</th>
+            <td>{{finalIpoPrice}}</td>
+        </tr>
+        <tr>
+            <th>공모금액</th>
+            <td>{{ipoProceeds}}</td>
+            <th>주간사</th>
+            <td>{{leadManager}}</td>
+            <th>수요예측일</th>
+            <td>{{demandForecastDate}}</td>
+        </tr>
+        <tr>
+            <th>공모청약일</th>
+            <td>{{ipoSubscriptionDate}}</td>
+            <th>배정공고일(신문)</th>
+            <td>{{newspaperAllocationAnnouncementDate}}</td>
+            <th>납입일</th>
+            <td>{{paymentDate}}</td>
+        </tr>
+        <tr>
+            <th>환불일</th>
+            <td>{{refundDate}}</td>
+            <th>상장일</th>
+            <td>{{listingDate}}</td>
+            <th>IR일자</th>
+            <td>{{irData}}</td>
+        </tr>
+        <tr>
+            <th>IR장소/시간</th>
+            <td>{{irLocationTime}}</td>
+            <th>기관경쟁률</th>
+            <td>{{institutionalCompetitionRate}}</td>
+            <th>의무보유확약</th>
+            <td>{{lockUpAgreement}}</td>
+        </tr>
+    </tbody>
+</table>
+</script>
 <!-- =================================================== -->
 <jsp:include page="../common/footer.jsp" flush="false" />
 <!-- -================================================== -->
@@ -96,9 +189,19 @@ $( document ).ready(function() {
 		}
 		
 		$this.addClass("active");
-		
-		 var newRow = "<tr><td colspan='10'>ajax로 가져와서 보여주기</td></tr>";
-	     $this.closest("tr").after(newRow);
+		//-----------------------------------
+		var seq = $this.data('seq');
+		JuliaUtil.ajax("/ipodata/"+seq,null,{
+			method  : 'GET',
+			success : (response)=>{
+				console.log(response.ipoData);
+				var templateHtml = $('#ipodata-template').html();
+				var template = Handlebars.compile(templateHtml);
+				var html = template(response.ipoData);
+				html = "<tr><td colspan='10'>" + html + "</td></tr>";
+				$this.closest("tr").after(html);
+			}
+		})
 	});
 	
 	$('.company-home-page').on('click', function(){
@@ -107,7 +210,8 @@ $( document ).ready(function() {
 		window.open(homepage);
 	});
 	$('#btnRunCrawling').on('click', function(){
-		JuliaUtil.submitGet("/"))
+		JuliaUtil.displayLoading(true);
+		JuliaUtil.submitGet("/crawling/run");
 	});
 });
 </script>	

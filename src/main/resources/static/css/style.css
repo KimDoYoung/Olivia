@@ -2,3 +2,23 @@
 .font-size-small {
 	font-size:small
 }
+/** wait동작에 사용 */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none; /* Initially hidden */
+}
+.overlay.active {
+    display: flex; /* Show overlay when active */
+}
+.overlay * {
+    pointer-events: none; /* Prevent mouse interactions */
+}

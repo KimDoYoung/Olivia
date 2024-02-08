@@ -5,13 +5,18 @@
 	</div> 
 </footer>
 <!-- loading layer -->
-<div class="container-fluid mt-5  d-none" id="julia-loading-div">
-    <div class="row">
-        <div class="col d-flex align-items-center justify-content-center vh-100">
-        <div class="spinner-border text-secondary" role="status">
-        </div>
-        <span class="m-2"> Please Wait... </span>
-        </div>
+<!-- <div class="container-fluid mt-5 d-none" id="julia-loading-div"> -->
+<!--     <div class="row"> -->
+<!--         <div class="col d-flex align-items-center justify-content-center vh-100"> -->
+<!-- 	        <div class="spinner-border text-secondary" role="status"></div> -->
+<!-- 	        <span class="m-2"> Please Wait... </span> -->
+<!--         </div> -->
+<!--     </div> -->
+<!-- </div> -->
+<div id="julia-loading-div" class="overlay">
+    <div class="text-center">
+        <div class="spinner-border text-light" role="status"></div>
+        <p class="text-white mt-2">wait...</p>
     </div>
 </div>
 <!-- 스크롤이 top으로 보내는 버튼 -->

@@ -112,12 +112,10 @@ var JuliaUtil = (function(){
     }
     
     var displayLoading = function(show) {
-		//debugger;
+		debugger;
 		const loading_div_id = '#julia-loading-div';
 		let loading_div_nm = loading_div_id.substring(1);
-		if( $(loading_div_id).length > 0 ){
-			;
-		}else{
+		if( $(loading_div_id).length == 0 ){
 			var doc = document.documentElement;
 			var body = document.body;
 			var top = (doc.clientHeight / 2 ) + (doc.scrollTop + body.scrollTop)-190;
@@ -127,9 +125,11 @@ var JuliaUtil = (function(){
 			$("body").append(div_html);
 		} 
 		if( show ){
-			$(loading_div_id).show();
+			//$(loading_div_id).show();
+			$(loading_div_id).addClass('active');
 		}else{
-			$(loading_div_id).hide();
+			//$(loading_div_id).hide();
+			$(loading_div_id).removeClass('active');
 		}
 	}
     var displayComma = function (str){
@@ -339,115 +339,6 @@ var JuliaUtil = (function(){
         contextPath : contextPath
     };    
 })();
-
-//날짜 범위 선택 
-var DateRange = (function(){
-    let getSunDay =  function getSunDay(d) {
-        d = new Date(d);
-        var day = d.getDay(),
-            diff = d.getDate() - day + (day == 0 ? -6:0); // adjust when day is sunday
-        return new Date(d.setDate(diff));
-    }
-
-    let  getFirstDayOfMonth = (year, month) => new Date(year, month - 1, 1);
-    
-    let  addMonth = (date, months) =>  new Date(date.setMonth(date.getMonth()+months));
-    //-------- API
-    //오늘~오늘  
-    let today = () => {
-        return {from : JuliaUtil.today(), to: JuliaUtil.today()};
-    }
-
-
-    //이번주 시작 ~ 오늘
-    let thisweek = () => {
-        let monday = getSunDay(new Date());
-        return {from : JuliaUtil.dateFormat("yyyy-MM-dd", monday), to: JuliaUtil.today()}
-    }
-    //이번달 시작 ~ 오늘
-    let thismonth = () =>{
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = today.getMonth();
-        let thisMonthFirstDate = getFirstDayOfMonth(year, month + 1);
-        return { 
-            from : JuliaUtil.dateFormat("yyyy-MM-dd", thisMonthFirstDate),
-            to : JuliaUtil.today()
-        };
-    }
-    //지난주 시작 ~ 오늘
-    let lastweek = () =>{
-        let thisSunDay = getSunDay(new Date());
-        let lastSunDay = getSunDay( thisSunDay.setDate( thisSunDay.getDate() - 1) );
-        return { 
-            from : JuliaUtil.dateFormat("yyyy-MM-dd", lastSunDay),
-            to: JuliaUtil.today()
-        };
-    }
-    let lastmonth = () =>{
-        let lastMonthToday = addMonth(new Date(), -1);
-        let firstDay = getFirstDayOfMonth(lastMonthToday.getFullYear(), lastMonthToday.getMonth() + 1);
-        return {
-            from : JuliaUtil.dateFormat("yyyy-MM-dd", firstDay),
-            to: JuliaUtil.today()
-        }
-    }
-    let thisyear = () => {
-        let year = new Date().getFullYear();
-        return {
-            from : JuliaUtil.dateFormat("yyyy-MM-dd", new Date(year, 0, 1)),
-            to: JuliaUtil.today()
-        }
-    }
-    let lastyearonly = () => {
-        let year = new Date().getFullYear() -1;
-        return {
-            from : JuliaUtil.dateFormat("yyyy-MM-dd", new Date(year, 0, 1)),
-            to: JuliaUtil.dateFormat("yyyy-MM-dd", new Date(year, 11, 31))
-        }    
-    }
-   let _month = (month) => {
-	   const today = new Date();
-	   let year = today.getFullYear();
-	   let todayMonth = today.getMonth() + 1 ;
-	   if( todayMonth < month ) {
-		   year = year - 1; // 아직지나지 않은 달이면 작년으로 한다
-	   }
-	   return {
-		   from : JuliaUtil.dateFormat("yyyy-MM-dd", new Date(year, month-1, 1)),
-            to: JuliaUtil.dateFormat("yyyy-MM-dd", new Date(year, month, 0))
-	   }
-   }
-   let _quarter = (quarter) => {
-	   const today = new Date();
-	   let todayQuarter = Math.floor((today.getMonth() + 3) / 3);
-	   let year = today.getFullYear();
-	   if(todayQuarter < quarter){
-		   year = year - 1;
-	   }
-	   let start, end;
-	   if(quarter == 1){start = new Date(year, 0, 1); end= new Date(year, 2, 31);}
-	   else if(quarter == 2){start = new Date(year, 3, 1); end= new Date(year, 5, 30);}
-	   else if(quarter == 3){start = new Date(year, 6, 1); end= new Date(year, 8, 31);}
-	   else if(quarter == 4){start = new Date(year, 9, 1); end= new Date(year, 11, 31);}
-	   return {
-		   from : JuliaUtil.dateFormat("yyyy-MM-dd", start),
-            to: JuliaUtil.dateFormat("yyyy-MM-dd", end)
-	   }
-   }   
-   let m1=()=>{ return _month(1); };  let m2=()=>{ return _month(2); }
-   let m3=()=>{ return _month(3); };  let m4=()=>{ return _month(4); }
-   let m5=()=>{ return _month(5); };  let m6=()=>{ return _month(6); }
-   let m7=()=>{ return _month(7); };  let m8=()=>{ return _month(8); }
-   let m9=()=>{ return _month(9); };  let m10=()=>{ return _month(10); }
-   let m11=()=>{ return _month(11); };  let m12=()=>{ return _month(12); }
-   let q1=()=>{ return _quarter(1);};let q2=()=>{ return _quarter(2);}
-   let q3=()=>{ return _quarter(3);};let q4=()=>{ return _quarter(4);}
-    return {
-        get : (name)=> eval(name)()
-    }
-})();
-
 
 const unsecuredCopyToClipboard = (text) => { const textArea = document.createElement("textarea"); textArea.value=text; document.body.appendChild(textArea); textArea.focus();textArea.select(); try{document.execCommand('copy')}catch(err){console.error('Unable to copy to clipboard',err)}document.body.removeChild(textArea)};
 

@@ -9,9 +9,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +26,6 @@ import kr.co.kalpa.olivia.exception.FileboxException;
 import kr.co.kalpa.olivia.model.JsonData;
 import kr.co.kalpa.olivia.model.filebox.FbFile;
 import kr.co.kalpa.olivia.model.filebox.FbNode;
-import kr.co.kalpa.olivia.security.UserPrincipal;
 import kr.co.kalpa.olivia.service.FilenodeService;
 import kr.co.kalpa.olivia.servlet.view.JsonView;
 import kr.co.kalpa.olivia.utils.CommonUtil;
