@@ -38,11 +38,11 @@ CREATE TABLE IF NOT EXISTS public.special_day (
     PRIMARY KEY (loc_date, seq)
 );
 
-COMMENT ON TABLE special_day IS 'íŠ¹ë³„í•œ ë‚ ì§œ ì •ë³´ë¥¼ ì €ì¥í•˜ëŠ” í…Œì´ë¸”';
-COMMENT ON COLUMN special_day.loc_date IS 'ë‚ ì§œ';
-COMMENT ON COLUMN special_day.seq IS 'ìˆœë²ˆ';
-COMMENT ON COLUMN special_day.date_kind IS 'ì¢…ë¥˜';
-COMMENT ON COLUMN special_day.holiday_yn IS 'ê³µê³µê¸°ê´€ íœ´ì¼ì—¬ë¶€';
-COMMENT ON COLUMN special_day.date_name IS 'ëª…ì¹­';
-COMMENT ON COLUMN special_day.created_by IS 'ìƒì„±ì';
-COMMENT ON COLUMN special_day.created_on IS 'ìƒì„±ì¼ì‹œ';
+COMMENT ON TABLE special_day IS 'Æ¯º°ÇÑ ³¯Â¥ Á¤º¸¸¦ ÀúÀåÇÏ´Â Å×ÀÌºí';
+COMMENT ON COLUMN special_day.loc_date IS '³¯Â¥';
+COMMENT ON COLUMN special_day.seq IS '¼ø¹ø';
+COMMENT ON COLUMN special_day.date_kind IS 'Á¾·ù';
+COMMENT ON COLUMN special_day.holiday_yn IS '°ø°ø±â°ü ÈŞÀÏ¿©ºÎ';
+COMMENT ON COLUMN special_day.date_name IS '¸íÄª';
+COMMENT ON COLUMN special_day.created_by IS '»ı¼ºÀÚ';
+COMMENT ON COLUMN special_day.created_on IS '»ı¼ºÀÏ½Ã';

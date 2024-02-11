@@ -19,17 +19,17 @@ CREATE TABLE IF NOT EXISTS public.fb_node (
     CONSTRAINT fk_parent_id FOREIGN KEY(parent_id) REFERENCES public.fb_node(node_id) ON DELETE RESTRICT,
     CONSTRAINT uq_parent_id_name UNIQUE (parent_id, node_name)
 );
-COMMENT ON TABLE public.fb_node IS 'íŒŒì¼ë””ë ‰í† ë¦¬';
+COMMENT ON TABLE public.fb_node IS 'ÆÄÀÏµğ·ºÅä¸®';
 COMMENT ON COLUMN public.fb_node.node_id IS 'Id';
-COMMENT ON COLUMN public.fb_node.node_type IS 'nodeíƒ€ì…';
-COMMENT ON COLUMN public.fb_node.parent_id IS 'ë¶€ëª¨id';
-COMMENT ON COLUMN public.fb_node.owner_id IS ' ì†Œìœ ìid';
-COMMENT ON COLUMN public.fb_node.node_name IS 'íŒŒì¼ë°•ìŠ¤ëª…';
-COMMENT ON COLUMN public.fb_node.owner_auth IS 'ì†Œìœ ìê¶Œí•œ';
-COMMENT ON COLUMN public.fb_node.group_auth IS 'groupê¶Œí•œ';
-COMMENT ON COLUMN public.fb_node.guest_auth IS 'guestê¶Œí•œ';
-COMMENT ON COLUMN public.fb_node.create_on IS 'ìƒì„±ì‹œê°„';
-COMMENT ON COLUMN public.fb_node.create_by IS 'ìƒì„±ì';
+COMMENT ON COLUMN public.fb_node.node_type IS 'nodeÅ¸ÀÔ';
+COMMENT ON COLUMN public.fb_node.parent_id IS 'ºÎ¸ğid';
+COMMENT ON COLUMN public.fb_node.owner_id IS ' ¼ÒÀ¯ÀÚid';
+COMMENT ON COLUMN public.fb_node.node_name IS 'ÆÄÀÏ¹Ú½º¸í';
+COMMENT ON COLUMN public.fb_node.owner_auth IS '¼ÒÀ¯ÀÚ±ÇÇÑ';
+COMMENT ON COLUMN public.fb_node.group_auth IS 'group±ÇÇÑ';
+COMMENT ON COLUMN public.fb_node.guest_auth IS 'guest±ÇÇÑ';
+COMMENT ON COLUMN public.fb_node.create_on IS '»ı¼º½Ã°£';
+COMMENT ON COLUMN public.fb_node.create_by IS '»ı¼ºÀÚ';
 
 
 -- fb_file
@@ -51,21 +51,21 @@ CREATE table if not exists public.fb_file (
 	CONSTRAINT pk_fb_file PRIMARY KEY (file_id),
 	constraint fk_node_id  foreign key(node_id) REFERENCES fb_node(node_id) ON DELETE RESTRICT
 );
-COMMENT ON TABLE public.fb_file IS 'íŒŒì¼ì •ë³´(íŒŒì¼)';
+COMMENT ON TABLE public.fb_file IS 'ÆÄÀÏÁ¤º¸(ÆÄÀÏ)';
 COMMENT ON COLUMN public.fb_file.file_id IS 'file id';
 COMMENT ON COLUMN public.fb_file.node_id IS 'node id';
-COMMENT ON COLUMN public.fb_file.phy_folder IS 'ì €ì¥í´ë”path';
-COMMENT ON COLUMN public.fb_file.phy_name IS 'ë¬¼ë¦¬ì íŒŒì¼ëª…';
-COMMENT ON COLUMN public.fb_file.org_name IS 'ì›ë˜íŒŒì¼ëª…';
+COMMENT ON COLUMN public.fb_file.phy_folder IS 'ÀúÀåÆú´õpath';
+COMMENT ON COLUMN public.fb_file.phy_name IS '¹°¸®ÀûÆÄÀÏ¸í';
+COMMENT ON COLUMN public.fb_file.org_name IS '¿ø·¡ÆÄÀÏ¸í';
 COMMENT ON COLUMN public.fb_file.mime_type IS 'mime type';
-COMMENT ON COLUMN public.fb_file.file_size IS 'íŒŒì¼í¬ê¸°';
-COMMENT ON COLUMN public.fb_file.ext IS 'í™•ì¥ì';
-COMMENT ON COLUMN public.fb_file.note IS 'ì„¤ëª…';
-COMMENT ON COLUMN public.fb_file.width IS 'ì´ë¯¸ì§€ë„“ì´';
-COMMENT ON COLUMN public.fb_file.height IS 'ì´ë¯¸ì§€ë†’ì´';
-COMMENT ON COLUMN public.fb_file.status IS 'ìƒíƒœ: D  deleted, N : Normal';
-COMMENT ON COLUMN public.fb_file.create_on IS 'ìƒì„±ì‹œê°';
-COMMENT ON COLUMN public.fb_file.create_by IS 'ìƒì„±ì ID';
+COMMENT ON COLUMN public.fb_file.file_size IS 'ÆÄÀÏÅ©±â';
+COMMENT ON COLUMN public.fb_file.ext IS 'È®ÀåÀÚ';
+COMMENT ON COLUMN public.fb_file.note IS '¼³¸í';
+COMMENT ON COLUMN public.fb_file.width IS 'ÀÌ¹ÌÁö³ĞÀÌ';
+COMMENT ON COLUMN public.fb_file.height IS 'ÀÌ¹ÌÁö³ôÀÌ';
+COMMENT ON COLUMN public.fb_file.status IS '»óÅÂ: D  deleted, N : Normal';
+COMMENT ON COLUMN public.fb_file.create_on IS '»ı¼º½Ã°¢';
+COMMENT ON COLUMN public.fb_file.create_by IS '»ı¼ºÀÚ ID';
 
 INSERT INTO public.fb_node (node_id, node_type,parent_id,owner_id,node_name,create_by )
 SELECT 0, 'D',0,'system','ROOT','system';
@@ -88,32 +88,32 @@ drop table if exists public.board;
 
 CREATE table if not exists public.board(
 	board_id serial NOT NULL,
-	board_type char(1) not null default '1', /** 9: ê³µì§€, 1: ì¼ë°˜ê²Œì‹œë¬¼*/ 
+	board_type char(1) not null default '1', /** 9: °øÁö, 1: ÀÏ¹İ°Ô½Ã¹°*/ 
 	title varchar(200) not null,
 	content text not null,
 	view_count int NOT NULL DEFAULT 0,
-	start_ymd varchar(8) not null default  TO_CHAR(NOW(), 'YYYYMMDD'), /*ê²Œì‹œì‹œì‘ì¼*/
-	end_ymd varchar(8) not null default '99991231', /*ê²Œì‹œì¢…ë£Œì¼*/
-	status char(1) not null default '0', /* 0: ì‘ì„±ì¤‘, 1:ê²Œì‹œ */
+	start_ymd varchar(8) not null default  TO_CHAR(NOW(), 'YYYYMMDD'), /*°Ô½Ã½ÃÀÛÀÏ*/
+	end_ymd varchar(8) not null default '99991231', /*°Ô½ÃÁ¾·áÀÏ*/
+	status char(1) not null default '0', /* 0: ÀÛ¼ºÁß, 1:°Ô½Ã */
 	last_modify_on timestamp null,
 	modify_count int NOT NULL DEFAULT 0,
 	create_on timestamp not null default current_timestamp,
 	create_by varchar(30) null,	
 	CONSTRAINT pk_board1 PRIMARY KEY (board_id)
 );
-COMMENT ON TABLE public.board IS 'ê²Œì‹œíŒ';
-COMMENT ON COLUMN public.board.board_id IS 'ê²Œì‹œíŒid';
-COMMENT ON COLUMN public.board.board_type IS 'ê²Œì‹œë¬¼ì¢…ë¥˜ 9:ê³µì§€, 1.ì¼ë°˜ê²Œì‹œë¬¼';
-COMMENT ON COLUMN public.board.title IS 'ì œëª©';
-COMMENT ON COLUMN public.board.content IS 'ë‚´ìš©';
-COMMENT ON COLUMN public.board.view_count IS 'ì¡°íšŒíšŸìˆ˜';
-COMMENT ON COLUMN public.board.start_ymd IS 'ê²Œì‹œì‹œì‘ì¼';
-COMMENT ON COLUMN public.board.end_ymd IS 'ê²Œì‹œì¢…ë£Œì¼';
-COMMENT ON COLUMN public.board.status IS 'ìƒíƒœ:0ì‘ì„±ì¤‘, 1ê²Œì‹œ';
-COMMENT ON COLUMN public.board.last_modify_on IS 'ìµœì¢…ìˆ˜ì •ì¼ì‹œ';
-COMMENT ON COLUMN public.board.modify_count IS 'ìˆ˜ì •íšŸìˆ˜';
-COMMENT ON COLUMN public.board.create_on IS 'ì‘ì„±ì¼ì‹œ';
-COMMENT ON COLUMN public.board.create_by IS 'ì‘ì„±ìid';
+COMMENT ON TABLE public.board IS '°Ô½ÃÆÇ';
+COMMENT ON COLUMN public.board.board_id IS '°Ô½ÃÆÇid';
+COMMENT ON COLUMN public.board.board_type IS '°Ô½Ã¹°Á¾·ù 9:°øÁö, 1.ÀÏ¹İ°Ô½Ã¹°';
+COMMENT ON COLUMN public.board.title IS 'Á¦¸ñ';
+COMMENT ON COLUMN public.board.content IS '³»¿ë';
+COMMENT ON COLUMN public.board.view_count IS 'Á¶È¸È½¼ö';
+COMMENT ON COLUMN public.board.start_ymd IS '°Ô½Ã½ÃÀÛÀÏ';
+COMMENT ON COLUMN public.board.end_ymd IS '°Ô½ÃÁ¾·áÀÏ';
+COMMENT ON COLUMN public.board.status IS '»óÅÂ:0ÀÛ¼ºÁß, 1°Ô½Ã';
+COMMENT ON COLUMN public.board.last_modify_on IS 'ÃÖÁ¾¼öÁ¤ÀÏ½Ã';
+COMMENT ON COLUMN public.board.modify_count IS '¼öÁ¤È½¼ö';
+COMMENT ON COLUMN public.board.create_on IS 'ÀÛ¼ºÀÏ½Ã';
+COMMENT ON COLUMN public.board.create_by IS 'ÀÛ¼ºÀÚid';
 
 
 
@@ -133,19 +133,19 @@ CREATE table if not exists public.board_file (
 	CONSTRAINT pk_board_file PRIMARY KEY (board_file_id),
 	constraint fk_board_id  foreign key(board_id) REFERENCES board(board_id) ON DELETE CASCADE
 );
-COMMENT ON TABLE public.board_file IS 'ì²¨ë¶€íŒŒì¼';
+COMMENT ON TABLE public.board_file IS 'Ã·ºÎÆÄÀÏ';
 COMMENT ON COLUMN public.board_file.board_file_id IS 'board file id';
-COMMENT ON COLUMN public.board_file.board_id IS 'ê²Œì‹œíŒ id';
-COMMENT ON COLUMN public.board_file.seq IS 'ìˆœì„œ';
-COMMENT ON COLUMN public.board_file.phy_folder IS 'ë¬¼ë¦¬ì í´ë”ëª…';
-COMMENT ON COLUMN public.board_file.phy_name IS 'ë¬¼ë¦¬ì íŒŒì¼ëª…';
-COMMENT ON COLUMN public.board_file.org_name IS 'ì›ë˜íŒŒì¼ëª…';
+COMMENT ON COLUMN public.board_file.board_id IS '°Ô½ÃÆÇ id';
+COMMENT ON COLUMN public.board_file.seq IS '¼ø¼­';
+COMMENT ON COLUMN public.board_file.phy_folder IS '¹°¸®ÀûÆú´õ¸í';
+COMMENT ON COLUMN public.board_file.phy_name IS '¹°¸®ÀûÆÄÀÏ¸í';
+COMMENT ON COLUMN public.board_file.org_name IS '¿ø·¡ÆÄÀÏ¸í';
 COMMENT ON COLUMN public.board_file.mime_type IS 'mimetype';
 COMMENT ON COLUMN public.board_file.file_size IS 'file size';
-COMMENT ON COLUMN public.board_file.ext IS 'í™•ì¥ì';
-COMMENT ON COLUMN public.board_file.note IS 'ë…¸íŠ¸';
-COMMENT ON COLUMN public.board_file.create_on IS 'ìƒì„±ì¼ì‹œ';
-COMMENT ON COLUMN public.board_file.create_by IS 'ìƒì„±ìid';
+COMMENT ON COLUMN public.board_file.ext IS 'È®ÀåÀÚ';
+COMMENT ON COLUMN public.board_file.note IS '³ëÆ®';
+COMMENT ON COLUMN public.board_file.create_on IS '»ı¼ºÀÏ½Ã';
+COMMENT ON COLUMN public.board_file.create_by IS '»ı¼ºÀÚid';
 
 -- tags
 
@@ -156,9 +156,9 @@ CREATE table if not exists public.tags (
 	name varchar(100) NOT null  CONSTRAINT tag_must_1 UNIQUE,
 	CONSTRAINT pk_tags PRIMARY KEY (tag_id)
 );
-COMMENT ON TABLE public.tags IS 'ê²Œì‹œíŒíƒœê·¸ë§¤ì¹˜';
+COMMENT ON TABLE public.tags IS '°Ô½ÃÆÇÅÂ±×¸ÅÄ¡';
 COMMENT ON COLUMN public.tags.tag_id IS 'board id';
-COMMENT ON COLUMN public.tags.use_count IS 'ì‚¬ìš©í•œ íšŸìˆ˜';
+COMMENT ON COLUMN public.tags.use_count IS '»ç¿ëÇÑ È½¼ö';
 COMMENT ON COLUMN public.tags.name IS 'tag name';
 
 
@@ -167,7 +167,7 @@ CREATE table if not exists public.board_tag_match (
 	tag_id int NOT NULL,
 	CONSTRAINT pk_board_tag_match PRIMARY KEY (board_id, tag_id)
 );
-COMMENT ON TABLE public.board_tag_match IS 'ê²Œì‹œíŒíƒœê·¸ë§¤ì¹˜';
+COMMENT ON TABLE public.board_tag_match IS '°Ô½ÃÆÇÅÂ±×¸ÅÄ¡';
 COMMENT ON COLUMN public.board_tag_match.board_id IS 'board id';
 COMMENT ON COLUMN public.board_tag_match.tag_id IS 'tag id';
 
