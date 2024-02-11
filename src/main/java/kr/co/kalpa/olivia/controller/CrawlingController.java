@@ -36,7 +36,10 @@ public class CrawlingController extends BaseController{
 		log.debug("crawling");
 		log.debug("********************************************");
 		List<IpoData>list = service.selectIpoList();
-		String trackTime = parseTrackId(list.get(0).getTrackId());
+		String trackTime = null;
+		if( list != null && list.size() > 0) {
+			trackTime = parseTrackId(list.get(0).getTrackId());
+		}
 		model.addAttribute("ipoDataList", list);
 		model.addAttribute("trackTime", trackTime);
 		return "crawling/ipotracker";

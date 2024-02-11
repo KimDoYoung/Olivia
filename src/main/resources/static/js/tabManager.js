@@ -11,14 +11,17 @@ function TabManager(selector) {
                 this.seq++; // "새로운" 탭의 일련번호 증가
                 title = '새로운 ' + this.seq; // 제목이 undefined일 경우 자동 생성
             }
-
             var newTab = $('<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#' + id + '">' + title + ' <span class="close" style="cursor:pointer;">&times;</span></a></li>');
             var newTabContent = $('<div class="tab-pane fade" id="' + id + '">' + title + ' 내용</div>');
 
             this.tabList.append(newTab);
             this.tabContent.append(newTabContent);
 
+			newTab.find('a[href="#' + id + '"]').click(() => {
+			    this.selectTab(id);
+			});			
             newTab.find('.close').click(() => this.removeTab(id));
+            
         } else {
             console.warn("Tab with ID '" + id + "' already exists.");
         }
@@ -33,12 +36,12 @@ function TabManager(selector) {
         return this.tabList.find('a[href="#' + id + '"]');
     };
 
-    this.selectTab = function(id) {
+    this.selectTab = function(id, title) {
         var tab = this.getTab(id);
         if(tab.length > 0) {
             tab.tab('show'); // 탭이 존재하면 선택
         } else {
-            this.addTab(id); // 탭이 존재하지 않으면 새로 추가
+            this.addTab(id, title); // 탭이 존재하지 않으면 새로 추가
             this.getTab(id).tab('show'); // 추가된 탭을 선택
         }
     };

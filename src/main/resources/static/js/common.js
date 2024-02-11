@@ -176,8 +176,8 @@ var JuliaUtil = (function(){
                 success : (response, status, xhr) => {
 					console.log(`status:${status}, response: ${response}, xhr:${xhr}`);
 				},
-                error : (request, status, error) => {
-					console.error(`code:${request.status}, message: ${request.responseText}, error: ${error}`);
+                error : (xhr, status, error) => {
+					 console.error('Error fetching template:', error);
 				},
                 complete: (xhr, status)=>{
 					console.log(`xhr:${xhr}, status:${status}`);

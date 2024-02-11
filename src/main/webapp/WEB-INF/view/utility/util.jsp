@@ -129,10 +129,10 @@
         <!-- 왼쪽 div -->
         <div class="container__left">
             <ul class="mt-5">
-                <li><a href="#none" class="menu" id="btnPivot">Pivot</a></li>
-                <li><a href="#none" class="menu"  id="btnAwk">Awk</a></li>
-                <li><a href="#none" class="menu"  id="btnSqlFormat">Sql format</a></li>
-                <li><a href="#none" class="menu"  id="btnEncrypt">Encrypt</a></li>
+                <li><a href="#none" class="menu"  id="btnPivot" data-menu-id="pivot">Pivot</a></li>
+                <li><a href="#none" class="menu"  id="btnAwk" data-menu-id="awk">Awk</a></li>
+                <li><a href="#none" class="menu"  id="btnSqlFormat"  data-menu-id="sql_format">Sql format</a></li>
+                <li><a href="#none" class="menu"  id="btnEncrypt"  data-menu-id="encrypt">Encrypt</a></li>
             </ul>
         </div>
         <div class="resizer" id="dragMe"></div>
@@ -233,10 +233,10 @@ $( document ).ready(function() {
     $('.menu').on('click', function(e){
     	e.preventDefault();
 		var $this = $(this);
+		var id = $this.data('menu-id');
 		var title = $this.text();
-		var id = title;
-		tabManager.addTab(id, title);
-		tabManager.selectTab(id);
+		//tabManager.addTab(id, title);
+		tabManager.selectTab(id, title);
     });
     
 	
