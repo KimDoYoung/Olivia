@@ -31,15 +31,20 @@ public class UtilityController{
 		return "utility/util";
 	}
 
-    @GetMapping("/handlebar/template/{templateName}")
+    @GetMapping("/template/{templateName}")
     @ResponseBody
     public String getTemplate(@PathVariable("templateName") String templateName) throws IOException {
         // handlebar 템플릿 읽어서 String으로.
-        InputStream inputStream = getClass().getResourceAsStream("/handlebar-templates/" + templateName + ".html");
-        String templateContent = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+        InputStream isTemplate = getClass().getResourceAsStream("/handlebar-templates/" + templateName + ".html");
+        String templateContent = StreamUtils.copyToString(isTemplate, StandardCharsets.UTF_8);
+        // javascript 소스를 읽어서 String으로 
+        InputStream isJavascript = getClass().getResourceAsStream("/handlebar-templates/" + templateName + ".js");
+        String javascriptContent = StreamUtils.copyToString(isJavascript, StandardCharsets.UTF_8);
 
+        
         JsonData jsonData = new JsonData();
         jsonData.put("template", templateContent);
+        jsonData.put("javascript", javascriptContent);
 		return jsonData.toJson();
     }	
 }

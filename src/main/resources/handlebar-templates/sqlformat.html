@@ -1,0 +1,27 @@
+    <div class="container">
+        <h1>SQL format</h1>
+        <div>
+            <textarea name="src" id="src" cols="80" rows="10" class="w-100"></textarea>
+        </div>
+        <div class="mt-2">
+            <button class="btn btn-primary me-2" id="btnFormat">Format</button>
+            <button class="btn btn-secondary" id="btnClear">Clear</button>
+        </div>
+        <div class="mt-2">
+            <textarea name="des" id="des" cols="80" rows="10" class="w-100"></textarea>
+        </div>
+        <div class="mt-2">
+            <button class="btn btn-warning me-2" id="btnClipboard">to Clipboard</button>
+        </div>
+    </div> 
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+        <div id="myToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Bootstrap Toast</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                클립보드로 텍스트가 복사되었습니다.
+            </div>
+        </div>
+    </div>      

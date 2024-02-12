@@ -131,7 +131,7 @@
             <ul class="mt-5">
                 <li><a href="#none" class="menu"  id="btnPivot" data-menu-id="pivot">Pivot</a></li>
                 <li><a href="#none" class="menu"  id="btnAwk" data-menu-id="awk">Awk</a></li>
-                <li><a href="#none" class="menu"  id="btnSqlFormat"  data-menu-id="sql_format">Sql format</a></li>
+                <li><a href="#none" class="menu"  id="btnSqlFormat"  data-menu-id="sqlformat">Sql format</a></li>
                 <li><a href="#none" class="menu"  id="btnEncrypt"  data-menu-id="encrypt">Encrypt</a></li>
             </ul>
         </div>
@@ -151,6 +151,7 @@
 <!-- =================================================== -->
 <jsp:include page="../common/footer.jsp" flush="false" />
 <!-- -================================================== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
 <script src="js/tabManager.js"></script>
 <script>
 $( document ).ready(function() {
@@ -236,7 +237,17 @@ $( document ).ready(function() {
 		var id = $this.data('menu-id');
 		var title = $this.text();
 		//tabManager.addTab(id, title);
-		tabManager.selectTab(id, title);
+		tabManager.selectTab(id, title, function(id,title){
+			var url = '/template/' + id.toLowerCase();
+			JuliaUtil.ajax(url, undefined, {
+				success: function(response){
+					debugger;
+					console.debug(response);
+					$('#' + id).html(response.template);
+					$('body').append($('<script>').text(response.javascript));
+				}
+			})
+		});
     });
     
 	

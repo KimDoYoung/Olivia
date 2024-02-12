@@ -1,0 +1,32 @@
+    <div class="container">
+        <h3>table을 세로로 변환 </h3> &nbsp;&nbsp; <input type="button" value="Clear" id="btnClear" class="btn btn-secondary"/>&nbsp;
+        <strong>구분자</strong> :     <input type="text" id="deli" list="fsValues">
+        <datalist id="fsValues">
+          <option value="TAB">Tab</option>
+          <option value=",">Comma</option>
+        </datalist>
+        <input type="button"  id="btnRun" value="Run" title="generate insert select "  class="btn btn-primary"/>
+        <br/>
+        <strong>소스</strong> <br>
+        <textarea name="src" id="src" rows="10" cols="120" style="width:100%">
+            SCM004	01	관리자 직접입력		관리자 직접입력			10	Y	DBA	2차사업	2015-09-16 15:12:22	2차사업	2015-09-16 15:12:22
+            SCM004	02	신청기업		신청기업			20	Y	DBA	2차사업	2019-02-25 20:04:41	2차사업	2015-09-16 15:12:22
+            SCM004	03	중소기업진흥공단		중소기업진흥공단			30	Y	DBA	2차사업	2015-09-16 15:12:22	2차사업	2015-09-16 15:12:22
+            SCM004	04	한국산업기술평가관리원		한국산업기술평가관리원			40	Y	DBA	2차사업	2015-09-16 15:12:22	2차사업	2015-09-16 15:12:22
+            SCM004	05	관세청		관세청			50	Y	DBA	2차사업	2015-09-16 15:12:22	2차사업	2015-09-16 15:12:22
+            SCM004	06	국세청		국세청			60	Y	DBA	2차사업	2015-09-16 15:12:22	2차사업	2015-09-16 15:12:22
+            SCM004	07	기술보증기금		기술보증기금			70	Y	DBA	2차사업	2015-09-16 15:12:22	2차사업	2015-09-16 15:12:22
+            SCM004	08	중소기업중앙회		중소기업중앙회			80	Y	DBA	2차사업	2015-09-16 15:12:22	2차사업	2015-09-16 15:12:22
+            SCM004	09	고용정보원		고용정보원			90	Y	DBA	2차사업	2015-09-16 15:12:22	2차사업	2015-09-16 15:12:22
+            SCM004	10	기업지원내역정보		기업지원내역정보			100	Y	DBA	2차사업	2015-09-16 15:12:22	2차사업	2015-09-16 15:12:22
+            SCM004	11	특허청		특허청			110	Y	DBA	2차사업	2015-09-16 15:12:22	2차사업	2015-09-16 15:12:22
+            SCM004	12	비재정(인증)		비재정(인증)			120	Y	DBA	3차사업	2015-10-05 11:33:37	3차사업	2015-10-05 11:33:37
+            SCM004	13	비재정(조세,비재정)		비재정(조세,비재정)			130	Y	DBA	3차사업	2015-10-05 11:33:40	3차사업	2015-10-05 11:33:40
+            SCM004	20	FactoryOn		FactoryOn			140	Y		sysadmin	2019-02-25 20:05:09	sysadmin	2017-04-21 15:46:31
+            SCM004	30	지방중소벤처기업청					30	Y		sysadmin	2017-07-11 11:10:06	sysadmin	2017-08-29 09:41:33	          
+        </textarea><br/>
+        <strong>결과</strong> <br>
+        <textarea id="des" name="des" rows="10" cols="120" style="width:100%"></textarea>
+        <br>
+        <button type="button" id="btnCtc" name="btnCtc" title="copy to clipboard" class="btn btn-success">Copy to clipboard</button>
+    </div>

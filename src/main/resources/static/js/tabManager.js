@@ -5,7 +5,7 @@ function TabManager(selector) {
     this.tabArea.append(this.tabList).append(this.tabContent);
     this.seq = 0; // "새로운"으로 시작하는 탭 제목의 일련번호 추적
 
-    this.addTab = function(id, title) {
+    this.addTab = function(id, title, onClickCallback) {
         if(this.getTab(id).length === 0) { // 동일한 ID가 이미 존재하는지 확인
             if(title === undefined) {
                 this.seq++; // "새로운" 탭의 일련번호 증가
@@ -21,7 +21,9 @@ function TabManager(selector) {
 			    this.selectTab(id);
 			});			
             newTab.find('.close').click(() => this.removeTab(id));
-            
+            if (typeof onClickCallback === 'function') {
+                onClickCallback(id, title);
+            }
         } else {
             console.warn("Tab with ID '" + id + "' already exists.");
         }
@@ -36,12 +38,12 @@ function TabManager(selector) {
         return this.tabList.find('a[href="#' + id + '"]');
     };
 
-    this.selectTab = function(id, title) {
+    this.selectTab = function(id, title, onClickCallback) {
         var tab = this.getTab(id);
         if(tab.length > 0) {
             tab.tab('show'); // 탭이 존재하면 선택
         } else {
-            this.addTab(id, title); // 탭이 존재하지 않으면 새로 추가
+            this.addTab(id, title, onClickCallback); // 탭이 존재하지 않으면 새로 추가
             this.getTab(id).tab('show'); // 추가된 탭을 선택
         }
     };
