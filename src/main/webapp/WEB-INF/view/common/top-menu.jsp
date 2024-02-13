@@ -32,9 +32,20 @@ header.sticky {
 	        <li class="nav-item">
 	          <a class="nav-link text-white" aria-current="page" href="/utility">Utility</a>
 	        </li>
-	        <li class="nav-item">
-	          <a class="nav-link text-white" aria-current="page" href="/websocket">Websocket</a>
-	        </li>
+<!-- 	        <li class="nav-item"> -->
+<!-- 	          <a class="nav-link text-white" aria-current="page" href="/websocket">Websocket</a> -->
+<!-- 	        </li> -->
+ 			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					Websocket
+				</a>
+				<ul class="dropdown-menu">
+				  <li><a class="dropdown-item" href="/websocket/websocket">공지사항전송(websocket)</a></li>
+				  <li><a class="dropdown-item" href="/websocket/sockjs">공지사항전송(SockJS-STOMP)</a></li>
+<!-- 				  <li><hr class="dropdown-divider"></li> -->
+<!-- 				  <li><a class="dropdown-item" href="#">Something else here</a></li> -->
+				</ul>
+			</li>	        
 	       </ul>
 	     </div>
          <div  class="d-flex">
@@ -42,7 +53,6 @@ header.sticky {
 		       <span class="text-warning fw-bold"><sec:authentication property="principal.userId"/>님 반갑습니다.</span>&nbsp;&nbsp;
 		    </sec:authorize>
 		    <a href="/logout" title="log out"><i class="bi bi-box-arrow-right"></i></a>
-	     
 	  </div> 
 	  </div>
  </nav>
