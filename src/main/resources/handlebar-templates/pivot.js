@@ -1,57 +1,57 @@
-      var $src = $('#src'), $des = $('#des');
-       $('#btnRun').on('click', function () {
-        var deli = $('#deli').val();
-        if(deli == 'TAB'){
-          deli = '\t';
-        } 
-        var trimmedSrc = $src.val().trim();
-        var  t= [], m=0; 
-        trimmedSrc.split('\n').forEach(function(line){
-          var fields = line.split(deli);
-          m = Math.max(fields.length, m);
-          t.push(fields);
+// 상수를 정의하여 코드의 가독성과 유지보수성을 높입니다.
+const CONTAINER_SELECTOR = '#pivotContainer';
+const SRC_PIVOT_SELECTOR = `${CONTAINER_SELECTOR} #src`;
+const DES_PIVOT_SELECTOR = `${CONTAINER_SELECTOR} #des`;
+const DELI_SELECTOR = `${CONTAINER_SELECTOR} #deli`;
+const BTN_RUN_SELECTOR = `${CONTAINER_SELECTOR} #btnRun`;
+const BTN_CLEAR_SELECTOR = `${CONTAINER_SELECTOR} #btnClear`;
+const BTN_CTC_SELECTOR = `${CONTAINER_SELECTOR} #btnCtc`;
+const TAB_DELIMITER = 'TAB';
+
+$(document).ready(function() {
+    // 변수 이름 변경으로 명확성 향상
+    const $srcPivot = $(SRC_PIVOT_SELECTOR), $desPivot = $(DES_PIVOT_SELECTOR);
+    
+    $(BTN_RUN_SELECTOR).on('click', function () {
+        const delimiter = $(DELI_SELECTOR).val() === TAB_DELIMITER ? '\t' : $(DELI_SELECTOR).val();
+        const trimmedSrc = $srcPivot.val().trim();
+        let maxFields = 0; 
+        const rows = trimmedSrc.split('\n').map(line => {
+            const fields = line.split(delimiter);
+            maxFields = Math.max(fields.length, maxFields);
+            return fields;
         });
-        console.log(t);
-        var r = '';
-        // for(var i = 0 ; i < t.length; i++){
-        //   var a = t[i];
-        //   for(var j = 0; j < m ; j++){
-        //      r += a[j].trim() + "\t";  
-        //   }
-        //   r += "\n";
-        // }
-        for(var i = 0 ; i < m; i++){
-          for(var j = 0; j < t.length ; j++){
-             r += ((t[j][i]) + "").trim() + deli;  
-          }
-          r += "\n";
+        
+        const result = [];
+        for(let i = 0; i < maxFields; i++){
+            const row = rows.map(fields => (fields[i] || "").trim()).join(delimiter);
+            result.push(row);
         }
   
-        $des.val(r);
-  
-      });
-      $('#btnClear').on('click', function(){
-          console.log('clear...');
-          $src.empty(); $des.empty();
-          $src.val('');
-          $des.val('');
-      });
-      $('#btnCtc').on('click', function(){
-           var text = $des.get(0);
-          text.select();
-          try {
-            var ok = document.execCommand('copy');
-            if (!ok) {
-              alert('fail to copy to clipboard');
-            }
-            $des.focus();
-          } catch (e) {
-            alert('not support');
-          } finally {
-            if(document.selection){
-                   document.selection.empty();
-              }else{
-                  window.getSelection().removeAllRanges();
-              }
-          }
-       });    
+        $desPivot.val(result.join("\n"));
+    });
+
+    $(BTN_CLEAR_SELECTOR).on('click', function() {
+        $srcPivot.val('');
+        $desPivot.val('');
+    });
+
+    $(BTN_CTC_SELECTOR).on('click', function() {
+        const textElement = $desPivot.get(0);
+        textElement.select();
+        copyToClipboard1(textElement);
+    });
+});
+
+
+function copyToClipboard1(textElement) {
+    try {
+        const successful = document.execCommand('copy');
+        if (!successful) throw new Error('Failed to copy');
+    } catch (err) {
+        alert(err.message);
+    } finally {
+        if (document.selection) document.selection.empty();
+        else window.getSelection().removeAllRanges();
+    }
+}
