@@ -356,13 +356,13 @@ const CalendarMaker = (function() {
         endYmd = addYmd(endYmd, 6 - endYoil);
 
         let html = '<div class="row">';
-        html += '<div class="col text-center text-danger week">일</div>';
-        html += '<div class="col text-center week">월</div>';
-        html += '<div class="col text-center week">화</div>';
-        html += '<div class="col text-center week">수</div>';
-        html += '<div class="col text-center week">목</div>';
-        html += '<div class="col text-center week">금</div>';
-        html += '<div class="col text-center week">토</div>';
+        html += '<div class="col bg-light text-center text-danger week">일</div>';
+        html += '<div class="col bg-light text-center week">월</div>';
+        html += '<div class="col bg-light text-center week">화</div>';
+        html += '<div class="col bg-light text-center week">수</div>';
+        html += '<div class="col bg-light text-center week">목</div>';
+        html += '<div class="col bg-light text-center week">금</div>';
+        html += '<div class="col bg-light text-center week">토</div>';
         html += '</div>';
         let i = 0;
         let saveCloseDiv = '';

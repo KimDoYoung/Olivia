@@ -2,7 +2,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="kr.co.kalpa.olivia.repository.CrawlingRepository">
+<mapper namespace="kr.co.kalpa.olivia.repository.ScheduleRepository">
    
     <select id="selectSchedule" resultType="Schedule" parameterType="Long">
         <![CDATA[
@@ -50,8 +50,15 @@
 
     <!-- Insert a new special day -->
     <insert id="insertSpecialDay" parameterType="SpecialDay">
-        INSERT INTO public.special_day (loc_date, seq, date_kind, holiday_yn, date_name, created_by, created_on)
-        VALUES (#{locDate}, #{seq}, #{dateKind}, #{holidayYn}, #{dateName}, #{createdBy}, current_timestamp)
+    /* insert or update 공휴일, 날짜와 이름이 같은게 있으면 update */
+		INSERT INTO public.special_day (loc_date, seq, date_kind, holiday_yn, date_name, created_by, created_on)
+		VALUES (#{locDate}, #{seq}, #{dateKind}, #{holidayYn}, #{dateName}, #{createdBy}, current_timestamp)
+		ON CONFLICT (loc_date, date_name) DO UPDATE
+		SET seq = EXCLUDED.seq,
+		    date_kind = EXCLUDED.date_kind,
+		    holiday_yn = EXCLUDED.holiday_yn,
+		    created_by = EXCLUDED.created_by,
+		    created_on = EXCLUDED.created_on    
     </insert>
 
     <!-- Select all special days -->

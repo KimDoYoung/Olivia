@@ -4,21 +4,20 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import kr.co.kalpa.olivia.model.JsonData;
-import kr.co.kalpa.olivia.model.filebox.FbNode;
 import kr.co.kalpa.olivia.model.schedule.Schedule;
 import kr.co.kalpa.olivia.model.schedule.SpecialDay;
 import kr.co.kalpa.olivia.service.ScheduleService;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("schedule")
+@Slf4j
 public class ScheduleController extends BaseController {
 
 	private ScheduleService service;
@@ -60,5 +59,26 @@ public class ScheduleController extends BaseController {
 		jsonData.put("result", result);
 		
 		return jsonData.toJson();
+	}
+	
+	@ResponseBody
+	@GetMapping("openApi/holiday")
+	public String openApiHoliday() {
+
+		log.debug("*****************************************");
+		log.debug("openapi 휴일정보가져오기");
+		log.debug("*****************************************");
+		JsonData jsonData = new JsonData();
+		try {
+			service.specialDayFetchAll();
+			jsonData.put("result", "OK");
+		} catch (Exception e) {
+			jsonData.put("result", "NK");
+			e.printStackTrace();
+			log.error(e.getMessage());
+		}
+		
+		return jsonData.toJson();
+		
 	}
 }
