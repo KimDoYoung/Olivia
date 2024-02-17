@@ -108,7 +108,7 @@ public class CommonUtil {
 	 * @param queryParams
 	 * @return
 	 */
-	public static String buildUrlWithParams(String baseUrl, Map<String, String> queryParams) throws Exception {
+	public static String buildUrlWithParams(String baseUrl, Map<String, String> queryParams) {
 		String encodedParams = queryParams.entrySet().stream()
 				.map(entry -> encodeParam(entry.getKey(), entry.getValue())).collect(Collectors.joining("&"));
 

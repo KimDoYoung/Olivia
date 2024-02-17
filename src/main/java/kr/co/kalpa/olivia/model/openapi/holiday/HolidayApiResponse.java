@@ -10,7 +10,7 @@ import lombok.Data;
 @XmlRootElement(name = "response")
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
-public class ApiResponse {
+public class HolidayApiResponse {
     @XmlElement(name = "body")
-    private Body body;
+    private HolidayApiBody body;
 }

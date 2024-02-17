@@ -1,5 +1,6 @@
 package kr.co.kalpa.olivia.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -70,7 +71,8 @@ public class ScheduleController extends BaseController {
 		log.debug("*****************************************");
 		JsonData jsonData = new JsonData();
 		try {
-			service.specialDayFetchAll();
+			String year = String.valueOf( LocalDate.now().getYear());
+			service.specialDayFetchAll(year);
 			jsonData.put("result", "OK");
 		} catch (Exception e) {
 			jsonData.put("result", "NK");

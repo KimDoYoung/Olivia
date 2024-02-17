@@ -13,26 +13,26 @@
 <jsp:include page="../common/meta_css.jsp" flush="false" />
 <!-- =================================================== -->
 <title><c:out value="${pageTitle }" default="board" /></title>
+ <style>
+     /* 사용자 정의 CSS 스타일 */
+     .calendar-border-day {
+         border: 1px solid #dee2e6; /* 테두리 스타일 및 색상 지정 */
+         padding: 10px; /* 선택적으로 패딩 추가 */
+         height : 150px;
+     }
+     .calendar-border-week {
+         border: 1px solid #dee2e6; /* 테두리 스타일 및 색상 지정 */
+         padding: 10px; /* 선택적으로 패딩 추가 */
+     }    
+
+  .border-icon {
+    border: 1px solid #007bff; /* 보더 색상 */
+    padding: 8px 12px; /* 보더 주변의 여백을 조절할 수 있습니다 */
+    border-radius: 5px; /* 보더의 모서리를 둥글게 만들기 위해 사용 */
+  }
+
+ </style>
 </head>
-    <style>
-        /* 사용자 정의 CSS 스타일 */
-        .calendar-border-day {
-            border: 1px solid #dee2e6; /* 테두리 스타일 및 색상 지정 */
-            padding: 10px; /* 선택적으로 패딩 추가 */
-            height : 150px;
-        }
-        .calendar-border-week {
-            border: 1px solid #dee2e6; /* 테두리 스타일 및 색상 지정 */
-            padding: 10px; /* 선택적으로 패딩 추가 */
-        }    
-
-	    .border-icon {
-	      border: 1px solid #007bff; /* 보더 색상 */
-	      padding: 8px 12px; /* 보더 주변의 여백을 조절할 수 있습니다 */
-	      border-radius: 5px; /* 보더의 모서리를 둥글게 만들기 위해 사용 */
-	    }
-
-    </style>
 <body>
 <!-- =================================================== -->
 <jsp:include page="../common/top-menu.jsp" flush="false" />
