@@ -48,7 +48,8 @@
 		    <a href="#" id="todayYearMonth" class="text-decoration-none  border-icon me-2" title="today"><i class="bi bi-calendar-check today-icon" title="오늘"></i></a>
 		    <a href="#" id="btnSpecialDay" class="text-decoration-none  border-icon me-1" title="공휴일정보"><i class="bi bi-box2-heart"></i></a>
 		    <a href="#" id="btnEditSchedule" class="text-decoration-none  border-icon" title="schedule"><i class="bi bi-pencil" title="일정추가"></i></a>
-		    <button class="btn btn-primary" id="btnOpenApiDbInsert">openapi휴일정보db저장</button>
+		    <button class="btn btn-primary" id="btnHolidayApiDbInsert">holidayApiDb저장</button>
+		    <button class="btn btn-primary" id="btn24DivisionApiDbInsert">24DivisionApiDb저장</button>
 		</div>
 		<div id="mainCalendar" class="mt-2 vh-100"></div>
 	</section>
@@ -269,8 +270,15 @@ $( document ).ready(function() {
 		specialDayOffcanvas.show();
 	});
 	//-------------------------------------------------
-	$('#btnOpenApiDbInsert').on('click', function(){
+	$('#btnHolidayApiDbInsert').on('click', function(){
 		JuliaUtil.ajax('/openApi/holiday',null,{
+			success : (response)=>{
+				console.log(response);
+			}
+		})
+	});
+	$('#btn24DivisionApiDbInsert').on('click', function(){
+		JuliaUtil.ajax('/openApi/division24',null,{
 			success : (response)=>{
 				console.log(response);
 			}

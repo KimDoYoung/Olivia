@@ -21,6 +21,8 @@ import org.springframework.web.client.RestTemplate;
 import com.google.gson.Gson;
 
 import kr.co.kalpa.olivia.model.openapi.holiday.ApiErrorResponse;
+import kr.co.kalpa.olivia.model.openapi.holiday.Division24ApiItems;
+import kr.co.kalpa.olivia.model.openapi.holiday.Division24ApiResponse;
 import kr.co.kalpa.olivia.model.openapi.holiday.HolidayApiItems;
 import kr.co.kalpa.olivia.model.openapi.holiday.HolidayApiResponse;
 import kr.co.kalpa.olivia.model.schedule.Schedule;
@@ -38,6 +40,9 @@ public class ScheduleService {
 
 	@Value("${openapi.data.go.kr.holiday.base.url}")
 	private String holidayBaseUrl;
+
+	@Value("${openapi.data.go.kr.division24.base.url}")
+	private String division24BaseUrl;
 	
 	
 	private final ScheduleRepository repository;
@@ -184,6 +189,101 @@ public class ScheduleService {
 	    } catch (JAXBException e) {
 	        log.error("Error parsing error response", e);
 	    }
+	}
+
+	/**
+	 * year에 해당하는 24절기 정보를 openapi를 통해서 가져와서 테이블에 넣는다.
+	 * special_day
+	 * @param year
+	 * @throws IOException 
+	 */
+	public void division24FetchAll(String year) throws IOException {
+		String[] months = new String[] {"01","02","03","04","05","06","07","08","09","10","11","12"};
+		for (String month : months) {
+			fetchAndInsertDivision24ToDb(year, month);
+			log.debug("-----------------------------------------------------");
+			log.debug("year {}, month: {} DONE", year,month);
+			log.debug("-----------------------------------------------------");
+		}
+		
+	}
+	/**
+	 * 지정된 연도와 월에 해당하는 24절기 정보를 OpenAPI에서 가져와서 데이터베이스에 저장한다.
+	 * @param year 조회할 연도
+	 * @param month 조회할 월
+	 * @throws IOException 
+	 * @throws Exception 네트워크 오류나 파싱 실패 등으로 인한 예외 처리
+	 */
+	@Transactional
+	private void fetchAndInsertDivision24ToDb(String year, String month) throws IOException {
+	    // OpenAPI로부터 공휴일 데이터를 XML 형태로 가져옴
+	    String responseXml = fetch24DivisionData(year, month);
+	    try {
+	        // 성공 응답을 파싱하여 ApiResponse 객체로 변환
+	        Division24ApiResponse apiResponse = parseDivison24SuccessResponse(responseXml);
+	        // 파싱된 데이터를 DB에 저장
+	        insertDivision24(apiResponse);
+	    } catch (JAXBException e) {
+	        // 에러 응답 처리
+	        handleErrorResponse(responseXml);
+	    }
+		
+	}
+
+	private void insertDivision24(Division24ApiResponse apiResponse) {
+	    Division24ApiItems items = apiResponse.getBody().getItems();
+	    if (items != null && items.getItem() != null) {
+	        for (SpecialDay specialDay : items.getItem()) {
+	            specialDay.setCreatedBy("System");
+	            repository.insertSpecialDay(specialDay);
+	        }
+	    }
+		
+	}
+
+	private Division24ApiResponse parseDivison24SuccessResponse(String responseXml) throws JAXBException {
+	    JAXBContext jaxbContext = JAXBContext.newInstance(Division24ApiResponse.class);
+	    Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+	    return (Division24ApiResponse) unmarshaller.unmarshal(new StringReader(responseXml));
+	}
+
+	private String fetch24DivisionData(String year, String month) throws IOException {
+		 // API 인증키와 기본 URL 설정
+	    String key = holidayApiKey;
+	    String baseUrl = division24BaseUrl;
+	    // 쿼리 파라미터 설정
+	    Map<String, String> queryParams = Map.of(
+	            "serviceKey", key,
+	            "solYear", year,
+	            "solMonth", month,
+	            "kst", "0120",
+	            "sunLongitude","285",
+	            "pageNo","1",
+	            "totalCount", "210114"
+	    );
+	    // 전체 URL 생성
+	    String fullUrl = CommonUtil.buildUrlWithParams(baseUrl, queryParams);
+	    log.debug("Open API full URL: [{}]", fullUrl);
+
+	    // HTTP 연결 설정 및 요청
+	    URL url = new URL(fullUrl);
+	    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	    conn.setRequestMethod("GET");
+	    conn.setRequestProperty("Content-type", "application/json");
+	    
+	    log.debug("Response code: " + conn.getResponseCode());
+	    // 응답 스트림 읽기
+	    BufferedReader rd = new BufferedReader(new InputStreamReader(
+	        conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300 ? conn.getInputStream() : conn.getErrorStream()));
+	    StringBuilder xmlSb = new StringBuilder();
+	    String line;
+	    while ((line = rd.readLine()) != null) {
+	        xmlSb.append(line);
+	    }
+	    rd.close();
+	    conn.disconnect();
+
+	    return xmlSb.toString();
 	}
 
 	

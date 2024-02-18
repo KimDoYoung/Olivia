@@ -79,8 +79,25 @@ public class ScheduleController extends BaseController {
 			e.printStackTrace();
 			log.error(e.getMessage());
 		}
-		
 		return jsonData.toJson();
+	}
+	@ResponseBody
+	@GetMapping("openApi/division24")
+	public String division24() {
 		
+		log.debug("*****************************************");
+		log.debug("openapi 24절기정보가져오기");
+		log.debug("*****************************************");
+		JsonData jsonData = new JsonData();
+		try {
+			String year = String.valueOf( LocalDate.now().getYear());
+			service.division24FetchAll(year);
+			jsonData.put("result", "OK");
+		} catch (Exception e) {
+			jsonData.put("result", "NK");
+			e.printStackTrace();
+			log.error(e.getMessage());
+		}
+		return jsonData.toJson();
 	}
 }

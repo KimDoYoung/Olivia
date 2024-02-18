@@ -33,28 +33,3 @@ public class SpecialDay {
     
     private String createdOn;
 }
-
-
-//import javax.xml.bind.annotation.XmlElement;
-//import javax.xml.bind.annotation.XmlAccessType;
-//import javax.xml.bind.annotation.XmlAccessorType;
-
-//@XmlAccessorType(XmlAccessType.FIELD)
-//public class SpecialDay {
-//    @XmlElement(name = "dateKind")
-//    private String dateKind;
-//    
-//    @XmlElement(name = "dateName")
-//    private String dateName;
-//    
-//    @XmlElement(name = "isHoliday")
-//    private String isHoliday;
-//    
-//    @XmlElement(name = "locdate")
-//    private int locdate;
-//    
-//    @XmlElement(name = "seq")
-//    private int seq;
-//
-//    // Getters and setters
-//}
