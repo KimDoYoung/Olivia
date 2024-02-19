@@ -97,5 +97,15 @@
         DELETE FROM public.special_day
         WHERE loc_date = #{locDate} AND seq = #{seq}
     </delete>
+
+    <!-- 양력음력 테이블 추가 -->
+    <update id="insertLunarCalendar" parameterType="LunarCalendar">
+    	/* insertLunarCalendar 양력음력 달력 UPSERT */
+		INSERT INTO public.lunar_calendar (solar_ymd, lunar_ymd)
+		VALUES (#{solarYmd}, #{lunarYmd})
+		ON CONFLICT (solar_ymd) 
+		DO UPDATE SET lunar_ymd = EXCLUDED.lunar_ymd;
+    </update>
+
 	
 </mapper>

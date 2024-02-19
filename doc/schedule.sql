@@ -47,3 +47,15 @@ COMMENT ON COLUMN special_day.holiday_yn IS '공공기관 휴일여부';
 COMMENT ON COLUMN special_day.date_name IS '명칭';
 COMMENT ON COLUMN special_day.created_by IS '생성자';
 COMMENT ON COLUMN special_day.created_on IS '생성일시';
+
+
+-- public.lunar_calendar 양력,음력
+
+DROP TABLE public.lunar_calendar;
+
+CREATE TABLE public.lunar_calendar (
+	sol_ymd varchar(8) NOT NULL,
+	lunar_ymd varchar(8) NOT NULL,
+	CONSTRAINT lunar_calendar_pkey PRIMARY KEY (sol_ymd)
+);
+

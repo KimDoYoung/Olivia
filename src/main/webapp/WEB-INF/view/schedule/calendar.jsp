@@ -50,6 +50,7 @@
 		    <a href="#" id="btnEditSchedule" class="text-decoration-none  border-icon" title="schedule"><i class="bi bi-pencil" title="일정추가"></i></a>
 		    <button class="btn btn-primary" id="btnHolidayApiDbInsert">holidayApiDb저장</button>
 		    <button class="btn btn-primary" id="btn24DivisionApiDbInsert">24DivisionApiDb저장</button>
+		    <button class="btn btn-primary" id="btnFillLunarCalendar">음력달력저장</button>
 		</div>
 		<div id="mainCalendar" class="mt-2 vh-100"></div>
 	</section>
@@ -279,6 +280,13 @@ $( document ).ready(function() {
 	});
 	$('#btn24DivisionApiDbInsert').on('click', function(){
 		JuliaUtil.ajax('/openApi/division24',null,{
+			success : (response)=>{
+				console.log(response);
+			}
+		})
+	});
+	$('#btnFillLunarCalendar').on('click', function(){
+		JuliaUtil.ajax('/openApi/fill-lunar-calendar',null,{
 			success : (response)=>{
 				console.log(response);
 			}

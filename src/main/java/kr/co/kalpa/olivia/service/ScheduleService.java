@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -25,10 +26,12 @@ import kr.co.kalpa.olivia.model.openapi.holiday.Division24ApiItems;
 import kr.co.kalpa.olivia.model.openapi.holiday.Division24ApiResponse;
 import kr.co.kalpa.olivia.model.openapi.holiday.HolidayApiItems;
 import kr.co.kalpa.olivia.model.openapi.holiday.HolidayApiResponse;
+import kr.co.kalpa.olivia.model.schedule.LunarCalendar;
 import kr.co.kalpa.olivia.model.schedule.Schedule;
 import kr.co.kalpa.olivia.model.schedule.SpecialDay;
 import kr.co.kalpa.olivia.repository.ScheduleRepository;
 import kr.co.kalpa.olivia.utils.CommonUtil;
+import kr.co.kalpa.olivia.utils.LunarCalc;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -284,6 +287,30 @@ public class ScheduleService {
 	    conn.disconnect();
 
 	    return xmlSb.toString();
+	}
+
+	/**
+	 * 해당 year의 1.1 ~12.31까지 음력을 구해서 lunar_calendar를 추가한다.
+	 * 
+	 * @param year
+	 */
+	public void lunarCalendarFill(int year) {
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        LocalDate endDate = LocalDate.of(year, 12, 31);
+
+        LunarCalendar lunarCalender = new LunarCalendar();
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            int month = date.getMonthValue();
+            int day = date.getDayOfMonth();
+       
+            String solar = String.format("%d%02d%02d", year,month, day);
+            String lunar = LunarCalc.getYmd(year, month, day);
+            
+            lunarCalender.setSolarYmd(solar);
+            lunarCalender.setLunarYmd(lunar);
+            
+            repository.insertLunarCalendar(lunarCalender);
+        }
 	}
 
 	

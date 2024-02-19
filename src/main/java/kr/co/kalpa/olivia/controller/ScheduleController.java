@@ -81,6 +81,7 @@ public class ScheduleController extends BaseController {
 		}
 		return jsonData.toJson();
 	}
+
 	@ResponseBody
 	@GetMapping("openApi/division24")
 	public String division24() {
@@ -92,6 +93,26 @@ public class ScheduleController extends BaseController {
 		try {
 			String year = String.valueOf( LocalDate.now().getYear());
 			service.division24FetchAll(year);
+			jsonData.put("result", "OK");
+		} catch (Exception e) {
+			jsonData.put("result", "NK");
+			e.printStackTrace();
+			log.error(e.getMessage());
+		}
+		return jsonData.toJson();
+	}
+	
+	@ResponseBody
+	@GetMapping("openApi/fill-lunar-calendar")
+	public String lunar() {
+		
+		log.debug("*****************************************");
+		log.debug("lunar_calendar 를 채운다.");
+		log.debug("*****************************************");
+		JsonData jsonData = new JsonData();
+		try {
+			String year = String.valueOf( LocalDate.now().getYear());
+			service.lunarCalendarFill(Integer.parseInt(year));
 			jsonData.put("result", "OK");
 		} catch (Exception e) {
 			jsonData.put("result", "NK");
