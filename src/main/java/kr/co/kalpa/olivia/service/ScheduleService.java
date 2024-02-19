@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
 
+import kr.co.kalpa.olivia.model.QueryAttr;
 import kr.co.kalpa.olivia.model.openapi.holiday.ApiErrorResponse;
 import kr.co.kalpa.olivia.model.openapi.holiday.Division24ApiItems;
 import kr.co.kalpa.olivia.model.openapi.holiday.Division24ApiResponse;
@@ -311,6 +312,16 @@ public class ScheduleService {
             
             repository.insertLunarCalendar(lunarCalender);
         }
+	}
+
+	/**
+	 * 달력에 표시한 Holiday, 24절기, schedule정보를 가져온다.
+	 * 
+	 * @param qa
+	 * @return
+	 */
+	public List<SpecialDay> calendarSchedules(QueryAttr qa) {
+		return repository.calendarSchedules(qa);
 	}
 
 	

@@ -4,9 +4,9 @@
 
 <mapper namespace="kr.co.kalpa.olivia.repository.ScheduleRepository">
    
-    <select id="selectSchedule" resultType="Schedule" parameterType="Long">
+    <select id="selectSchedule" resultType="Schedule">
         <![CDATA[
-        /** select
+        /** selectSchedule : 스케줄리스트를 리턴*/
         SELECT 
         	  lunar_or_solar AS lunarOrSolar
         	, repeat_option AS repeatOption
@@ -22,7 +22,13 @@
 		END        
         ]]>
     </select>
-
+	
+	<insert id="insertSchedule" parameterType="Schedule">
+        INSERT INTO public.schedule
+        (lunar_or_solar, repeat_option, ymd, "content", created_by, created_on)
+        VALUES
+        (#{lunarOrSolar}, #{repeatOption}, #{ymd}, #{content}, #{createdBy}, CURRENT_TIMESTAMP)	
+	</insert>
     <!-- Update a schedule -->
     <update id="updateSchedule" parameterType="Schedule">
         <![CDATA[
@@ -106,6 +112,42 @@
 		ON CONFLICT (solar_ymd) 
 		DO UPDATE SET lunar_ymd = EXCLUDED.lunar_ymd;
     </update>
+
+    
+    <select id="calendarSchedules" parameterType="QueryAttr" resultType="SpecialDay">
+    	/* 
+    		달력에 필요한 holiday정보, division24정보, 사용자 schedule정보를 가져온다 
+    	*/
+		WITH scheduleList AS (
+		SELECT 
+			lunar_or_solar ,
+			repeat_option,
+			CASE repeat_option 
+				WHEN 'S' THEN ymd 
+				WHEN 'M' THEN concat(substring(#{startYmd},1,6),ymd)
+				WHEN 'Y' THEN concat(substring(#{startYmd},1,4),ymd)
+			END ymd1,
+			"content" 
+		FROM public.schedule A 
+		)
+		SELECT 
+		'S' AS dateKind
+		, B.solar_ymd  AS locDate 
+		,A.CONTENT AS dateName
+		FROM 
+			scheduleList A LEFT OUTER JOIN lunar_calendar B ON 
+			CASE A.lunar_or_solar WHEN 'M' THEN A.ymd1 = B.lunar_ymd ELSE A.ymd1 = B.solar_ymd END
+		WHERE 
+			B.solar_ymd BETWEEN #{startYmd} AND #{endYmd}
+		UNION 
+		SELECT 
+		 CASE date_kind WHEN '01' THEN 'H' ELSE 'D' END AS dateKind,
+		 loc_date AS locDate,
+		 date_name AS dateName
+		FROM special_day  
+		WHERE 
+		  loc_date  BETWEEN #{startYmd} AND #{endYmd}
+    </select>
 
 	
 </mapper>

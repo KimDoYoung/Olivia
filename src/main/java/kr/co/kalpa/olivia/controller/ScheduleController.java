@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import kr.co.kalpa.olivia.model.JsonData;
+import kr.co.kalpa.olivia.model.QueryAttr;
 import kr.co.kalpa.olivia.model.schedule.Schedule;
 import kr.co.kalpa.olivia.model.schedule.SpecialDay;
 import kr.co.kalpa.olivia.service.ScheduleService;
@@ -121,4 +123,29 @@ public class ScheduleController extends BaseController {
 		}
 		return jsonData.toJson();
 	}
+	
+	@ResponseBody
+	@GetMapping("openApi/calednar_schedule")
+	public String calendar_schedules(@RequestParam(value="startYmd", required=true) String startYmd, 
+			@RequestParam(value="endYmd", required=true) String endYmd) {
+		
+		log.debug("*****************************************");
+		log.debug(" 달력에 필요한 스케줄 및 기타정보 를 채운다.");
+		log.debug("*****************************************");
+		JsonData jsonData = new JsonData();
+		try {
+			QueryAttr qa = new QueryAttr();
+			qa.put("startYmd", startYmd);
+			qa.put("endYmd", endYmd);
+			List<SpecialDay> list = service.calendarSchedules(qa);
+			jsonData.put("list", list);
+			jsonData.put("result", "OK");
+		} catch (Exception e) {
+			jsonData.put("result", "NK");
+			e.printStackTrace();
+			log.error(e.getMessage());
+		}
+		return jsonData.toJson();
+	}
+	
 }

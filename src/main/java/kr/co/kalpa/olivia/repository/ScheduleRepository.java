@@ -2,6 +2,7 @@ package kr.co.kalpa.olivia.repository;
 
 import java.util.List;
 
+import kr.co.kalpa.olivia.model.QueryAttr;
 import kr.co.kalpa.olivia.model.schedule.LunarCalendar;
 import kr.co.kalpa.olivia.model.schedule.Schedule;
 import kr.co.kalpa.olivia.model.schedule.SpecialDay;
@@ -17,4 +18,6 @@ public interface ScheduleRepository {
 	public List<SpecialDay> selectAllSpecialDays();
 
 	public void insertLunarCalendar(LunarCalendar lunarCalender);
+
+	public List<SpecialDay> calendarSchedules(QueryAttr qa);
 }
