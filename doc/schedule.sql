@@ -51,11 +51,19 @@ COMMENT ON COLUMN special_day.created_on IS '생성일시';
 
 -- public.lunar_calendar 양력,음력
 
+-- public.lunar_calendar
+
+-- Drop table
+
 DROP TABLE public.lunar_calendar;
 
 CREATE TABLE public.lunar_calendar (
-	sol_ymd varchar(8) NOT NULL,
+	solar_ymd varchar(8) NOT NULL,
 	lunar_ymd varchar(8) NOT NULL,
-	CONSTRAINT lunar_calendar_pkey PRIMARY KEY (sol_ymd)
+	CONSTRAINT lunar_calendar_pkey PRIMARY KEY (solar_ymd)
 );
 
+
+SELECT * FROM public.lunar_calendar lc ;
+SELECT * FROM public.schedule s ;
+SELECT * FROM public.special_day sd ;
