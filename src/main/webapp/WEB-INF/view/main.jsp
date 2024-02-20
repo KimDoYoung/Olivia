@@ -21,6 +21,7 @@
 <ul>
 	<li>게시판에 검색어 넣기</li>
 	<li>페이징처리</li>
+	<a href="/websocket/purejava/alram">순수자바 websocket</a>
 </ul>
 </main>
 <!-- =================================================== -->

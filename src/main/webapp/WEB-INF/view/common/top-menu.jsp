@@ -45,7 +45,11 @@ header.sticky {
 <!-- 				  <li><hr class="dropdown-divider"></li> -->
 <!-- 				  <li><a class="dropdown-item" href="#">Something else here</a></li> -->
 				</ul>
-			</li>	        
+			</li>
+			<li class="nav-item">
+	          <a class="nav-link text-white" aria-current="page" href="/alram?msg=TEST">alram</a>
+	        </li>
+				        
 	       </ul>
 	     </div>
          <div  class="d-flex">

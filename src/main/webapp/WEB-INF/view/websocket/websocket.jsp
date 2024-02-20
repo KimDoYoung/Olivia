@@ -125,9 +125,13 @@ function reconnectWebSocket() {
 function showMessageOutput(messageOutput) {
 	console.debug(messageOutput);
     var message = messageOutput.sender + ": " + messageOutput.content;
-    $("#toastSystemAlram .toast-body").html(message);
-    var toast = new bootstrap.Toast(document.getElementById('toastSystemAlram'));
-    toast.show();
+//     $("#toastSystemAlram .toast-body").html(message);
+//     var toast = new bootstrap.Toast(document.getElementById('toastSystemAlram'));
+//     toast.show();
+    var notification = new Notification("새로운 알림", {
+	      	body: message, // 실제 메시지 내용으로 교체
+     		icon: "/image/alram.png" // 알림에 표시할 아이콘 (선택 사항)
+   	});
 }   
 
 </script>	

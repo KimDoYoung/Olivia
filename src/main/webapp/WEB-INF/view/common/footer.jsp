@@ -19,6 +19,7 @@
         <p class="text-white mt-2">wait...</p>
     </div>
 </div>
+<div id="alram"></div>
 <!-- 스크롤이 top으로 보내는 버튼 -->
 <div id="scroll-box" class="d-none" >
 <a id="scroll-to-left" href="#" class="btn btn-light btn-lg border border-secondary opacity-50 me-1 back-to-top" role="button"><i class="bi bi-chevron-left"></i></a>
@@ -26,7 +27,38 @@
 </div>
 <script>
 $(document).ready(function(){
+
+//     var eventSource = new EventSource("/alram");
+//     eventSource.onmessage = function(event) {
+//         // 서버로부터 수신한 메시지 처리
+//          var text = $('#alram').html();
+//     	 $('#alram').append('<div>'+event.data+'</div>');
+//     };
+    connectWebSocket();
 });
+function connectWebSocket() {
+    socket = new WebSocket("ws://localhost:8080/alram");
+
+    socket.onopen = function(event) {
+        console.log("Connected to WebSocket server");
+    };
+
+    socket.onmessage = function(data) {
+    	$('#alram').append('<div>'+data+'</div>');
+    };
+
+    socket.onclose = function(event) {
+        console.log("WebSocket connection closed");
+        // 재연결 시도
+        setTimeout(function() {
+            reconnectWebSocket();
+        }, reconnectInterval);
+    };
+
+    socket.onerror = function(error) {
+        console.error("WebSocket error: ", error);
+    };
+} 
 </script>
 <!--  popperjs, bootstrap  -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
